@@ -70,7 +70,7 @@ export function useCadastrosDiretosPendentes() {
         .from('casas')
         .select(
           `id, slug, nome, sacerdote_nome, tradicao_principal, cidade, estado,
-           bairro, fonte, status, criada_por, created_at`,
+           bairro, fonte, status, criada_por, canal_validacao, created_at`,
         )
         .eq('status', 'pendente')
         .eq('fonte', 'proprio')

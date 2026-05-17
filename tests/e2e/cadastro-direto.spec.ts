@@ -74,6 +74,9 @@ test.describe('cadastro direto pela dirigência', () => {
     const main = pDir.getByRole('main');
     await main.getByLabel('Nome da casa').fill(NOME_CASA);
     await main.getByLabel('Tradição principal').selectOption('umbanda');
+    await main
+      .getByLabel(/Como podemos validar/i)
+      .fill('Instagram da casa @cadastro-e2e — DM pra Mãe Tester');
     await main.getByRole('button', { name: 'Próximo' }).click();
 
     // Passo 2 — endereço
@@ -111,7 +114,9 @@ test.describe('cadastro direto pela dirigência', () => {
     await expect(lista).toBeVisible();
     const item = lista.getByRole('listitem').filter({ hasText: NOME_CASA });
     await expect(item).toBeVisible();
-    await item.getByRole('button', { name: /Aprovar e publicar/ }).click();
+    // Admin vê o canal de validação destacado
+    await expect(item.getByText(/Instagram da casa @cadastro-e2e/i)).toBeVisible();
+    await item.getByRole('button', { name: /Validei dirigência/ }).click();
     await expect(item).toBeHidden({ timeout: 10_000 });
     await cAdm.close();
 

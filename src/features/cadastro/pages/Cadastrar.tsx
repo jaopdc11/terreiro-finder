@@ -60,6 +60,23 @@ export function Cadastrar() {
         verificada e você vira dirigente principal.
       </p>
 
+      <aside
+        role="note"
+        className="mt-4 rounded-md border border-dashed border-primary bg-primary/5 p-4 text-sm"
+      >
+        <p className="font-medium text-primary">
+          Você está afirmando ser dirigente desta casa.
+        </p>
+        <p className="mt-1 text-foreground/80">
+          Se você só conhece a casa mas não é da dirigência, volta e usa{' '}
+          <Link to="/indicar" className="underline">
+            Indicar uma casa
+          </Link>{' '}
+          — esse fluxo é o certo pra quem quer compartilhar uma casa sem ser
+          da dirigência. Aqui, vamos contatar a casa antes de aprovar.
+        </p>
+      </aside>
+
       <ol
         className="mt-6 flex items-center gap-2 text-sm"
         aria-label="Progresso do cadastro"

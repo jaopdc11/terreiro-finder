@@ -18,7 +18,8 @@ const CAMPOS_SELECT = `
   aceita_visitantes, foto_registro,
   whatsapp, telefone, email_contato,
   texto_antes_visita,
-  created_at, updated_at, aprovada_em, aprovada_por, criada_por
+  created_at, updated_at, aprovada_em, aprovada_por, criada_por,
+  canal_validacao
 `.trim();
 
 /**
@@ -52,6 +53,9 @@ export interface NovaCasaDeDirigencia {
   whatsapp: string | null;
   telefone: string | null;
   email_contato: string | null;
+
+  /** Canal pelo qual o admin valida a dirigência antes de aprovar. */
+  canal_validacao: string;
 }
 
 export class CasasRepository {

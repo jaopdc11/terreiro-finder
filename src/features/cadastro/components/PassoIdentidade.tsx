@@ -79,6 +79,30 @@ export function PassoIdentidade({ inicial, onAvancar }: Props) {
         ) : null}
       </div>
 
+      <div className="space-y-1">
+        <Label htmlFor="c-validacao">Como podemos validar sua dirigência?</Label>
+        <textarea
+          id="c-validacao"
+          rows={3}
+          {...register('canal_validacao')}
+          aria-invalid={!!errors.canal_validacao}
+          placeholder={
+            'Ex.: "Instagram oficial da casa @minhacasa", "telefone fixo do espaço (47) 3344-0000 — você pode ligar e perguntar pela Mãe Maria", "comprovante via WhatsApp +55 47 9XXXX-XXXX"'
+          }
+          className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+        />
+        <p className="text-xs text-muted-foreground">
+          A gente contata por esse canal antes de aprovar — só assim a casa
+          sai <strong>verificada</strong>. Sem prova externa de dirigência,
+          o cadastro vira indicação comum.
+        </p>
+        {errors.canal_validacao ? (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.canal_validacao.message}
+          </p>
+        ) : null}
+      </div>
+
       <div className="flex justify-end">
         <Button type="submit">Próximo</Button>
       </div>

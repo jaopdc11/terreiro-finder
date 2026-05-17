@@ -35,6 +35,7 @@ function payloadBase(nome: string): NovaCasaDeDirigencia {
     whatsapp: '47999000000',
     telefone: null,
     email_contato: null,
+    canal_validacao: 'Instagram da casa @teste-cadastro',
   };
 }
 

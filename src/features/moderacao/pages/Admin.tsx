@@ -337,6 +337,7 @@ type CasaCadastroDireto = {
   estado: string;
   bairro: string | null;
   criada_por: string | null;
+  canal_validacao: string | null;
   created_at: string;
   criador: PerfilJoin | PerfilJoin[] | null;
 };
@@ -386,9 +387,28 @@ function CadastrosDiretos() {
             <strong>Cadastrado por:</strong> {nomeCriador(c.criador)}
             {c.sacerdote_nome ? <> · <strong>Sacerdote:</strong> {c.sacerdote_nome}</> : null}
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Aprovar vincula essa pessoa como dirigência principal e publica a
-            casa <strong>verificada</strong>.
+
+          {c.canal_validacao ? (
+            <div className="mt-3 rounded-md bg-muted/50 p-3 text-sm">
+              <p className="font-medium text-foreground">
+                Como validar a dirigência (contato cruzado):
+              </p>
+              <p className="mt-1 whitespace-pre-line text-foreground/90">
+                {c.canal_validacao}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-destructive">
+              Sem canal de validação informado — recuse ou contate o cadastrante
+              direto via email do perfil.
+            </p>
+          )}
+
+          <p className="mt-3 text-sm text-muted-foreground">
+            <strong>Atenção:</strong> só clique abaixo depois de contatar pelo
+            canal acima e confirmar que essa pessoa é da dirigência. Aprovar
+            vincula como dirigente principal e publica a casa{' '}
+            <strong>verificada</strong>.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button
@@ -396,7 +416,7 @@ function CadastrosDiretos() {
               disabled={aprovar.isPending}
               onClick={() => aprovar.mutate(c.id)}
             >
-              Aprovar e publicar
+              Validei dirigência — publicar
             </Button>
             <Button
               variant="outline"

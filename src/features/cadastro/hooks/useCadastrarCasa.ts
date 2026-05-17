@@ -64,6 +64,7 @@ export function useCadastrarCasa() {
         whatsapp: input.whatsapp ?? null,
         telefone: input.telefone ?? null,
         email_contato: input.email_contato ?? null,
+        canal_validacao: input.canal_validacao,
       };
 
       return repo.criarComoDirigencia(payload, sess.userId);

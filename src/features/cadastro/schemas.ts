@@ -9,12 +9,19 @@ import {
 const opcional = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((v) => (typeof v === 'string' && v.trim().length === 0 ? undefined : v), schema.optional());
 
-/** Passo 1 — quem é a casa. */
+/** Passo 1 — quem é a casa + como validar a dirigência. */
 export const passoIdentidadeSchema = z.object({
   nome: z.string().trim().min(2, 'Diz o nome da casa'),
   sacerdote_nome: opcional(z.string().trim().min(2, 'Nome muito curto')),
   tradicao_principal: tradicaoPrincipalSchema,
   descricao: opcional(z.string().trim().min(10, 'Conta um pouco mais — ao menos 10 caracteres')),
+  canal_validacao: z
+    .string()
+    .trim()
+    .min(
+      5,
+      'Conta um pouco mais — pelo menos 5 caracteres. Ex.: "Instagram da casa @meucasa", "telefone fixo do espaço (47) 3344-0000", "comprovante via WhatsApp".',
+    ),
 });
 
 /** Passo 2 — endereço. Bairro/cidade/estado obrigatórios pro mapa. */
@@ -53,9 +60,7 @@ export const passoAberturaContatoSchema = z
   );
 
 /** Schema completo (depois do wizard). É o que vai pro repository. */
-export const novaCasaDeProprioSchema = z
-  .object({})
-  .merge(passoIdentidadeSchema)
+export const novaCasaDeProprioSchema = passoIdentidadeSchema
   .merge(passoEnderecoSchema)
   .merge(
     z.object({
