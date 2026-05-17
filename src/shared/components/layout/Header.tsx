@@ -1,18 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { useServices } from '@/shared/hooks/useServices';
 
 export function Header() {
   const { sessao, auth } = useServices();
   const estado = sessao.use((s) => s);
+  const navigate = useNavigate();
 
-  const sair = async () => {
-    try {
-      await auth.logout();
-    } catch {
-      // Logout falhou no servidor mas seguimos limpando local.
-    }
+  /**
+   * Zera o estado local IMEDIATAMENTE pra UI responder. O logout no
+   * supabase-js roda em background — se falhar, o estado local já foi
+   * limpo, então o usuário só precisa relogar.
+   */
+  const sair = () => {
     sessao.sair();
+    void auth.logout().catch(() => {});
+    navigate('/');
   };
 
   return (
@@ -50,7 +53,7 @@ export function Header() {
               <span className="hidden text-sm text-muted-foreground md:inline">
                 Salve, {estado.sessao.nomeExibicao}
               </span>
-              <Button variant="ghost" size="sm" onClick={() => void sair()}>
+              <Button variant="ghost" size="sm" onClick={sair}>
                 Sair
               </Button>
             </>

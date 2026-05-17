@@ -53,8 +53,14 @@ export class AuthService {
     return this.montarSessao(data.user.id, data.user.email ?? payload.email);
   }
 
+  /**
+   * Logout local — limpa apenas o storage do supabase-js, sem POST /logout.
+   * O "global" default pode pendurar a Promise se o servidor demora ou está
+   * offline; pra UX da web não vale esperar. O refresh token "vivo" no
+   * servidor expira sozinho (sessão dura 1h por padrão).
+   */
   async logout(): Promise<void> {
-    const { error } = await this.client.auth.signOut();
+    const { error } = await this.client.auth.signOut({ scope: 'local' });
     if (error) {
       throw new ServiceError('AUTH_LOGOUT_FALHOU', error.message, { cause: error });
     }
