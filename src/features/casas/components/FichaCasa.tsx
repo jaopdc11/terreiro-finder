@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Casa } from '../domain/Casa';
 import { BadgesAbertura } from './BadgesAbertura';
+import { BotaoFavorito } from '@/features/favoritos/components/BotaoFavorito';
 
 const TRADICAO_LABEL: Record<string, string> = {
   umbanda: 'Umbanda',
@@ -55,7 +56,10 @@ export function FichaCasa({ casa }: { casa: Casa }) {
         {casa.sacerdoteNome ? (
           <p className="text-lg text-foreground/80">com {casa.sacerdoteNome}</p>
         ) : null}
-        <BadgesAbertura casa={casa} />
+        <div className="flex flex-wrap items-center gap-3">
+          <BadgesAbertura casa={casa} />
+          <BotaoFavorito casaId={casa.id} />
+        </div>
       </header>
 
       {casa.textoAntesVisita ? (
