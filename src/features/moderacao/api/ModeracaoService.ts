@@ -86,6 +86,61 @@ export class ModeracaoService {
     await this.indicacoes.marcarRecusada(indicacaoId, motivo.trim(), admin.userId);
   }
 
+  /**
+   * Aprova um cadastro direto: lê quem criou (casas.criada_por), vincula
+   * essa pessoa em casa_dirigentes como principal, e torna a casa pública.
+   * A partir daqui Casa.estaVerificada() = true (fonte='proprio' + aprovada).
+   *
+   * Sem transação SQL: se vincular sucesso e aprovar falha, casa fica
+   * pendente com dirigente vinculado. Admin reaplica → idempotente.
+   */
+  async aprovarCadastroDireto(
+    casaId: string,
+    admin: { userId: string },
+  ): Promise<void> {
+    const casa = await this.casas.findById(casaId);
+    if (!casa) {
+      throw new ServiceError('MOD_CASA_NAO_ENCONTRADA', `Casa ${casaId} não existe`);
+    }
+    if (casa.status !== 'pendente' || casa.fonte !== 'proprio') {
+      throw new ServiceError(
+        'MOD_CASA_NAO_ELEGIVEL',
+        'Casa não está em cadastro direto pendente',
+      );
+    }
+    if (!casa.criadaPor) {
+      throw new ServiceError(
+        'MOD_CASA_SEM_CRIADOR',
+        'Cadastro sem criador rastreado — não dá pra vincular dirigência',
+      );
+    }
+
+    await this.casas.vincularDirigente(casa.id, casa.criadaPor, 'principal');
+    await this.casas.aprovarCasaPendente(casa.id, admin);
+  }
+
+  /**
+   * Recusa um cadastro direto. Status vira 'recusada'; motivo não é
+   * persistido no MVP (coluna `motivo_recusa` em `casas` não existe ainda
+   * — fica como débito da Fase 5).
+   */
+  async recusarCadastroDireto(
+    casaId: string,
+    admin: { userId: string },
+  ): Promise<void> {
+    const casa = await this.casas.findById(casaId);
+    if (!casa) {
+      throw new ServiceError('MOD_CASA_NAO_ENCONTRADA', `Casa ${casaId} não existe`);
+    }
+    if (casa.status !== 'pendente' || casa.fonte !== 'proprio') {
+      throw new ServiceError(
+        'MOD_CASA_NAO_ELEGIVEL',
+        'Casa não está em cadastro direto pendente',
+      );
+    }
+    await this.casas.recusarCasaPendente(casaId, admin);
+  }
+
   async aprovarReivindicacao(
     reivindicacaoId: string,
     admin: { userId: string },

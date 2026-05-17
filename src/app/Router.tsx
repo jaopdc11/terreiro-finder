@@ -13,6 +13,7 @@ import { Indicar } from '@/features/indicacao/pages/Indicar';
 import { Admin } from '@/features/moderacao/pages/Admin';
 import { Reivindicar } from '@/features/painel/pages/Reivindicar';
 import { Painel } from '@/features/painel/pages/Painel';
+import { Cadastrar } from '@/features/cadastro/pages/Cadastrar';
 import { Protegido } from './guards/Protegido';
 
 export function Router() {
@@ -49,6 +50,14 @@ export function Router() {
             element={
               <Protegido>
                 <Painel />
+              </Protegido>
+            }
+          />
+          <Route
+            path="/cadastrar"
+            element={
+              <Protegido>
+                <Cadastrar />
               </Protegido>
             }
           />

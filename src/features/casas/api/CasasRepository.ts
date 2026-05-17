@@ -4,6 +4,12 @@ import { Casa } from '../domain/Casa';
 import { Slug } from '../domain/Slug';
 import type { FiltrosBusca } from '@/features/busca/domain/FiltrosBusca';
 import type { NovaCasaDeIndicacao } from '@/features/indicacao/domain/Indicacao';
+import type {
+  AceitaVisitantes,
+  EnderecoVisibilidade,
+  FotoRegistro,
+} from '../domain/PerfilAbertura';
+import type { TradicaoPrincipal } from '../schemas';
 
 const CAMPOS_SELECT = `
   id, slug, nome, descricao, sacerdote_nome, tradicao_principal, status, fonte,
@@ -12,8 +18,41 @@ const CAMPOS_SELECT = `
   aceita_visitantes, foto_registro,
   whatsapp, telefone, email_contato,
   texto_antes_visita,
-  created_at, updated_at, aprovada_em, aprovada_por
+  created_at, updated_at, aprovada_em, aprovada_por, criada_por
 `.trim();
+
+/**
+ * Payload pra criar uma casa cadastrada diretamente pela dirigência.
+ * Inclui todos os campos editáveis no wizard; o repository preenche slug
+ * via cascata e o ModeracaoService cuida da aprovação.
+ */
+export interface NovaCasaDeDirigencia {
+  nome: string;
+  sacerdote_nome: string | null;
+  tradicao_principal: TradicaoPrincipal;
+  descricao: string | null;
+  texto_antes_visita: string | null;
+
+  logradouro: string | null;
+  numero: string | null;
+  complemento: string | null;
+  bairro: string | null;
+  cidade: string;
+  estado: string;
+  cep: string | null;
+  coord_lat: number | null;
+  coord_lng: number | null;
+
+  status: 'pendente';
+  fonte: 'proprio';
+  endereco_visibilidade: EnderecoVisibilidade;
+  aceita_visitantes: AceitaVisitantes;
+  foto_registro: FotoRegistro;
+
+  whatsapp: string | null;
+  telefone: string | null;
+  email_contato: string | null;
+}
 
 export class CasasRepository {
   constructor(private readonly client: SupabaseClient) {}
@@ -86,6 +125,49 @@ export class CasasRepository {
   }
 
   /**
+   * Cria casa cadastrada DIRETAMENTE pela dirigência (fonte='proprio').
+   * Diferente da indicação, registra `criada_por` pra o admin saber quem
+   * é o dirigente a vincular na aprovação. Nasce pendente; vira aprovada
+   * em UMA etapa (sem contato cruzado — quem está pedindo é a própria
+   * dirigência).
+   */
+  async criarComoDirigencia(
+    payload: NovaCasaDeDirigencia,
+    criadaPor: string,
+  ): Promise<string> {
+    const slugFinal = await this.resolverSlugDisponivel(payload.nome, payload.bairro);
+    const { data, error } = await this.client
+      .from('casas')
+      .insert({ ...payload, slug: slugFinal, criada_por: criadaPor })
+      .select('id')
+      .single();
+    if (error || !data) {
+      throw new RepositoryError(
+        'CASA_CRIAR_COMO_DIRIGENCIA_FALHOU',
+        error?.message ?? 'sem id',
+        { cause: error },
+      );
+    }
+    return data.id as string;
+  }
+
+  /**
+   * Busca casa pelo id, sem filtrar status. Usado pelo ModeracaoService
+   * pra ler casa pendente antes de aprovar. RLS exige admin OR dirigente.
+   */
+  async findById(casaId: string): Promise<Casa | null> {
+    const { data, error } = await this.client
+      .from('casas')
+      .select(CAMPOS_SELECT)
+      .eq('id', casaId)
+      .maybeSingle();
+    if (error) {
+      throw new RepositoryError('CASA_FIND_BY_ID_FALHOU', error.message, { cause: error });
+    }
+    return data ? Casa.fromRow(data) : null;
+  }
+
+  /**
    * Grava coordenadas numa casa. Usado pelo ModeracaoService quando o
    * geocoding "best-effort" pelo bairro/cidade da indicação tem sucesso.
    */
@@ -98,6 +180,24 @@ export class CasasRepository {
       throw new RepositoryError('CASA_ATUALIZAR_COORDS_FALHOU', error.message, {
         cause: error,
       });
+    }
+  }
+
+  /**
+   * Marca casa pendente como recusada. Status vai pra 'recusada'; sem
+   * motivo persistido nesta versão (débito Fase 5).
+   */
+  async recusarCasaPendente(casaId: string, admin: { userId: string }): Promise<void> {
+    const { error } = await this.client
+      .from('casas')
+      .update({
+        status: 'recusada',
+        aprovada_por: admin.userId,
+        aprovada_em: new Date().toISOString(),
+      })
+      .eq('id', casaId);
+    if (error) {
+      throw new RepositoryError('CASA_RECUSAR_FALHOU', error.message, { cause: error });
     }
   }
 

@@ -41,6 +41,7 @@ export class Casa {
     readonly updatedAt: Date,
     readonly aprovadaEm: Date | null,
     readonly aprovadaPor: string | null,
+    readonly criadaPor: string | null,
   ) {}
 
   static fromRow(raw: unknown): Casa {
@@ -84,6 +85,7 @@ export class Casa {
       new Date(row.updated_at),
       row.aprovada_em ? new Date(row.aprovada_em) : null,
       row.aprovada_por,
+      row.criada_por ?? null,
     );
   }
 

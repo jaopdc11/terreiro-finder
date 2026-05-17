@@ -1,17 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { useServices } from '@/shared/hooks/useServices';
+import { useMinhasCasas } from '@/features/painel/hooks/usePainel';
 
 export function Header() {
   const { sessao, auth } = useServices();
   const estado = sessao.use((s) => s);
   const navigate = useNavigate();
+  // Só renderiza o link "Cadastrar minha casa" quando o user logado ainda não
+  // tem nenhuma casa vinculada — evita ruído pra quem já é dirigente.
+  const { data: minhasCasas } = useMinhasCasas();
+  const mostrarCadastrar = !!estado.sessao && (minhasCasas?.length ?? 0) === 0;
 
-  /**
-   * Zera o estado local IMEDIATAMENTE pra UI responder. O logout no
-   * supabase-js roda em background — se falhar, o estado local já foi
-   * limpo, então o usuário só precisa relogar.
-   */
   const sair = () => {
     sessao.sair();
     void auth.logout().catch(() => {});
@@ -32,6 +32,11 @@ export function Header() {
           <Link to="/indicar" className="hover:text-primary">
             Indicar uma casa
           </Link>
+          {mostrarCadastrar ? (
+            <Link to="/cadastrar" className="hover:text-primary">
+              Cadastrar minha casa
+            </Link>
+          ) : null}
           {estado.sessao ? (
             <Link to="/painel" className="hover:text-primary">
               Meu painel

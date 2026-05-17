@@ -2,17 +2,20 @@ import { useState } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import {
+  useAprovarCadastroDireto,
   useAprovarIndicacao,
   useAprovarReivindicacao,
+  useCadastrosDiretosPendentes,
   useCasasPendentesDeConsentimento,
   useConfirmarConsentimento,
   useIndicacoesPendentes,
+  useRecusarCadastroDireto,
   useRecusarIndicacao,
   useRecusarReivindicacao,
   useReivindicacoesPendentes,
 } from '../hooks/useFilaModeracao';
 
-type Aba = 'passo-1' | 'passo-2' | 'reivindicacoes';
+type Aba = 'passo-1' | 'passo-2' | 'reivindicacoes' | 'cadastros';
 
 export function Admin() {
   const [aba, setAba] = useState<Aba>('passo-1');
@@ -39,12 +42,19 @@ export function Admin() {
         >
           Reivindicações
         </TabButton>
+        <TabButton
+          ativo={aba === 'cadastros'}
+          onClick={() => setAba('cadastros')}
+        >
+          Cadastros novos
+        </TabButton>
       </div>
 
       <div className="mt-6">
         {aba === 'passo-1' ? <Passo1 /> : null}
         {aba === 'passo-2' ? <Passo2 /> : null}
         {aba === 'reivindicacoes' ? <Reivindicacoes /> : null}
+        {aba === 'cadastros' ? <CadastrosDiretos /> : null}
       </div>
     </section>
   );
@@ -312,6 +322,93 @@ function Reivindicacoes() {
           </li>
         );
       })}
+    </ul>
+  );
+}
+
+type PerfilJoin = { nome_exibicao: string | null; nome_completo: string | null };
+type CasaCadastroDireto = {
+  id: string;
+  slug: string;
+  nome: string;
+  sacerdote_nome: string | null;
+  tradicao_principal: string;
+  cidade: string;
+  estado: string;
+  bairro: string | null;
+  criada_por: string | null;
+  created_at: string;
+  criador: PerfilJoin | PerfilJoin[] | null;
+};
+
+function nomeCriador(p: PerfilJoin | PerfilJoin[] | null): string {
+  if (!p) return "—";
+  const obj = Array.isArray(p) ? (p[0] ?? null) : p;
+  return obj?.nome_exibicao ?? obj?.nome_completo ?? "—";
+}
+
+function CadastrosDiretos() {
+  const { data, isLoading } = useCadastrosDiretosPendentes();
+  const aprovar = useAprovarCadastroDireto();
+  const recusar = useRecusarCadastroDireto();
+
+  if (isLoading) return <p className="text-muted-foreground">Carregando…</p>;
+  const itens = (data ?? []) as unknown as CasaCadastroDireto[];
+  if (itens.length === 0) {
+    return (
+      <p className="text-muted-foreground">
+        Nenhum cadastro direto pendente. Quando alguém usar o /cadastrar,
+        aparece aqui.
+      </p>
+    );
+  }
+
+  const confirmarRecusa = (id: string) => {
+    if (window.confirm("Recusar este cadastro? A casa fica com status \"recusada\".")) {
+      recusar.mutate(id);
+    }
+  };
+
+  return (
+    <ul className="space-y-3" data-testid="lista-cadastros-pendentes">
+      {itens.map((c) => (
+        <li key={c.id} className="rounded-lg border border-border bg-card p-4">
+          <header className="flex items-baseline justify-between gap-3">
+            <h2 className="font-display text-lg">{c.nome}</h2>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {c.tradicao_principal}
+            </span>
+          </header>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {c.bairro ? `${c.bairro}, ` : ""}{c.cidade}/{c.estado}
+          </p>
+          <p className="mt-2 text-sm">
+            <strong>Cadastrado por:</strong> {nomeCriador(c.criador)}
+            {c.sacerdote_nome ? <> · <strong>Sacerdote:</strong> {c.sacerdote_nome}</> : null}
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Aprovar vincula essa pessoa como dirigência principal e publica a
+            casa <strong>verificada</strong>.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              disabled={aprovar.isPending}
+              onClick={() => aprovar.mutate(c.id)}
+            >
+              Aprovar e publicar
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={recusar.isPending}
+              onClick={() => confirmarRecusa(c.id)}
+            >
+              Recusar
+            </Button>
+          </div>
+        </li>
+      ))}
     </ul>
   );
 }
