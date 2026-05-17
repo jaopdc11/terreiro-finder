@@ -1,6 +1,7 @@
 import { ServiceError } from '@/shared/lib/errors';
 import type {
   CasasPainelRepository,
+  EnderecoCasaInput,
   PerfilCasaInput,
 } from '@/features/casas/api/CasasPainelRepository';
 import type { CasaUmbandaRepository } from '@/features/casas/api/CasaUmbandaRepository';
@@ -27,6 +28,22 @@ export class PainelService {
 
   async salvarAbertura(casaId: string, perfil: PerfilAbertura): Promise<void> {
     await this.casas.atualizarAbertura(casaId, perfil);
+  }
+
+  async salvarEndereco(casaId: string, input: EnderecoCasaInput): Promise<void> {
+    if (!input.cidade.trim() || !input.estado.trim()) {
+      throw new ServiceError(
+        'PAINEL_ENDERECO_OBRIGATORIO',
+        'Cidade e estado são obrigatórios.',
+      );
+    }
+    if ((input.coordLat == null) !== (input.coordLng == null)) {
+      throw new ServiceError(
+        'PAINEL_COORDS_PARCIAIS',
+        'Informe latitude E longitude — ou deixe ambas em branco.',
+      );
+    }
+    await this.casas.atualizarEndereco(casaId, input);
   }
 
   /** Salva o bloco específico da tradição. Por ora só Umbanda no MVP. */

@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useServices } from '@/shared/hooks/useServices';
-import { CasasPainelRepository, type PerfilCasaInput } from '@/features/casas/api/CasasPainelRepository';
+import {
+  CasasPainelRepository,
+  type EnderecoCasaInput,
+  type PerfilCasaInput,
+} from '@/features/casas/api/CasasPainelRepository';
+import { GeocodingService } from '@/shared/lib/GeocodingService';
 import { CasaUmbandaRepository } from '@/features/casas/api/CasaUmbandaRepository';
 import type { BlocoUmbandaInput } from '@/features/casas/domain/BlocoUmbanda';
 import type { PerfilAbertura } from '@/features/casas/domain/PerfilAbertura';
@@ -56,6 +61,25 @@ export function useSalvarPerfil(casaId: string) {
   return useMutation({
     mutationFn: (input: PerfilCasaInput) => svc.salvarPerfil(casaId, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: qkCasa(casaId) }),
+  });
+}
+
+export function useSalvarEndereco(casaId: string) {
+  const qc = useQueryClient();
+  const { svc } = useRepos();
+  return useMutation({
+    mutationFn: (input: EnderecoCasaInput) => svc.salvarEndereco(casaId, input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qkCasa(casaId) });
+      qc.invalidateQueries({ queryKey: ['casas'] });
+    },
+  });
+}
+
+export function useGeocodarEndereco() {
+  const geo = useMemo(() => new GeocodingService(), []);
+  return useMutation({
+    mutationFn: (consulta: string) => geo.buscar(consulta),
   });
 }
 

@@ -4,10 +4,11 @@ import { useServices } from '@/shared/hooks/useServices';
 import { useCasaDoPainel, useMinhasCasas } from '../hooks/usePainel';
 import { AbaPerfil } from '../components/AbaPerfil';
 import { AbaAbertura } from '../components/AbaAbertura';
+import { AbaEndereco } from '../components/AbaEndereco';
 import { AbaTradicaoUmbanda } from '../components/AbaTradicaoUmbanda';
 import { AbaFotos } from '../components/AbaFotos';
 
-type Aba = 'perfil' | 'tradicao' | 'fotos' | 'abertura';
+type Aba = 'perfil' | 'endereco' | 'tradicao' | 'fotos' | 'abertura';
 
 export function Painel() {
   const { sessao } = useServices();
@@ -117,6 +118,9 @@ function PainelDeCasa({
         <TabBtn ativo={aba === 'perfil'} onClick={() => setAba('perfil')}>
           Perfil
         </TabBtn>
+        <TabBtn ativo={aba === 'endereco'} onClick={() => setAba('endereco')}>
+          Endereço
+        </TabBtn>
         <TabBtn ativo={aba === 'tradicao'} onClick={() => setAba('tradicao')}>
           Tradição
         </TabBtn>
@@ -130,6 +134,7 @@ function PainelDeCasa({
 
       <div className="mt-6" data-testid="painel-aba">
         {aba === 'perfil' ? <AbaPerfil casa={casa} /> : null}
+        {aba === 'endereco' ? <AbaEndereco casa={casa} /> : null}
         {aba === 'abertura' ? <AbaAbertura casa={casa} /> : null}
         {aba === 'tradicao' ? (
           casa.tradicaoPrincipal === 'umbanda' ? (

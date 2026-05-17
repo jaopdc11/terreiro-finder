@@ -22,6 +22,18 @@ export interface PerfilCasaInput {
   emailContato: string | null;
 }
 
+export interface EnderecoCasaInput {
+  logradouro: string | null;
+  numero: string | null;
+  complemento: string | null;
+  bairro: string | null;
+  cidade: string;
+  estado: string;
+  cep: string | null;
+  coordLat: number | null;
+  coordLng: number | null;
+}
+
 /**
  * Repository das operações de painel do dirigente — separado de
  * CasasRepository pra não inflar o caso de busca pública. RLS já garante
@@ -87,6 +99,28 @@ export class CasasPainelRepository {
       .eq('id', casaId);
     if (error) {
       throw new RepositoryError('PAINEL_ATUALIZAR_PERFIL_FALHOU', error.message, {
+        cause: error,
+      });
+    }
+  }
+
+  async atualizarEndereco(casaId: string, input: EnderecoCasaInput): Promise<void> {
+    const { error } = await this.client
+      .from('casas')
+      .update({
+        logradouro: input.logradouro,
+        numero: input.numero,
+        complemento: input.complemento,
+        bairro: input.bairro,
+        cidade: input.cidade,
+        estado: input.estado,
+        cep: input.cep,
+        coord_lat: input.coordLat,
+        coord_lng: input.coordLng,
+      })
+      .eq('id', casaId);
+    if (error) {
+      throw new RepositoryError('PAINEL_ATUALIZAR_ENDERECO_FALHOU', error.message, {
         cause: error,
       });
     }

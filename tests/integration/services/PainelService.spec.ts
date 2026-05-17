@@ -145,6 +145,62 @@ describe('PainelService (integração)', () => {
     expect(data?.foto_registro).toBe('permitido');
   });
 
+  it('salvarEndereco atualiza endereço + coordenadas', async () => {
+    await svcDirigente.salvarEndereco(casaUmbandaId, {
+      logradouro: 'Rua das Cabaças',
+      numero: '42',
+      complemento: 'fundos',
+      bairro: 'Praia Brava',
+      cidade: 'Itajaí',
+      estado: 'SC',
+      cep: '88306-000',
+      coordLat: -26.9078,
+      coordLng: -48.6614,
+    });
+    const { data } = await harness.admin
+      .from('casas')
+      .select('logradouro, numero, bairro, coord_lat, coord_lng')
+      .eq('id', casaUmbandaId)
+      .single();
+    expect(data?.logradouro).toBe('Rua das Cabaças');
+    expect(data?.numero).toBe('42');
+    expect(data?.bairro).toBe('Praia Brava');
+    expect(data?.coord_lat).toBe(-26.9078);
+    expect(data?.coord_lng).toBe(-48.6614);
+  });
+
+  it('salvarEndereco rejeita coords parciais', async () => {
+    await expect(
+      svcDirigente.salvarEndereco(casaUmbandaId, {
+        logradouro: null,
+        numero: null,
+        complemento: null,
+        bairro: null,
+        cidade: 'Itajaí',
+        estado: 'SC',
+        cep: null,
+        coordLat: -26.9,
+        coordLng: null,
+      }),
+    ).rejects.toThrow(/latitude E longitude/i);
+  });
+
+  it('salvarEndereco rejeita cidade vazia', async () => {
+    await expect(
+      svcDirigente.salvarEndereco(casaUmbandaId, {
+        logradouro: null,
+        numero: null,
+        complemento: null,
+        bairro: null,
+        cidade: '   ',
+        estado: 'SC',
+        cep: null,
+        coordLat: null,
+        coordLng: null,
+      }),
+    ).rejects.toThrow(/cidade e estado/i);
+  });
+
   it('salvarBlocoUmbanda upserta bloco', async () => {
     await svcDirigente.salvarBlocoUmbanda(casaUmbandaId, {
       sincretismo: 'parcial',
