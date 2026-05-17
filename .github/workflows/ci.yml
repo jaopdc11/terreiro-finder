@@ -21,16 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # pnpm@11.1.2 exige Node>=22.13 — setup-node primeiro pra pnpm/action-setup
-      # ter o binário certo. Depois re-setup pra habilitar cache pnpm.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
+      # pnpm/action-setup@v4 roda em Node default do runner (20) e quebra
+      # com pnpm@11.1.2 (que exige >=22.13). Usamos corepack — vem com Node
+      # e respeita o "packageManager" do package.json.
+      - run: corepack enable && corepack prepare pnpm@11.1.2 --activate
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
@@ -43,11 +40,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
+      - run: corepack enable && corepack prepare pnpm@11.1.2 --activate
       - run: pnpm install --frozen-lockfile
 
       - name: Vitest unit (jsdom)
@@ -69,11 +62,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
+      - run: corepack enable && corepack prepare pnpm@11.1.2 --activate
       - run: pnpm install --frozen-lockfile
 
       - name: Instala Chromium do Playwright
