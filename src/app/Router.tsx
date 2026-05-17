@@ -7,6 +7,8 @@ import { Login } from '@/features/auth/pages/Login';
 import { Cadastro } from '@/features/auth/pages/Cadastro';
 import { RecuperarSenha } from '@/features/auth/pages/RecuperarSenha';
 import { Onboarding } from '@/features/onboarding/components/Onboarding';
+import { Buscar } from '@/features/busca/pages/Buscar';
+import { CasaFicha } from '@/features/casas/pages/CasaFicha';
 
 export function Router() {
   return (
@@ -15,7 +17,9 @@ export function Router() {
       <Onboarding />
       <main className="flex-1">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Buscar />} />
+          <Route path="/casa/:slug" element={<CasaFicha />} />
+          <Route path="/sobre" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/recuperar-senha" element={<RecuperarSenha />} />
