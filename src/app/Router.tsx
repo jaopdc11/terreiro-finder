@@ -3,6 +3,7 @@ import { Header } from '@/shared/components/layout/Header';
 import { Footer } from '@/shared/components/layout/Footer';
 import { Home } from './pages/Home';
 import { NaoEncontrado } from './pages/NaoEncontrado';
+import { Politica } from './pages/Politica';
 import { Login } from '@/features/auth/pages/Login';
 import { Cadastro } from '@/features/auth/pages/Cadastro';
 import { RecuperarSenha } from '@/features/auth/pages/RecuperarSenha';
@@ -28,6 +29,7 @@ export function Router() {
           <Route path="/" element={<Buscar />} />
           <Route path="/casa/:slug" element={<CasaFicha />} />
           <Route path="/sobre" element={<Home />} />
+          <Route path="/politica" element={<Politica />} />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/recuperar-senha" element={<RecuperarSenha />} />

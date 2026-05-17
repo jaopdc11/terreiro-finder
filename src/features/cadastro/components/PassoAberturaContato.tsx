@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -145,6 +146,35 @@ export function PassoAberturaContato({
         {errors.texto_antes_visita ? (
           <p role="alert" className="text-sm text-destructive">
             {errors.texto_antes_visita.message}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm">
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            {...register('consentimento')}
+            className="mt-1 h-4 w-4"
+          />
+          <span>
+            Confirmo que sou da dirigência desta casa e autorizo a publicação
+            das informações acima, sabendo que poderemos editar ou pedir
+            arquivamento a qualquer momento. Li a{' '}
+            <Link
+              to="/politica"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
+              política de privacidade
+            </Link>
+            .
+          </span>
+        </label>
+        {errors.consentimento ? (
+          <p role="alert" className="mt-2 text-sm text-destructive">
+            {errors.consentimento.message}
           </p>
         ) : null}
       </div>

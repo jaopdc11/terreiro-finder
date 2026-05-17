@@ -89,6 +89,7 @@ test.describe('cadastro direto pela dirigência', () => {
 
     // Passo 3 — abertura + contato (precisa pelo menos um canal)
     await main.getByLabel('WhatsApp').fill('47999000111');
+    await main.getByRole('checkbox').check();
     await main.getByRole('button', { name: /Enviar cadastro/i }).click();
 
     await expect(

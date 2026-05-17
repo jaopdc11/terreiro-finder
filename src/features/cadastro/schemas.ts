@@ -58,6 +58,12 @@ export const passoAberturaContatoSchema = z
     texto_antes_visita: opcional(
       z.string().trim().min(10, 'Diz o que quem chega precisa saber — ao menos 10 caracteres'),
     ),
+    consentimento: z.literal(true, {
+      errorMap: () => ({
+        message:
+          'Pra enviar, marca o consentimento. A casa decide o que aparece no site.',
+      }),
+    }),
   })
   .refine(
     (v) => Boolean(v.whatsapp ?? v.telefone ?? v.email_contato),
