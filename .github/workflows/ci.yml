@@ -21,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # pnpm@11.1.2 exige Node>=22.13 — setup-node primeiro pra pnpm/action-setup
+      # ter o binário certo. Depois re-setup pra habilitar cache pnpm.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -35,6 +40,9 @@ jobs:
     needs: lint-typecheck
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -58,6 +66,9 @@ jobs:
     needs: lint-typecheck
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
