@@ -86,6 +86,22 @@ export class CasasRepository {
   }
 
   /**
+   * Grava coordenadas numa casa. Usado pelo ModeracaoService quando o
+   * geocoding "best-effort" pelo bairro/cidade da indicação tem sucesso.
+   */
+  async atualizarCoordenadas(casaId: string, lat: number, lng: number): Promise<void> {
+    const { error } = await this.client
+      .from('casas')
+      .update({ coord_lat: lat, coord_lng: lng })
+      .eq('id', casaId);
+    if (error) {
+      throw new RepositoryError('CASA_ATUALIZAR_COORDS_FALHOU', error.message, {
+        cause: error,
+      });
+    }
+  }
+
+  /**
    * Passo 2 da moderação: torna uma casa pendente em pública (status aprovada).
    * Restrita ao admin pela RLS.
    */

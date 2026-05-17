@@ -23,7 +23,6 @@ function pngTransparente(): Uint8Array {
 describe('Storage · casa-fotos (integração)', () => {
   const harness = new SupabaseTestHarness();
   let dirigenteId = '';
-  let outroId = '';
   let casaId = '';
 
   beforeAll(async () => {
@@ -34,11 +33,10 @@ describe('Storage · casa-fotos (integração)', () => {
       role: 'dirigente',
     });
     dirigenteId = d.id;
-    const o = await harness.criarUsuario({
+    await harness.criarUsuario({
       email: `${PREFIX}outro@test.local`,
       senha: 'senhaforte',
     });
-    outroId = o.id;
 
     const { data, error } = await harness.admin
       .from('casas')
@@ -88,7 +86,9 @@ describe('Storage · casa-fotos (integração)', () => {
   });
 
   function blobPng(): Blob {
-    return new Blob([pngTransparente()], { type: 'image/png' });
+    // Cast pra ArrayBuffer porque o TS strict no Node 22 distingue
+    // SharedArrayBuffer de ArrayBuffer no Uint8Array genérico.
+    return new Blob([pngTransparente().buffer as ArrayBuffer], { type: 'image/png' });
   }
 
   it('dirigente da casa adiciona foto e ela vira pública', async () => {

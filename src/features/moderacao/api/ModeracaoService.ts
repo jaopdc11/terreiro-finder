@@ -2,12 +2,16 @@ import { ServiceError } from '@/shared/lib/errors';
 import type { CasasRepository } from '@/features/casas/api/CasasRepository';
 import type { IndicacoesRepository } from '@/features/indicacao/api/IndicacoesRepository';
 import type { ReivindicacoesRepository } from '@/features/painel/api/ReivindicacoesRepository';
+import type { GeocodingService } from '@/shared/lib/GeocodingService';
+import type { Indicacao } from '@/features/indicacao/domain/Indicacao';
 
 /**
  * Orquestra fluxos de moderação (escopo MVP §3.4).
  *
  * Indicação — 2 passos:
  *   1. aprovarIndicacao() → cria casa (pendente, indicacao). Invisível ao anon.
+ *      Best-effort: tenta geocodar bairro+cidade+estado pra dar uma posição
+ *      inicial no mapa. Falha silenciosa — admin/dirigente arruma depois.
  *   2. confirmarConsentimento() → casa vira aprovada (visível como "indicada,
  *      não verificada").
  *
@@ -21,6 +25,7 @@ export class ModeracaoService {
     private readonly indicacoes: IndicacoesRepository,
     private readonly casas: CasasRepository,
     private readonly reivindicacoes?: ReivindicacoesRepository,
+    private readonly geocoding?: GeocodingService,
   ) {}
 
   async aprovarIndicacao(
@@ -41,6 +46,11 @@ export class ModeracaoService {
     const payload = indicacao.paraNovaCasa(slugInicial(indicacao));
     const casaId = await this.casas.criarDeIndicacao(payload);
     await this.indicacoes.marcarAprovada(indicacao.id, casaId, admin.userId);
+
+    // Best-effort: tenta geocoding pelo bairro/cidade pra a casa nascer com
+    // pin no mapa. Falha silenciosa — admin pode editar coords no painel
+    // depois (Fase 5) ou via SQL.
+    await this.tentarGeocodar(casaId, indicacao);
 
     return { casaId };
   }
@@ -76,13 +86,6 @@ export class ModeracaoService {
     await this.indicacoes.marcarRecusada(indicacaoId, motivo.trim(), admin.userId);
   }
 
-  /**
-   * Reivindicação: aprovação após contato cruzado. Em sequência (sem
-   * transação SQL — basta o admin re-executar se algum passo falhar):
-   *   1. Vínculo user → casa em casa_dirigentes (papel principal).
-   *   2. casas.fonte = 'reivindicada' (Casa.estaVerificada vira true).
-   *   3. reivindicacao.status = 'aprovada' + moderado_por/em.
-   */
   async aprovarReivindicacao(
     reivindicacaoId: string,
     admin: { userId: string },
@@ -143,6 +146,26 @@ export class ModeracaoService {
       );
     }
     await this.reivindicacoes.marcarRecusada(reivindicacaoId, motivo.trim(), admin.userId);
+  }
+
+  private async tentarGeocodar(casaId: string, indicacao: Indicacao): Promise<void> {
+    if (!this.geocoding) return;
+    const partes = [indicacao.bairro, indicacao.cidade, indicacao.estado, 'Brasil']
+      .filter((p): p is string => !!p && p.trim().length > 0);
+    const consulta = partes.join(', ');
+    if (consulta.length < 6) return;
+
+    try {
+      const r = await this.geocoding.buscar(consulta);
+      if (!r) return;
+      await this.casas.atualizarCoordenadas(
+        casaId,
+        r.coordenadas.lat,
+        r.coordenadas.lng,
+      );
+    } catch {
+      // Best-effort: rate limit, sem internet, etc. — admin arruma depois.
+    }
   }
 }
 

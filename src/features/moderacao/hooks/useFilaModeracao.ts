@@ -4,6 +4,7 @@ import { useServices } from '@/shared/hooks/useServices';
 import { IndicacoesRepository } from '@/features/indicacao/api/IndicacoesRepository';
 import { CasasRepository } from '@/features/casas/api/CasasRepository';
 import { ReivindicacoesRepository } from '@/features/painel/api/ReivindicacoesRepository';
+import { GeocodingService } from '@/shared/lib/GeocodingService';
 import { ModeracaoService } from '../api/ModeracaoService';
 
 const QK_INDICACOES_PENDENTES = ['admin', 'indicacoes', 'pendentes'] as const;
@@ -18,6 +19,7 @@ function useSvc(): ModeracaoService {
         new IndicacoesRepository(client),
         new CasasRepository(client),
         new ReivindicacoesRepository(client),
+        new GeocodingService(),
       ),
     [client],
   );
