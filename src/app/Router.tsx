@@ -9,6 +9,9 @@ import { RecuperarSenha } from '@/features/auth/pages/RecuperarSenha';
 import { Onboarding } from '@/features/onboarding/components/Onboarding';
 import { Buscar } from '@/features/busca/pages/Buscar';
 import { CasaFicha } from '@/features/casas/pages/CasaFicha';
+import { Indicar } from '@/features/indicacao/pages/Indicar';
+import { Admin } from '@/features/moderacao/pages/Admin';
+import { Protegido } from './guards/Protegido';
 
 export function Router() {
   return (
@@ -23,6 +26,22 @@ export function Router() {
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+          <Route
+            path="/indicar"
+            element={
+              <Protegido>
+                <Indicar />
+              </Protegido>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <Protegido role="admin">
+                <Admin />
+              </Protegido>
+            }
+          />
           <Route path="*" element={<NaoEncontrado />} />
         </Routes>
       </main>

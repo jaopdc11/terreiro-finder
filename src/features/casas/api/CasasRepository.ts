@@ -1,7 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { RepositoryError } from '@/shared/lib/errors';
 import { Casa } from '../domain/Casa';
+import { Slug } from '../domain/Slug';
 import type { FiltrosBusca } from '@/features/busca/domain/FiltrosBusca';
+import type { NovaCasaDeIndicacao } from '@/features/indicacao/domain/Indicacao';
 
 const CAMPOS_SELECT = `
   id, slug, nome, descricao, sacerdote_nome, tradicao_principal, status, fonte,
@@ -35,7 +37,6 @@ export class CasasRepository {
     }
 
     if (filtros.tags.length > 0 && filtros.tradicao === 'umbanda') {
-      // Casa precisa ter pelo menos uma tag em linhas_trabalhadas OU linhagem.
       const ids = await this.idsComTagsUmbanda([...filtros.tags]);
       if (ids.length === 0) return [];
       query = query.in('id', ids);
@@ -61,6 +62,79 @@ export class CasasRepository {
       throw new RepositoryError('CASAS_FIND_BY_SLUG_FALHOU', error.message, { cause: error });
     }
     return data ? Casa.fromRow(data) : null;
+  }
+
+  /**
+   * Cria casa a partir de uma indicação aprovada. Resolve slug em cascata:
+   * kebab(nome) → kebab(nome)-kebab(bairro) → sufixo numérico.
+   * Casa nasce `status='pendente', fonte='indicacao'` — não é pública até
+   * passo 2 da moderação (ver 06-modelo-dados.md §7.3).
+   */
+  async criarDeIndicacao(payload: NovaCasaDeIndicacao): Promise<string> {
+    const slugFinal = await this.resolverSlugDisponivel(payload.nome, payload.bairro);
+    const { data, error } = await this.client
+      .from('casas')
+      .insert({ ...payload, slug: slugFinal })
+      .select('id')
+      .single();
+    if (error || !data) {
+      throw new RepositoryError('CASA_CRIAR_DE_INDICACAO_FALHOU', error?.message ?? 'sem id', {
+        cause: error,
+      });
+    }
+    return data.id as string;
+  }
+
+  /**
+   * Passo 2 da moderação: torna uma casa pendente em pública (status aprovada).
+   * Restrita ao admin pela RLS.
+   */
+  async aprovarCasaPendente(casaId: string, admin: { userId: string }): Promise<void> {
+    const { error } = await this.client
+      .from('casas')
+      .update({
+        status: 'aprovada',
+        aprovada_em: new Date().toISOString(),
+        aprovada_por: admin.userId,
+      })
+      .eq('id', casaId);
+    if (error) {
+      throw new RepositoryError('CASA_APROVAR_FALHOU', error.message, { cause: error });
+    }
+  }
+
+  private async resolverSlugDisponivel(nome: string, bairro: string | null): Promise<string> {
+    const base = Slug.deTexto(nome);
+    if (!(await this.slugExiste(base.toString()))) return base.toString();
+
+    if (bairro && bairro.trim().length > 0) {
+      try {
+        const comBairro = Slug.deNomeEBairro(nome, bairro);
+        if (!(await this.slugExiste(comBairro.toString()))) return comBairro.toString();
+      } catch {
+        // bairro vira string vazia após kebab; cai pro sufixo numérico
+      }
+    }
+
+    for (let i = 2; i <= 20; i++) {
+      const candidato = base.comSufixoNumerico(i).toString();
+      if (!(await this.slugExiste(candidato))) return candidato;
+    }
+    throw new RepositoryError(
+      'SLUG_INDISPONIVEL',
+      `Não foi possível gerar slug único pra "${nome}" depois de 20 tentativas`,
+    );
+  }
+
+  private async slugExiste(slug: string): Promise<boolean> {
+    const { count, error } = await this.client
+      .from('casas')
+      .select('id', { count: 'exact', head: true })
+      .eq('slug', slug);
+    if (error) {
+      throw new RepositoryError('SLUG_EXISTE_CHECK_FALHOU', error.message, { cause: error });
+    }
+    return (count ?? 0) > 0;
   }
 
   private async idsComTagsUmbanda(tags: string[]): Promise<string[]> {

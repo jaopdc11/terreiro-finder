@@ -12,10 +12,16 @@ const baseURL = `http://localhost:${PORT}`;
 export default defineConfig({
   testDir: './tests/e2e',
   globalSetup: './tests/e2e/global-setup.ts',
+  globalTeardown: './tests/e2e/global-teardown.ts',
+  // Specs compartilham um único Postgres local — paralelismo entre specs
+  // cria condições de corrida em seed e cleanup (auth.spec, indicacao-moderacao
+  // mexem em users; sem isolamento por schema, um worker pisa no outro).
+  // Mantemos `fullyParallel` dentro do spec (Playwright ainda paraleliza testes
+  // dentro de um describe), mas com 1 worker o suite roda determinístico.
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  ...(process.env.CI ? { workers: 1 } : {}),
+  workers: 1,
   reporter: process.env.CI ? [['html'], ['github']] : 'list',
   use: {
     baseURL,
