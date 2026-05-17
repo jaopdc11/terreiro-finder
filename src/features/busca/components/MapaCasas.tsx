@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import { Link } from 'react-router-dom';
 import type { Casa } from '@/features/casas/domain/Casa';
@@ -12,24 +12,43 @@ interface Props {
 }
 
 /**
- * Quando o MapContainer monta em um pai com layout em flex/calc, o Leaflet
- * mede o canvas antes da altura final ser aplicada e o mapa fica "travado"
- * (não dá pra arrastar e tiles aparecem cortados). invalidateSize força o
- * recálculo. Também acompanhamos resize de janela e mudanças de orientação.
+ * Mantém o canvas do Leaflet sincronizado com o tamanho real do container.
+ * Sintoma sem isso: mapa "travado" — drag sem efeito, zoom só nas bordas,
+ * tiles cortados — porque o Leaflet mediu o canvas antes do layout flex
+ * resolver.
+ *
+ * Três frentes pra cobrir todos os cenários de timing:
+ *   1) mount: rAF + retries (0ms, 100ms, 500ms) cobre layouts assíncronos
+ *   2) ResizeObserver no container — cobre flex que muda (overlay abre/fecha,
+ *      sidebar, conteúdo carrega, devtools).
+ *   3) window resize + orientationchange — mobile.
  */
 function AjusteDeTamanho() {
   const map = useMap();
   useEffect(() => {
-    const fix = () => map.invalidateSize();
-    // 1) Mount: aguarda um tick pra o layout flex resolver.
-    const t = setTimeout(fix, 0);
-    // 2) Resize de janela (orientação no mobile, devtools no desktop).
+    let cancelado = false;
+    const fix = () => {
+      if (!cancelado) map.invalidateSize();
+    };
+    const rafId = requestAnimationFrame(fix);
+    const t1 = window.setTimeout(fix, 100);
+    const t2 = window.setTimeout(fix, 500);
+
     window.addEventListener('resize', fix);
     window.addEventListener('orientationchange', fix);
+
+    const container = map.getContainer();
+    const ro = new ResizeObserver(fix);
+    ro.observe(container);
+
     return () => {
-      clearTimeout(t);
+      cancelado = true;
+      cancelAnimationFrame(rafId);
+      clearTimeout(t1);
+      clearTimeout(t2);
       window.removeEventListener('resize', fix);
       window.removeEventListener('orientationchange', fix);
+      ro.disconnect();
     };
   }, [map]);
   return null;
@@ -37,14 +56,18 @@ function AjusteDeTamanho() {
 
 export function MapaCasas({ casas }: Props) {
   const comCoord = useMemo(() => casas.filter((c) => c.coordenadas !== null), [casas]);
+  // key estável evita que Strict Mode (dev) cause double-mount no
+  // MapContainer e deixe um leaflet-container fantasma — bug conhecido de
+  // react-leaflet v4.
+  const idRef = useRef('mapa-itajai-singleton');
 
   return (
     <MapContainer
+      key={idRef.current}
       center={CENTRO_ITAJAI}
       zoom={13}
       scrollWheelZoom
-      className="h-full w-full"
-      // Necessário pra leitor de tela e teste a11y; Leaflet não expõe role nativo.
+      style={{ height: '100%', width: '100%' }}
       aria-label="Mapa com casas"
     >
       <AjusteDeTamanho />
