@@ -21,36 +21,44 @@ export function Admin() {
   const [aba, setAba] = useState<Aba>('passo-1');
 
   return (
-    <section className="container max-w-5xl py-8">
-      <h1 className="font-display text-3xl">Moderação</h1>
-      <p className="mt-2 text-muted-foreground">
-        Indicações entram em duas etapas (validar → confirmar consentimento da
-        casa). Reivindicações exigem contato cruzado: você contata pelo canal
-        já registrado da casa antes de aprovar.
-      </p>
+    <section className="container max-w-6xl py-16">
+      <header className="border-b border-foreground pb-10">
+        <p className="eyebrow text-primary">Admin</p>
+        <h1 className="display-hero mt-6 text-5xl">Moderação<em>.</em></h1>
+        <p className="mt-6 max-w-2xl text-foreground/75">
+          Indicações entram em duas etapas (validar → confirmar consentimento
+          da casa). Reivindicações exigem contato cruzado: você contata pelo
+          canal já registrado da casa antes de aprovar.
+        </p>
+      </header>
 
-      <div role="tablist" className="mt-6 flex flex-wrap gap-2 border-b border-border">
-        <TabButton ativo={aba === 'passo-1'} onClick={() => setAba('passo-1')}>
-          Passo 1 — Indicações pendentes
+      <div
+        role="tablist"
+        className="flex flex-wrap items-stretch divide-x divide-foreground/10 border-b border-foreground"
+      >
+        <TabButton ativo={aba === 'passo-1'} onClick={() => setAba('passo-1')} num="01">
+          Indicações pendentes
         </TabButton>
-        <TabButton ativo={aba === 'passo-2'} onClick={() => setAba('passo-2')}>
-          Passo 2 — Confirmar consentimento
+        <TabButton ativo={aba === 'passo-2'} onClick={() => setAba('passo-2')} num="02">
+          Confirmar consentimento
         </TabButton>
         <TabButton
           ativo={aba === 'reivindicacoes'}
           onClick={() => setAba('reivindicacoes')}
+          num="03"
         >
           Reivindicações
         </TabButton>
         <TabButton
           ativo={aba === 'cadastros'}
           onClick={() => setAba('cadastros')}
+          num="04"
         >
           Cadastros novos
         </TabButton>
       </div>
 
-      <div className="mt-6">
+      <div className="pt-10">
         {aba === 'passo-1' ? <Passo1 /> : null}
         {aba === 'passo-2' ? <Passo2 /> : null}
         {aba === 'reivindicacoes' ? <Reivindicacoes /> : null}
@@ -63,10 +71,12 @@ export function Admin() {
 function TabButton({
   ativo,
   onClick,
+  num,
   children,
 }: {
   ativo: boolean;
   onClick(): void;
+  num: string;
   children: React.ReactNode;
 }) {
   return (
@@ -75,12 +85,13 @@ function TabButton({
       aria-selected={ativo}
       onClick={onClick}
       className={
-        'border-b-2 px-3 py-2 text-sm font-medium ' +
+        'flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ' +
         (ativo
-          ? 'border-primary text-primary'
-          : 'border-transparent text-muted-foreground hover:text-foreground')
+          ? 'bg-foreground text-background'
+          : 'text-foreground/70 hover:bg-foreground hover:text-background')
       }
     >
+      <span className="font-mono text-[10px] opacity-60">{num}</span>
       {children}
     </button>
   );
@@ -100,9 +111,9 @@ function Passo1() {
   return (
     <ul className="space-y-3" data-testid="lista-indicacoes-pendentes">
       {indicacoes.map((ind) => (
-        <li key={ind.id} className="rounded-lg border border-border bg-card p-4">
+        <li key={ind.id} className="border border-foreground/15 bg-background p-5 transition-colors hover:border-foreground/40">
           <header className="flex items-baseline justify-between gap-3">
-            <h2 className="font-display text-lg">{ind.nome}</h2>
+            <h2 className="font-display text-xl leading-tight">{ind.nome}</h2>
             <span className="text-xs uppercase tracking-wide text-muted-foreground">
               {ind.tradicaoPrincipal ?? 'tradição não informada'}
             </span>
@@ -171,9 +182,9 @@ function Passo2() {
   return (
     <ul className="space-y-3" data-testid="lista-casas-pendentes">
       {casas.map((c) => (
-        <li key={c.id} className="rounded-lg border border-border bg-card p-4">
+        <li key={c.id} className="border border-foreground/15 bg-background p-5 transition-colors hover:border-foreground/40">
           <header className="flex items-baseline justify-between gap-3">
-            <h2 className="font-display text-lg">{c.nome}</h2>
+            <h2 className="font-display text-xl leading-tight">{c.nome}</h2>
             <span className="text-xs uppercase tracking-wide text-muted-foreground">
               {c.tradicao_principal}
             </span>
@@ -248,9 +259,9 @@ function Reivindicacoes() {
       {itens.map((r) => {
         const casa = casaDaJoin(r.casa);
         return (
-          <li key={r.id} className="rounded-lg border border-border bg-card p-4">
+          <li key={r.id} className="border border-foreground/15 bg-background p-5 transition-colors hover:border-foreground/40">
             <header>
-              <h2 className="font-display text-lg">
+              <h2 className="font-display text-xl leading-tight">
                 {casa?.nome ?? 'Casa removida'}
               </h2>
               <p className="text-xs text-muted-foreground">
@@ -259,7 +270,7 @@ function Reivindicacoes() {
               </p>
             </header>
 
-            <div className="mt-3 rounded-md bg-muted/50 p-3 text-sm">
+            <div className="mt-3 border-l-2 border-foreground/30 bg-muted/40 p-3 text-sm">
               <p className="font-medium text-foreground">
                 Contate pelos canais já registrados da casa:
               </p>
@@ -370,9 +381,9 @@ function CadastrosDiretos() {
       {itens.map((c) => {
         const motivo = motivos[c.id]?.trim() ?? '';
         return (
-          <li key={c.id} className="rounded-lg border border-border bg-card p-4">
+          <li key={c.id} className="border border-foreground/15 bg-background p-5 transition-colors hover:border-foreground/40">
             <header className="flex items-baseline justify-between gap-3">
-              <h2 className="font-display text-lg">{c.nome}</h2>
+              <h2 className="font-display text-xl leading-tight">{c.nome}</h2>
               <span className="text-xs uppercase tracking-wide text-muted-foreground">
                 {c.tradicao_principal}
               </span>
@@ -386,7 +397,7 @@ function CadastrosDiretos() {
             </p>
 
             {c.canal_validacao ? (
-              <div className="mt-3 rounded-md bg-muted/50 p-3 text-sm">
+              <div className="mt-3 border-l-2 border-foreground/30 bg-muted/40 p-3 text-sm">
                 <p className="font-medium text-foreground">
                   Como validar a dirigência (contato cruzado):
                 </p>

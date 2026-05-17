@@ -53,7 +53,7 @@ export function PassoIdentidade({ inicial, onAvancar }: Props) {
         <select
           id="c-tradicao"
           {...register('tradicao_principal')}
-          className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          className="flex h-11 w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2 text-base focus:border-primary focus:outline-none"
         >
           <option value="">Escolhe…</option>
           {TRADICOES.map((t) => (
@@ -97,7 +97,7 @@ export function PassoIdentidade({ inicial, onAvancar }: Props) {
           rows={4}
           {...register('descricao')}
           placeholder="História, linhagem, dia de gira…"
-          className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          className="flex w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2 text-base focus:border-primary focus:outline-none"
         />
         {errors.descricao ? (
           <p role="alert" className="text-sm text-destructive">{errors.descricao.message}</p>
@@ -114,7 +114,7 @@ export function PassoIdentidade({ inicial, onAvancar }: Props) {
           placeholder={
             'Ex.: "Instagram oficial da casa @minhacasa", "telefone fixo do espaço (47) 3344-0000 — você pode ligar e perguntar pela Mãe Maria", "comprovante via WhatsApp +55 47 9XXXX-XXXX"'
           }
-          className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          className="flex w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2 text-base focus:border-primary focus:outline-none"
         />
         <p className="text-xs text-muted-foreground">
           A gente contata por esse canal antes de aprovar — só assim a casa

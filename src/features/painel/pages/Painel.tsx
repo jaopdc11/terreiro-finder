@@ -12,6 +12,14 @@ import { AbaFotos } from '../components/AbaFotos';
 
 type Aba = 'perfil' | 'endereco' | 'tradicao' | 'fotos' | 'abertura';
 
+const ABAS: { v: Aba; label: string; num: string }[] = [
+  { v: 'perfil', label: 'Perfil', num: '01' },
+  { v: 'endereco', label: 'Endereço', num: '02' },
+  { v: 'tradicao', label: 'Tradição', num: '03' },
+  { v: 'fotos', label: 'Fotos', num: '04' },
+  { v: 'abertura', label: 'Abertura', num: '05' },
+];
+
 export function Painel() {
   const { sessao } = useServices();
   const nome = sessao.use((s) => s.sessao?.nomeExibicao);
@@ -20,7 +28,10 @@ export function Painel() {
 
   if (isLoading) {
     return (
-      <div className="container py-12 text-muted-foreground" role="status">
+      <div
+        className="container py-20 text-xs uppercase tracking-widest text-muted-foreground"
+        role="status"
+      >
         Carregando suas casas…
       </div>
     );
@@ -28,19 +39,25 @@ export function Painel() {
 
   if (!casas || casas.length === 0) {
     return (
-      <section className="container max-w-2xl py-12">
-        <h1 className="font-display text-3xl">Painel da dirigência</h1>
-        <p className="mt-4 text-muted-foreground">
-          Salve, {nome}. Você ainda não está vinculada(o) a nenhuma casa neste
-          painel.
+      <section className="container max-w-3xl py-20">
+        <p className="eyebrow text-primary">Painel</p>
+        <h1 className="display-hero mt-8 text-5xl">
+          Sem casa<br />vinculada<em>.</em>
+        </h1>
+        <p className="mt-8 max-w-prose text-foreground/80">
+          Salve, <strong className="text-foreground">{nome}</strong>. Você
+          ainda não está vinculada(o) a nenhuma casa neste painel.
         </p>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-4 max-w-prose text-foreground/80">
           Se você é dirigente de uma casa que já está aqui mas marcada como{' '}
-          <strong>não verificada</strong>, abre a ficha dela e clica em{' '}
-          <strong>Reivindique aqui</strong>. Depois que confirmarmos, ela
-          aparece neste painel.
+          <em className="italic">não verificada</em>, abre a ficha dela e clica
+          em <em className="italic">Reivindique aqui</em>. Depois que
+          confirmarmos, ela aparece neste painel.
         </p>
-        <Link to="/" className="mt-6 inline-block text-primary hover:underline">
+        <Link
+          to="/"
+          className="link-underline mt-8 inline-block text-sm font-semibold uppercase tracking-wider text-foreground"
+        >
           Ver casas
         </Link>
       </section>
@@ -49,24 +66,49 @@ export function Painel() {
 
   if (!casaSelecionada) {
     return (
-      <section className="container max-w-2xl py-12">
-        <h1 className="font-display text-3xl">Painel da dirigência</h1>
-        <p className="mt-2 text-muted-foreground">
-          Salve, {nome}. Escolha uma casa pra editar.
-        </p>
-        <ul className="mt-6 space-y-3">
-          {casas.map((c) => (
+      <section className="container max-w-4xl py-20">
+        <header className="border-b border-foreground pb-10">
+          <p className="eyebrow text-primary">Painel da dirigência</p>
+          <h1 className="display-hero mt-8 text-5xl">
+            Salve, <em>{nome}</em>.
+          </h1>
+          <p className="mt-6 max-w-md text-foreground/70">
+            Escolha uma casa pra editar.
+          </p>
+        </header>
+
+        <ul className="border-b border-foreground/10">
+          {casas.map((c, idx) => (
             <li key={c.id}>
               <button
                 type="button"
                 onClick={() => setCasaSelecionada(c.id)}
-                className="block w-full rounded-lg border border-border bg-card p-4 text-left hover:bg-muted"
+                className="grid w-full grid-cols-12 items-baseline gap-4 border-t border-foreground/10 py-6 text-left transition-colors hover:bg-muted"
               >
-                <h2 className="font-display text-lg">{c.nome}</h2>
-                <p className="text-xs text-muted-foreground">
-                  {c.tradicaoPrincipal} · {c.cidade}/{c.estado}
-                  {c.estaVerificada() ? ' · verificada' : ' · não verificada'}
-                </p>
+                <span className="col-span-12 font-mono text-xs text-primary sm:col-span-1">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <div className="col-span-12 sm:col-span-9">
+                  <h2 className="font-display text-2xl leading-tight">
+                    {c.nome}
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    <span className="uppercase tracking-wider">
+                      {c.tradicaoPrincipal}
+                    </span>{' '}
+                    · {c.cidade}/{c.estado}
+                  </p>
+                </div>
+                <span
+                  className={
+                    'col-span-12 text-[11px] font-semibold uppercase tracking-widest sm:col-span-2 sm:text-right ' +
+                    (c.estaVerificada()
+                      ? 'text-primary'
+                      : 'text-muted-foreground')
+                  }
+                >
+                  {c.estaVerificada() ? '✓ Verificada' : 'Não verificada'}
+                </span>
               </button>
             </li>
           ))}
@@ -75,7 +117,12 @@ export function Painel() {
     );
   }
 
-  return <PainelDeCasa casaId={casaSelecionada} onVoltar={() => setCasaSelecionada(null)} />;
+  return (
+    <PainelDeCasa
+      casaId={casaSelecionada}
+      onVoltar={() => setCasaSelecionada(null)}
+    />
+  );
 }
 
 function PainelDeCasa({
@@ -89,99 +136,111 @@ function PainelDeCasa({
   const [aba, setAba] = useState<Aba>('perfil');
 
   if (isLoading) {
-    return <div className="container py-12 text-muted-foreground">Carregando…</div>;
+    return (
+      <div className="container py-20 text-xs uppercase tracking-widest text-muted-foreground">
+        Carregando…
+      </div>
+    );
   }
   if (!casa) {
     return (
-      <div className="container py-12">
-        <p>Casa não encontrada.</p>
-        <button onClick={onVoltar} className="mt-4 text-primary hover:underline">
-          Voltar
+      <div className="container py-20">
+        <p className="font-display text-2xl">Casa não encontrada.</p>
+        <button
+          onClick={onVoltar}
+          className="link-underline mt-6 text-sm font-semibold uppercase tracking-wider text-foreground"
+        >
+          ← Voltar
         </button>
       </div>
     );
   }
 
+  const abaAtual = ABAS.find((a) => a.v === aba) ?? ABAS[0]!;
+
   return (
-    <section className="container max-w-4xl py-8">
+    <section className="container max-w-5xl py-16">
       <button
         onClick={onVoltar}
-        className="text-sm text-muted-foreground hover:text-primary"
+        className="link-underline text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground"
       >
         ← Outras casas
       </button>
-      <h1 className="mt-2 font-display text-3xl">{casa.nome}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {casa.tradicaoPrincipal} · {casa.cidade}/{casa.estado}
-        {casa.estaVerificada() ? ' · verificada' : ' · não verificada'}
-      </p>
 
-      <div role="tablist" className="mt-6 flex flex-wrap gap-2 border-b border-border">
-        <TabBtn ativo={aba === 'perfil'} onClick={() => setAba('perfil')}>
-          Perfil
-        </TabBtn>
-        <TabBtn ativo={aba === 'endereco'} onClick={() => setAba('endereco')}>
-          Endereço
-        </TabBtn>
-        <TabBtn ativo={aba === 'tradicao'} onClick={() => setAba('tradicao')}>
-          Tradição
-        </TabBtn>
-        <TabBtn ativo={aba === 'fotos'} onClick={() => setAba('fotos')}>
-          Fotos
-        </TabBtn>
-        <TabBtn ativo={aba === 'abertura'} onClick={() => setAba('abertura')}>
-          Abertura
-        </TabBtn>
+      <header className="mt-6 border-b border-foreground pb-10">
+        <p className="eyebrow text-primary">
+          {casa.tradicaoPrincipal} · {casa.cidade}/{casa.estado}
+        </p>
+        <h1 className="display-hero mt-6 text-5xl text-foreground">
+          {casa.nome}
+        </h1>
+        <p
+          className={
+            'mt-4 inline-block border px-3 py-1 text-[11px] font-semibold uppercase tracking-widest ' +
+            (casa.estaVerificada()
+              ? 'border-primary text-primary'
+              : 'border-foreground/30 text-muted-foreground')
+          }
+        >
+          {casa.estaVerificada() ? 'Verificada' : 'Não verificada'}
+        </p>
+      </header>
+
+      <div
+        role="tablist"
+        className="flex flex-wrap items-stretch divide-x divide-foreground/10 border-b border-foreground"
+      >
+        {ABAS.map((a) => (
+          <button
+            key={a.v}
+            role="tab"
+            aria-selected={aba === a.v}
+            onClick={() => setAba(a.v)}
+            className={
+              'flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ' +
+              (aba === a.v
+                ? 'bg-foreground text-background'
+                : 'text-foreground/70 hover:bg-foreground hover:text-background')
+            }
+          >
+            <span className="font-mono text-[10px] opacity-60">{a.num}</span>
+            {a.label}
+          </button>
+        ))}
       </div>
 
-      <div className="mt-6" data-testid="painel-aba">
-        {aba === 'perfil' ? <AbaPerfil casa={casa} /> : null}
-        {aba === 'endereco' ? <AbaEndereco casa={casa} /> : null}
-        {aba === 'abertura' ? <AbaAbertura casa={casa} /> : null}
-        {aba === 'tradicao' ? (
-          casa.tradicaoPrincipal === 'umbanda' ? (
-            <AbaTradicaoUmbanda casaId={casa.id} />
-          ) : casa.tradicaoPrincipal === 'candomble' ? (
-            <AbaTradicaoCandomble casaId={casa.id} />
-          ) : casa.tradicaoPrincipal === 'quimbanda' ? (
-            <AbaTradicaoQuimbanda casaId={casa.id} />
-          ) : (
-            <p className="text-muted-foreground">
-              Editor para tradição{' '}
-              <strong>{casa.tradicaoPrincipal}</strong> chega numa próxima
-              fase. O bloco específico aparece em Umbanda, Candomblé e
-              Quimbanda.
-            </p>
-          )
-        ) : null}
-        {aba === 'fotos' ? <AbaFotos casaId={casa.id} /> : null}
+      <div className="mt-10 grid grid-cols-12 gap-x-6" data-testid="painel-aba">
+        <div className="col-span-12 mb-6 md:col-span-3 md:mb-0">
+          <p className="eyebrow text-muted-foreground">
+            <span className="font-mono mr-2">{abaAtual.num}</span>
+            {abaAtual.label}
+          </p>
+        </div>
+        <div className="col-span-12 md:col-span-9 md:border-l md:border-foreground/10 md:pl-6">
+          {aba === 'perfil' ? <AbaPerfil casa={casa} /> : null}
+          {aba === 'endereco' ? <AbaEndereco casa={casa} /> : null}
+          {aba === 'abertura' ? <AbaAbertura casa={casa} /> : null}
+          {aba === 'tradicao' ? (
+            casa.tradicaoPrincipal === 'umbanda' ? (
+              <AbaTradicaoUmbanda casaId={casa.id} />
+            ) : casa.tradicaoPrincipal === 'candomble' ? (
+              <AbaTradicaoCandomble casaId={casa.id} />
+            ) : casa.tradicaoPrincipal === 'quimbanda' ? (
+              <AbaTradicaoQuimbanda casaId={casa.id} />
+            ) : (
+              <p className="text-muted-foreground">
+                Editor para tradição{' '}
+                <strong className="text-foreground">
+                  {casa.tradicaoPrincipal}
+                </strong>{' '}
+                chega numa próxima fase. O bloco específico aparece em
+                Umbanda, Candomblé e Quimbanda.
+              </p>
+            )
+          ) : null}
+          {aba === 'fotos' ? <AbaFotos casaId={casa.id} /> : null}
+        </div>
       </div>
     </section>
-  );
-}
-
-function TabBtn({
-  ativo,
-  onClick,
-  children,
-}: {
-  ativo: boolean;
-  onClick(): void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      role="tab"
-      aria-selected={ativo}
-      onClick={onClick}
-      className={
-        'border-b-2 px-3 py-2 text-sm font-medium ' +
-        (ativo
-          ? 'border-primary text-primary'
-          : 'border-transparent text-muted-foreground hover:text-foreground')
-      }
-    >
-      {children}
-    </button>
   );
 }

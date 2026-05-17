@@ -6,8 +6,7 @@
 
 /*
  * Leaflet usa z-index interno alto (panes 200-700, controles ~1000). Sem fixar
- * o container num stacking context baixo, overlays (modal de filtros, lista)
- * ficam abaixo dos pins/zoom. Esses overrides resolvem.
+ * o container num stacking context baixo, overlays ficam abaixo dos pins/zoom.
  */
 .leaflet-container {
   z-index: 0;
@@ -21,63 +20,51 @@
 @layer base {
   :root {
     /*
-     * Paleta Terra/Pemba — refinada pro rework de design.
-     * HSL sem o "hsl()". Tons mantêm hue 0/35/350 (família terra-pemba).
+     * Design: minimalista geométrico. Paleta reduzida a 3 cores.
+     *   - creme   → background
+     *   - grafite → texto e ornamento (linhas)
+     *   - pemba   → acento único (botão primário, marcador)
+     * Sem variações tonais. Sem sombras. Radius mínimo (2-4px).
      */
-    --terra-areia: 35 35% 78%;
-    --terra-areia-claro: 35 40% 86%;
     --terra-creme: 38 50% 96%;
-    --terra-creme-escuro: 38 35% 88%;
     --terra-pemba: 0 65% 38%;
-    --terra-pemba-claro: 0 55% 52%;
-    --terra-pemba-escuro: 0 70% 28%;
-    --terra-vinho: 350 45% 26%;
-    --terra-grafite: 220 12% 18%;
-    --terra-grafite-suave: 220 10% 32%;
-    --terra-ocre: 32 60% 50%;
+    --terra-grafite: 220 14% 14%;
 
-    /* Tokens shadcn mapeados pra Terra/Pemba */
+    /* Tokens shadcn */
     --background: 38 50% 96%;
-    --foreground: 220 12% 18%;
+    --foreground: 220 14% 14%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 12% 18%;
+    --card: 38 50% 99%;
+    --card-foreground: 220 14% 14%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 12% 18%;
+    --popover: 38 50% 99%;
+    --popover-foreground: 220 14% 14%;
 
     --primary: 0 65% 38%;
-    --primary-foreground: 38 50% 97%;
+    --primary-foreground: 38 50% 96%;
 
-    --secondary: 35 35% 78%;
-    --secondary-foreground: 220 12% 18%;
+    --secondary: 220 14% 14%;
+    --secondary-foreground: 38 50% 96%;
 
-    --muted: 35 30% 90%;
-    --muted-foreground: 220 8% 38%;
+    --muted: 38 30% 92%;
+    --muted-foreground: 220 8% 42%;
 
-    --accent: 350 45% 26%;
-    --accent-foreground: 38 50% 97%;
+    --accent: 0 65% 38%;
+    --accent-foreground: 38 50% 96%;
 
     --destructive: 0 75% 42%;
-    --destructive-foreground: 38 50% 97%;
+    --destructive-foreground: 38 50% 96%;
 
-    --border: 35 22% 82%;
-    --input: 35 25% 84%;
+    --border: 220 14% 14%;
+    --input: 220 14% 14%;
     --ring: 0 65% 38%;
 
-    --radius: 0.625rem;
-
-    /* Sombras quentes (matiz pêssego/areia) — combinam com a paleta terra
-       melhor do que sombras cinza puro. Aplicadas via utility .shadow-warm. */
-    --shadow-warm-sm: 0 1px 2px 0 hsl(20 30% 25% / 0.06);
-    --shadow-warm-md: 0 2px 4px -1px hsl(20 30% 25% / 0.08),
-                      0 1px 2px 0 hsl(20 30% 25% / 0.04);
-    --shadow-warm-lg: 0 10px 25px -5px hsl(20 30% 25% / 0.10),
-                      0 4px 6px -2px hsl(20 30% 25% / 0.05);
+    /* Radius mínimo — quadrados, com toque sutil. */
+    --radius: 0.125rem;
   }
 
   * {
-    @apply border-border;
+    border-color: hsl(var(--border) / 0.12);
   }
 
   html {
@@ -86,74 +73,137 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    /* Textura sutil de fundo — pontos quase imperceptíveis, dão profundidade
-       sem competir com o conteúdo. Inspirado em pratos de barro / pemba. */
-    background-image: radial-gradient(
-      hsl(var(--terra-areia) / 0.15) 1px,
-      transparent 1px
-    );
-    background-size: 24px 24px;
+    font-feature-settings: 'cv11', 'ss01';
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: theme('fontFamily.display');
-    @apply tracking-tight;
-  }
-
+  /*
+   * Tipografia editorial — Fraunces nos displays, em pesos médios.
+   * Inter pro corpo, mas headings grandes em Fraunces light.
+   */
   h1 {
-    @apply text-4xl leading-tight md:text-5xl;
-    font-weight: 500;
+    font-family: theme('fontFamily.display');
+    @apply text-5xl leading-[1.05] tracking-tight md:text-7xl;
+    font-weight: 350;
   }
 
   h2 {
-    @apply text-2xl leading-snug md:text-3xl;
-    font-weight: 500;
+    font-family: theme('fontFamily.display');
+    @apply text-3xl leading-tight tracking-tight md:text-4xl;
+    font-weight: 400;
   }
 
-  /* Focus ring acolhedor (pemba 30%) em todo elemento focado por teclado. */
+  h3 {
+    font-family: theme('fontFamily.sans');
+    @apply text-lg leading-snug;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  h4 {
+    font-family: theme('fontFamily.sans');
+    @apply text-base;
+    font-weight: 600;
+  }
+
+  /* Focus ring discreto — caixa preta firme em vez de halo. */
   :focus-visible {
-    @apply outline-none ring-2 ring-ring/60 ring-offset-2 ring-offset-background;
+    @apply outline-none;
+    box-shadow: 0 0 0 2px hsl(var(--ring));
+  }
+
+  /* Reset de input number */
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  ::selection {
+    background: hsl(var(--terra-pemba));
+    color: hsl(var(--terra-creme));
   }
 }
 
 @layer utilities {
-  .shadow-warm-sm {
-    box-shadow: var(--shadow-warm-sm);
+  /*
+   * Grid editorial — colunas com guia visual. Aplicar em sections que
+   * organizam várias colunas. As linhas verticais ficam só nas bordas
+   * internas, nunca nas externas.
+   */
+  .rule-y {
+    border-top: 1px solid hsl(var(--foreground));
   }
-  .shadow-warm {
-    box-shadow: var(--shadow-warm-md);
+  .rule-b {
+    border-bottom: 1px solid hsl(var(--foreground));
   }
-  .shadow-warm-lg {
-    box-shadow: var(--shadow-warm-lg);
+  .rule-x {
+    border-left: 1px solid hsl(var(--foreground));
   }
-
-  /* Card de seção: borda sutil + sombra quente + transição. */
-  .card-surface {
-    @apply rounded-xl border border-border/60 bg-card;
-    box-shadow: var(--shadow-warm-sm);
-  }
-  .card-surface-hover {
-    transition: box-shadow 200ms ease, transform 200ms ease,
-      border-color 200ms ease;
-  }
-  .card-surface-hover:hover {
-    box-shadow: var(--shadow-warm-md);
-    border-color: hsl(var(--terra-areia));
+  .rule-soft {
+    border-color: hsl(var(--foreground) / 0.12);
   }
 
-  /* Faixa decorativa baseada em pemba/vinho — usada como linha de identidade. */
-  .ornament-rule {
-    background-image: linear-gradient(
-      to right,
-      hsl(var(--terra-pemba)) 0%,
-      hsl(var(--terra-pemba)) 25%,
-      hsl(var(--terra-ocre)) 50%,
-      hsl(var(--terra-vinho)) 75%,
-      hsl(var(--terra-vinho)) 100%
-    );
-    height: 2px;
+  /*
+   * Marcador eyebrow — número/categoria com barra curta, padrão editorial.
+   * Uso: <p class="eyebrow">01 — Tradição</p>
+   */
+  .eyebrow {
+    font-family: theme('fontFamily.sans');
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: hsl(var(--foreground));
+  }
+
+  /*
+   * Superfície (substitui Card): borda fina + zero sombra.
+   * Interactive: hover inverte texto/fundo da borda inferior.
+   */
+  .surface {
+    border: 1px solid hsl(var(--foreground) / 0.12);
+    background: hsl(var(--card));
+  }
+  .surface-strong {
+    border: 1px solid hsl(var(--foreground));
+    background: hsl(var(--card));
+  }
+  .surface-hover {
+    transition: background 150ms ease, border-color 150ms ease;
+  }
+  .surface-hover:hover {
+    border-color: hsl(var(--foreground));
+    background: hsl(var(--muted));
+  }
+
+  /* Display gigante (hero). Use só em uma h1 por página. */
+  .display-hero {
+    font-family: theme('fontFamily.display');
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+  .display-hero em {
+    font-style: italic;
+    color: hsl(var(--terra-pemba));
+    font-weight: 400;
+  }
+
+  /* Sublinhado animado pra links importantes. */
+  .link-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 200ms ease;
+  }
+  .link-underline:hover::after {
+    transform: scaleX(1);
   }
 }

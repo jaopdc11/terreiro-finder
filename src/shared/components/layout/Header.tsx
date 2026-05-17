@@ -1,14 +1,17 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/shared/ui/button';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useServices } from '@/shared/hooks/useServices';
 import { useMinhasCasas } from '@/features/painel/hooks/usePainel';
 
+/**
+ * Header minimalista geométrico: barra com linha grossa embaixo, sem
+ * sombra/blur. Logo à esquerda em uppercase compact; navegação à direita
+ * sem ornamento, separada por linhas verticais finas.
+ */
 export function Header() {
   const { sessao, auth } = useServices();
   const estado = sessao.use((s) => s);
   const navigate = useNavigate();
-  // Só renderiza o link "Cadastrar minha casa" quando o user logado ainda não
-  // tem nenhuma casa vinculada — evita ruído pra quem já é dirigente.
+  const location = useLocation();
   const { data: minhasCasas } = useMinhasCasas();
   const mostrarCadastrar = !!estado.sessao && (minhasCasas?.length ?? 0) === 0;
 
@@ -19,57 +22,76 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="container flex items-center justify-between gap-4 py-4">
+    <header className="sticky top-0 z-30 border-b border-foreground bg-background">
+      <div className="container flex h-16 items-stretch">
         <Link
           to="/"
-          className="group flex items-center gap-2 font-display text-2xl font-medium text-primary"
+          className="flex items-center pr-6 text-sm font-bold uppercase tracking-[0.2em] text-foreground hover:text-primary"
           aria-label="terreiros — voltar pra busca"
         >
-          <span
-            aria-hidden="true"
-            className="inline-block h-3 w-3 rounded-full bg-primary shadow-warm-sm transition-transform group-hover:scale-110"
-          />
-          <span className="leading-none">terreiros</span>
+          terreiros<span className="ml-1 text-primary">.</span>
         </Link>
 
         <nav
           aria-label="Principal"
-          className="hidden items-center gap-1 text-sm md:flex"
+          className="ml-auto hidden items-stretch divide-x divide-foreground/10 border-x border-foreground/10 md:flex"
         >
-          <NavLink to="/">Buscar</NavLink>
-          <NavLink to="/indicar">Indicar uma casa</NavLink>
+          <NavLink to="/" active={location.pathname === '/'}>
+            Buscar
+          </NavLink>
+          <NavLink to="/indicar" active={location.pathname === '/indicar'}>
+            Indicar
+          </NavLink>
           {mostrarCadastrar ? (
-            <NavLink to="/cadastrar" destaque>
-              Cadastrar minha casa
+            <NavLink
+              to="/cadastrar"
+              active={location.pathname === '/cadastrar'}
+              destaque
+            >
+              Cadastrar casa
             </NavLink>
           ) : null}
-          {estado.sessao ? <NavLink to="/painel">Meu painel</NavLink> : null}
-          {estado.sessao?.podeAdministrar() ? (
-            <NavLink to="/admin">Moderação</NavLink>
+          {estado.sessao ? (
+            <NavLink to="/painel" active={location.pathname === '/painel'}>
+              Painel
+            </NavLink>
           ) : null}
-          <NavLink to="/sobre">Sobre</NavLink>
+          {estado.sessao?.podeAdministrar() ? (
+            <NavLink to="/admin" active={location.pathname === '/admin'}>
+              Moderação
+            </NavLink>
+          ) : null}
+          <NavLink to="/sobre" active={location.pathname === '/sobre'}>
+            Sobre
+          </NavLink>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex items-stretch md:ml-0">
           {estado.carregando ? null : estado.sessao ? (
             <>
-              <span className="hidden text-sm text-muted-foreground md:inline">
-                Salve, <span className="text-foreground">{estado.sessao.nomeExibicao}</span>
+              <span className="hidden items-center px-4 text-xs uppercase tracking-wider text-muted-foreground md:flex">
+                {estado.sessao.nomeExibicao}
               </span>
-              <Button variant="ghost" size="sm" onClick={sair}>
+              <button
+                onClick={sair}
+                className="flex items-center px-5 text-xs font-semibold uppercase tracking-wider text-foreground transition-colors hover:bg-foreground hover:text-background"
+              >
                 Sair
-              </Button>
+              </button>
             </>
           ) : (
             <>
-              <Link to="/login">
-                <Button variant="ghost" size="sm">
-                  Entrar
-                </Button>
+              <Link
+                to="/login"
+                className="flex items-center px-5 text-xs font-semibold uppercase tracking-wider text-foreground transition-colors hover:bg-foreground hover:text-background"
+              >
+                Entrar
               </Link>
-              <Link to="/cadastro">
-                <Button size="sm">Criar conta</Button>
+              <Link
+                to="/cadastro"
+                className="flex items-center bg-foreground px-5 text-xs font-semibold uppercase tracking-wider text-background transition-colors hover:bg-primary"
+              >
+                Criar conta
               </Link>
             </>
           )}
@@ -81,22 +103,27 @@ export function Header() {
 
 function NavLink({
   to,
-  children,
+  active,
   destaque,
+  children,
 }: {
   to: string;
-  children: React.ReactNode;
+  active: boolean;
   destaque?: boolean;
+  children: React.ReactNode;
 }) {
   return (
     <Link
       to={to}
       className={
-        'rounded-md px-3 py-1.5 transition-colors ' +
-        (destaque
-          ? 'font-medium text-primary hover:bg-primary/5'
-          : 'text-foreground/80 hover:bg-terra-areia-claro/50 hover:text-foreground')
+        'flex items-center px-5 text-xs font-semibold uppercase tracking-wider transition-colors ' +
+        (active
+          ? 'bg-foreground text-background'
+          : destaque
+            ? 'text-primary hover:bg-primary hover:text-primary-foreground'
+            : 'text-foreground/80 hover:bg-foreground hover:text-background')
       }
+      aria-current={active ? 'page' : undefined}
     >
       {children}
     </Link>

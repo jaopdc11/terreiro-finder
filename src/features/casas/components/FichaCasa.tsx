@@ -13,12 +13,24 @@ const TRADICAO_LABEL: Record<string, string> = {
   outra: 'Outra tradição',
 };
 
-function Card({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+/**
+ * Linha de info no estilo "definition list" — label compacto à esquerda,
+ * valor à direita. Grid de 12 cols pra alinhamento editorial.
+ */
+function InfoLinha({
+  rotulo,
+  children,
+}: {
+  rotulo: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="card-surface p-6 sm:p-7">
-      <h2 className="font-display text-xl text-foreground">{titulo}</h2>
-      <div className="mt-3 text-sm text-foreground/90">{children}</div>
-    </section>
+    <div className="grid grid-cols-12 gap-4 border-t border-foreground/10 py-5 first:border-t-0">
+      <dt className="eyebrow col-span-12 text-muted-foreground sm:col-span-3">
+        {rotulo}
+      </dt>
+      <dd className="col-span-12 text-foreground sm:col-span-9">{children}</dd>
+    </div>
   );
 }
 
@@ -27,19 +39,19 @@ export function FichaCasa({ casa }: { casa: Casa }) {
   const contato = casa.contato?.principal();
 
   return (
-    <article className="container max-w-3xl space-y-6 py-10">
+    <article className="container max-w-4xl py-12">
       {!casa.estaVerificada() ? (
         <aside
           role="note"
-          className="rounded-xl border border-dashed border-primary/60 bg-primary/5 p-4 text-sm"
+          className="mb-10 border-l-2 border-primary bg-primary/5 px-5 py-4 text-sm"
         >
-          <p className="font-medium text-primary">Casa indicada — não verificada</p>
-          <p className="mt-1 text-foreground/80">
+          <p className="eyebrow text-primary">Indicada — não verificada</p>
+          <p className="mt-2 text-foreground/85">
             Esta casa foi indicada pela comunidade e ainda não foi confirmada
             pela própria dirigência. Você é da casa?{' '}
             <Link
               to={`/reivindicar?casa=${casa.slug.toString()}`}
-              className="font-medium text-primary underline-offset-4 hover:underline"
+              className="link-underline font-medium text-primary"
             >
               Reivindique aqui
             </Link>
@@ -48,106 +60,113 @@ export function FichaCasa({ casa }: { casa: Casa }) {
         </aside>
       ) : null}
 
-      <header className="space-y-4">
-        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
-          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
+      <header className="border-b border-foreground pb-10">
+        <p className="eyebrow text-primary">
           {TRADICAO_LABEL[casa.tradicaoPrincipal] ?? casa.tradicaoPrincipal}
         </p>
-        <h1 className="font-display text-4xl leading-tight text-foreground sm:text-5xl">
+        <h1 className="display-hero mt-6 text-5xl text-foreground sm:text-7xl">
           {casa.nome}
         </h1>
         {casa.sacerdoteNome ? (
-          <p className="text-lg text-foreground/75">com {casa.sacerdoteNome}</p>
+          <p className="mt-6 font-display text-xl text-foreground/70">
+            com <em className="not-italic text-foreground">{casa.sacerdoteNome}</em>
+          </p>
         ) : null}
-        <div className="flex flex-wrap items-center gap-3 pt-1">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
           <BadgesAbertura casa={casa} />
           <BotaoFavorito casaId={casa.id} />
         </div>
       </header>
 
-      {casa.textoAntesVisita ? (
-        <Card titulo="Antes da primeira visita">
-          <p className="whitespace-pre-line">{casa.textoAntesVisita}</p>
-        </Card>
-      ) : null}
+      <div className="grid grid-cols-12 gap-x-6 pt-10">
+        <div className="col-span-12 space-y-12 md:col-span-8">
+          {casa.textoAntesVisita ? (
+            <section>
+              <p className="eyebrow text-muted-foreground">Antes da primeira visita</p>
+              <p className="mt-4 whitespace-pre-line text-lg leading-relaxed text-foreground/85">
+                {casa.textoAntesVisita}
+              </p>
+            </section>
+          ) : null}
 
-      {casa.descricao ? (
-        <Card titulo="Sobre a casa">
-          <p className="whitespace-pre-line">{casa.descricao}</p>
-        </Card>
-      ) : null}
+          {casa.descricao ? (
+            <section>
+              <p className="eyebrow text-muted-foreground">Sobre a casa</p>
+              <p className="mt-4 whitespace-pre-line text-lg leading-relaxed text-foreground/85">
+                {casa.descricao}
+              </p>
+            </section>
+          ) : null}
 
-      <CardBlocoTradicao casa={casa} />
+          <CardBlocoTradicao casa={casa} />
+        </div>
 
-      <Card titulo="Como visitar">
-        <dl className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-              Endereço
-            </dt>
-            <dd className="mt-1">
-              {endereco ?? (
-                <span className="text-muted-foreground">
-                  Endereço sob contato — combine direto pela casa.
-                </span>
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-              Visitação
-            </dt>
-            <dd className="mt-1">
-              {{
-                aberto: 'Aberta a visitas.',
-                jogo_previo: 'Visita após jogo prévio com a dirigência.',
-                so_indicacao: 'Só por indicação.',
-              }[casa.perfilAbertura.aceitaVisitantes]}
-            </dd>
-          </div>
-        </dl>
-      </Card>
+        <aside className="col-span-12 mt-12 md:col-span-4 md:mt-0 md:border-l md:border-foreground/10 md:pl-6">
+          <section className="border border-foreground p-6">
+            <p className="eyebrow text-muted-foreground">Como visitar</p>
+            <dl className="mt-2">
+              <InfoLinha rotulo="Endereço">
+                {endereco ?? (
+                  <span className="text-muted-foreground">
+                    Sob contato — combine pela casa.
+                  </span>
+                )}
+              </InfoLinha>
+              <InfoLinha rotulo="Visitação">
+                {
+                  {
+                    aberto: 'Aberta a visitas.',
+                    jogo_previo: 'Visita após jogo prévio.',
+                    so_indicacao: 'Só por indicação.',
+                  }[casa.perfilAbertura.aceitaVisitantes]
+                }
+              </InfoLinha>
+            </dl>
+          </section>
 
-      <Card titulo="Contato">
-        {contato ? (
-          <ul className="space-y-2">
-            {casa.contato?.whatsapp ? (
-              <li>
-                <a
-                  className="inline-flex items-center gap-2 text-primary underline-offset-4 hover:underline"
-                  href={`https://wa.me/${casa.contato.whatsapp.replace(/\D/g, '')}`}
-                >
-                  <span aria-hidden="true">📱</span> WhatsApp: {casa.contato.whatsapp}
-                </a>
-              </li>
-            ) : null}
-            {casa.contato?.telefone ? (
-              <li>
-                <a
-                  className="inline-flex items-center gap-2 text-primary underline-offset-4 hover:underline"
-                  href={`tel:${casa.contato.telefone.replace(/\D/g, '')}`}
-                >
-                  <span aria-hidden="true">☎</span> Telefone: {casa.contato.telefone}
-                </a>
-              </li>
-            ) : null}
-            {casa.contato?.email ? (
-              <li>
-                <a
-                  className="inline-flex items-center gap-2 text-primary underline-offset-4 hover:underline"
-                  href={`mailto:${casa.contato.email}`}
-                >
-                  <span aria-hidden="true">✉</span> {casa.contato.email}
-                </a>
-              </li>
-            ) : null}
-          </ul>
-        ) : (
-          <p className="text-muted-foreground">
-            A casa ainda não cadastrou canais de contato direto.
-          </p>
-        )}
-      </Card>
+          <section className="mt-6 border border-foreground p-6">
+            <p className="eyebrow text-muted-foreground">Contato</p>
+            {contato ? (
+              <ul className="mt-4 space-y-3 text-sm">
+                {casa.contato?.whatsapp ? (
+                  <li>
+                    <a
+                      className="link-underline font-medium text-foreground"
+                      href={`https://wa.me/${casa.contato.whatsapp.replace(/\D/g, '')}`}
+                    >
+                      WhatsApp · {casa.contato.whatsapp}
+                    </a>
+                  </li>
+                ) : null}
+                {casa.contato?.telefone ? (
+                  <li>
+                    <a
+                      className="link-underline font-medium text-foreground"
+                      href={`tel:${casa.contato.telefone.replace(/\D/g, '')}`}
+                    >
+                      Telefone · {casa.contato.telefone}
+                    </a>
+                  </li>
+                ) : null}
+                {casa.contato?.email ? (
+                  <li>
+                    <a
+                      className="link-underline font-medium text-foreground"
+                      href={`mailto:${casa.contato.email}`}
+                    >
+                      {casa.contato.email}
+                    </a>
+                  </li>
+                ) : null}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm text-muted-foreground">
+                A casa ainda não cadastrou canais de contato direto.
+              </p>
+            )}
+          </section>
+        </aside>
+      </div>
     </article>
   );
 }

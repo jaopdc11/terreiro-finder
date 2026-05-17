@@ -2,27 +2,30 @@ import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/cn';
 
+/**
+ * Botões minimalistas geométricos: radius mínimo, sem sombra. Hover inverte
+ * cor em vez de alterar opacidade. Foco é box-shadow rígido (no globals.css).
+ */
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm font-medium transition-colors duration-150 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground shadow-warm-sm hover:bg-terra-pemba-escuro hover:shadow-warm',
+          'bg-foreground text-background hover:bg-primary',
+        primary:
+          'bg-primary text-primary-foreground hover:bg-foreground',
         outline:
-          'border border-primary/70 bg-card/40 text-primary hover:border-primary hover:bg-primary/5 shadow-warm-sm',
-        ghost:
-          'text-foreground hover:bg-terra-areia-claro/50 hover:text-primary',
+          'border border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background',
+        ghost: 'text-foreground hover:bg-foreground/5',
         destructive:
-          'bg-destructive text-destructive-foreground shadow-warm-sm hover:bg-destructive/90 hover:shadow-warm',
-        secondary:
-          'bg-terra-areia-claro text-foreground hover:bg-terra-areia shadow-warm-sm',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'bg-destructive text-destructive-foreground hover:bg-foreground',
+        link: 'text-foreground underline-offset-4 hover:underline px-0',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 px-3.5',
-        lg: 'h-12 px-7 text-base',
+        default: 'h-11 px-5 text-sm tracking-wide uppercase',
+        sm: 'h-9 px-4 text-xs tracking-wider uppercase',
+        lg: 'h-14 px-8 text-sm tracking-widest uppercase',
         icon: 'h-10 w-10',
       },
     },

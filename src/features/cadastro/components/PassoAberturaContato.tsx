@@ -56,11 +56,11 @@ export function PassoAberturaContato({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      <fieldset className="space-y-2 rounded-lg border border-border p-4">
+      <fieldset className="space-y-3 border border-foreground/15 p-5">
         <legend className="px-2 text-sm font-medium">Endereço público</legend>
         <div className="grid gap-2 sm:grid-cols-3">
           {ENDERECO.map((o) => (
-            <label key={o.v} className="cursor-pointer rounded-md border border-border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+            <label key={o.v} className="cursor-pointer border border-foreground/15 p-3 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5">
               <input
                 type="radio"
                 value={o.v}
@@ -73,11 +73,11 @@ export function PassoAberturaContato({
         </div>
       </fieldset>
 
-      <fieldset className="space-y-2 rounded-lg border border-border p-4">
+      <fieldset className="space-y-3 border border-foreground/15 p-5">
         <legend className="px-2 text-sm font-medium">Aceita visitantes</legend>
         <div className="grid gap-2 sm:grid-cols-3">
           {VISITANTES.map((o) => (
-            <label key={o.v} className="cursor-pointer rounded-md border border-border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+            <label key={o.v} className="cursor-pointer border border-foreground/15 p-3 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5">
               <input
                 type="radio"
                 value={o.v}
@@ -90,11 +90,11 @@ export function PassoAberturaContato({
         </div>
       </fieldset>
 
-      <fieldset className="space-y-2 rounded-lg border border-border p-4">
+      <fieldset className="space-y-3 border border-foreground/15 p-5">
         <legend className="px-2 text-sm font-medium">Registro de imagem</legend>
         <div className="grid gap-2 sm:grid-cols-3">
           {FOTO.map((o) => (
-            <label key={o.v} className="cursor-pointer rounded-md border border-border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+            <label key={o.v} className="cursor-pointer border border-foreground/15 p-3 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5">
               <input
                 type="radio"
                 value={o.v}
@@ -107,7 +107,7 @@ export function PassoAberturaContato({
         </div>
       </fieldset>
 
-      <fieldset className="space-y-3 rounded-lg border border-border p-4">
+      <fieldset className="space-y-4 border border-foreground/15 p-5">
         <legend className="px-2 text-sm font-medium">Como te contatar</legend>
         <p className="text-xs text-muted-foreground">
           Pelo menos um canal. Aparece direto na ficha pública.
@@ -141,7 +141,7 @@ export function PassoAberturaContato({
           rows={4}
           {...register('texto_antes_visita')}
           placeholder="Roupa, horário, postura — o que quem chega precisa saber."
-          className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          className="flex w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2 text-base focus:border-primary focus:outline-none"
         />
         {errors.texto_antes_visita ? (
           <p role="alert" className="text-sm text-destructive">
@@ -150,7 +150,7 @@ export function PassoAberturaContato({
         ) : null}
       </div>
 
-      <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm">
+      <div className="border-l-2 border-foreground bg-muted/40 p-4 text-sm">
         <label className="flex items-start gap-3">
           <input
             type="checkbox"

@@ -6,13 +6,8 @@ import { useMinhasCasas } from '@/features/painel/hooks/usePainel';
 const DISPENSADO_KEY = 'terreiros.banner-cta-dirigencia';
 
 /**
- * Banner mostrado abaixo do Header quando a sessão é dirigência E ainda
- * não tem casa vinculada. Convida a ir pro wizard /cadastrar.
- *
- * Renderização condicional (3 caminhos pra ocultar):
- *   - Sem sessão ou não-dirigência: null
- *   - Já tem casa vinculada: null (jornada concluída)
- *   - User dispensou nesta sessão: null (persistido no localStorage)
+ * Banner abaixo do header pra dirigência sem casa vinculada. Estilo
+ * minimalista: fundo escuro, linhas marcantes, sem ornamento colorido.
  */
 export function BannerCTADirigencia() {
   const { sessao } = useServices();
@@ -51,28 +46,32 @@ export function BannerCTADirigencia() {
     <aside
       role="region"
       aria-label="Cadastre sua casa"
-      className="border-b border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent"
+      className="border-b border-foreground bg-foreground text-background"
     >
-      <div className="container flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
-        <p className="text-foreground/90">
-          <span aria-hidden="true" className="mr-1.5">🪔</span>
-          <strong>Axé, {estado.sessao.nomeExibicao}.</strong> Você se cadastrou
-          como dirigência — vamos registrar sua casa?
+      <div className="container flex flex-wrap items-center justify-between gap-4 py-3 text-sm">
+        <p className="flex items-baseline gap-3">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-primary">
+            Ação
+          </span>
+          <span>
+            Axé, <strong>{estado.sessao.nomeExibicao}</strong> — você se
+            cadastrou como dirigência. Vamos registrar sua casa?
+          </span>
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Link
             to="/cadastrar"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground shadow-warm-sm transition-all hover:bg-terra-pemba-escuro hover:shadow-warm"
+            className="border border-background px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-background transition-colors hover:bg-background hover:text-foreground"
           >
-            Cadastrar minha casa
+            Cadastrar
           </Link>
           <button
             type="button"
             onClick={dispensar}
-            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            className="text-xs uppercase tracking-wider text-background/60 transition-colors hover:text-background"
             aria-label="Dispensar este aviso"
           >
-            depois
+            Depois
           </button>
         </div>
       </div>

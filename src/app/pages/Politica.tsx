@@ -1,154 +1,208 @@
 import { Link } from 'react-router-dom';
 
+interface Secao {
+  num: string;
+  titulo: string;
+  conteudo: React.ReactNode;
+}
+
+const SECOES: Secao[] = [
+  {
+    num: '01',
+    titulo: 'O que o site faz',
+    conteudo: (
+      <p>
+        O <strong className="text-foreground">terreiros</strong> é um site
+        gratuito que ajuda pessoas a encontrar casas de religiões de matriz
+        afro e afro-indígena. A dor que tentamos resolver é{' '}
+        <em className="italic text-foreground">descoberta</em>: você quer
+        chegar numa casa séria, e a casa quer ser achada por quem busca de
+        verdade.
+      </p>
+    ),
+  },
+  {
+    num: '02',
+    titulo: 'Princípios',
+    conteudo: (
+      <ol className="space-y-3">
+        <li>
+          <strong className="text-foreground">O site não define doutrina.</strong>{' '}
+          Cada casa fala por si. A gente só organiza e ajuda a encontrar.
+        </li>
+        <li>
+          <strong className="text-foreground">A casa controla o que aparece.</strong>{' '}
+          Endereço, contato, fotos, regras de visita — tudo é editável pela
+          dirigência. Você pode pedir arquivamento a qualquer hora.
+        </li>
+        <li>
+          <strong className="text-foreground">Moderação humana.</strong> Toda
+          casa passa por revisão antes de virar pública. Indicação de
+          visitante não publica automaticamente — só depois que a dirigência
+          confirma.
+        </li>
+        <li>
+          <strong className="text-foreground">Privacidade.</strong> Religião
+          é dado sensível. Não pedimos nada que não seja necessário pra busca
+          funcionar.
+        </li>
+        <li>
+          <strong className="text-foreground">
+            Indicação só publica com consentimento.
+          </strong>{' '}
+          Se alguém indica uma casa pela qual você é dirigência sem te avisar,
+          a gente contata pra confirmar antes de tornar a ficha pública.
+        </li>
+      </ol>
+    ),
+  },
+  {
+    num: '03',
+    titulo: 'O que a gente coleta',
+    conteudo: (
+      <ul className="space-y-3">
+        <li>
+          <strong className="text-foreground">Quem visita o site (anônimo):</strong>{' '}
+          nada. O site funciona sem cadastro. Não usamos cookies de
+          rastreamento.
+        </li>
+        <li>
+          <strong className="text-foreground">Quem se cadastra:</strong> email
+          e senha (criptografada), nome de exibição, e — se for dirigente —
+          quais casas você administra. Nada disso é compartilhado com
+          terceiros.
+        </li>
+        <li>
+          <strong className="text-foreground">Quem cadastra uma casa:</strong>{' '}
+          os dados que você preenche no wizard. Campos públicos estão
+          explicitados no formulário; o que você marca como{' '}
+          <em className="italic">oculto</em> ou{' '}
+          <em className="italic">sob contato</em> não aparece pra visitantes
+          anônimos.
+        </li>
+        <li>
+          <strong className="text-foreground">Quem favorita uma casa:</strong>{' '}
+          a relação fica visível só pra você (regra de banco impede outros
+          usuários de verem seus favoritos).
+        </li>
+      </ul>
+    ),
+  },
+  {
+    num: '04',
+    titulo: 'Pra que a gente usa',
+    conteudo: (
+      <>
+        <p>
+          Os dados servem{' '}
+          <strong className="text-foreground">exclusivamente</strong> pra:
+        </p>
+        <ul className="mt-3 space-y-1.5">
+          <li>— Autenticar você no painel da dirigência;</li>
+          <li>— Permitir que visitantes encontrem casas via busca e mapa;</li>
+          <li>— Moderar cadastros e indicações (contato cruzado antes de aprovar);</li>
+          <li>— Contatar a dirigência caso uma indicação envolva a casa dela.</li>
+        </ul>
+        <p className="mt-4">
+          A gente <strong className="text-foreground">não</strong> vende dado,{' '}
+          <strong className="text-foreground">não</strong> compartilha com
+          terceiros pra marketing, e{' '}
+          <strong className="text-foreground">não</strong> faz perfil
+          comportamental.
+        </p>
+      </>
+    ),
+  },
+  {
+    num: '05',
+    titulo: 'Correção e remoção',
+    conteudo: (
+      <>
+        <p>Se você é dirigência:</p>
+        <ul className="mt-3 space-y-2">
+          <li>
+            <strong className="text-foreground">Edição:</strong> faça login e
+            abra o{' '}
+            <Link to="/painel" className="link-underline text-primary">
+              painel
+            </Link>
+            . Pode mudar perfil, endereço, abertura, contato e fotos a
+            qualquer hora.
+          </li>
+          <li>
+            <strong className="text-foreground">Reivindicação:</strong> se sua
+            casa apareceu via indicação e você quer assumir a ficha, abra{' '}
+            <Link to="/" className="link-underline text-primary">
+              a busca
+            </Link>{' '}
+            e clique em <em className="italic">Reivindique aqui</em>.
+          </li>
+          <li>
+            <strong className="text-foreground">Arquivamento:</strong> nos
+            contate. A gente arquiva a ficha em até 7 dias.
+          </li>
+        </ul>
+        <p className="mt-4">
+          Se você é só visitante e quer deletar a conta, nos escreva — apagamos
+          a conta e os favoritos (sem afetar fichas de casas que você indicou:
+          essas seguem moderadas pela dirigência).
+        </p>
+      </>
+    ),
+  },
+  {
+    num: '06',
+    titulo: 'Contato',
+    conteudo: (
+      <p>
+        Pra correção, remoção ou dúvidas:{' '}
+        <a
+          href="mailto:contato@terreiros.app"
+          className="link-underline text-primary"
+        >
+          contato@terreiros.app
+        </a>
+        .
+      </p>
+    ),
+  },
+];
+
 /**
- * Política de privacidade — versão simples do MVP. Pode evoluir depois,
- * mas o gate da Fase 5 exige só: dizer o que coletamos, por quê, e como
- * contatar pra correção/remoção. Inspirado no princípio §1.2 #4 (casa
- * controla exposição).
+ * Política de privacidade em layout editorial: cada seção tem número grande
+ * à esquerda + título display + conteúdo em texto-corpo. Sem cards.
  */
 export function Politica() {
   return (
-    <article className="container max-w-3xl space-y-8 py-12 text-foreground/90">
-      <header className="space-y-3 border-b border-border/60 pb-6">
-        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
-          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
-          Privacidade
-        </p>
-        <h1 className="font-display text-4xl sm:text-5xl">
-          Política de privacidade
+    <article className="container max-w-4xl py-16">
+      <header className="border-b border-foreground pb-10">
+        <p className="eyebrow text-primary">Privacidade</p>
+        <h1 className="display-hero mt-8 text-foreground">
+          Política de <em>privacidade</em>.
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Última atualização: 17 de maio de 2026
+        <p className="mt-6 text-xs uppercase tracking-widest text-muted-foreground">
+          Última atualização · 17 de maio de 2026
         </p>
       </header>
 
-      <section className="space-y-3">
-        <h2 className="font-display text-2xl">O que o site faz</h2>
-        <p>
-          O <strong>terreiros</strong> é um site gratuito que ajuda pessoas a
-          encontrar casas de religiões de matriz afro e afro-indígena. A dor que
-          tentamos resolver é <em>descoberta</em>: você quer chegar numa casa
-          séria, e a casa quer ser achada por quem busca de verdade.
-        </p>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="font-display text-2xl">Princípios</h2>
-        <ol className="list-decimal space-y-2 pl-6">
-          <li>
-            <strong>O site não define doutrina.</strong> Cada casa fala por si
-            mesma. A gente só organiza e ajuda a encontrar.
-          </li>
-          <li>
-            <strong>A casa controla o que aparece.</strong> Endereço, contato,
-            fotos, regras de visita — tudo é editável pela dirigência. Você
-            pode pedir arquivamento a qualquer momento.
-          </li>
-          <li>
-            <strong>Moderação humana.</strong> Toda casa passa por revisão antes
-            de virar pública. Indicação de visitante não publica
-            automaticamente — só depois que a dirigência confirma.
-          </li>
-          <li>
-            <strong>Privacidade.</strong> Religião é dado sensível. Não pedimos
-            nenhuma informação que não seja estritamente necessária pra busca
-            funcionar.
-          </li>
-          <li>
-            <strong>Indicação só publica com consentimento.</strong> Se alguém
-            indica uma casa pela qual você é dirigente sem te avisar antes, a
-            gente entra em contato pra confirmar antes de tornar a ficha
-            pública.
-          </li>
-        </ol>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="font-display text-2xl">O que a gente coleta</h2>
-        <ul className="list-disc space-y-2 pl-6">
-          <li>
-            <strong>Quem visita o site (anônimo):</strong> nada. O site funciona
-            sem cadastro. Não usamos cookies de rastreamento.
-          </li>
-          <li>
-            <strong>Quem se cadastra:</strong> email e senha (criptografada),
-            nome de exibição, e — se for dirigente — quais casas você
-            administra. Nada disso é compartilhado com terceiros.
-          </li>
-          <li>
-            <strong>Quem cadastra uma casa:</strong> os dados que você mesmo
-            preenche no wizard (nome da casa, endereço, contatos, perfil de
-            abertura). Os campos que aparecem publicamente estão explicitados
-            no formulário; o que você marca como <em>oculto</em> ou{' '}
-            <em>sob contato</em> não aparece pra visitantes anônimos.
-          </li>
-          <li>
-            <strong>Quem favorita uma casa:</strong> a relação fica visível
-            <em> só pra você</em> (regra de banco impede outros usuários de
-            verem seus favoritos).
-          </li>
-        </ul>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="font-display text-2xl">Pra que a gente usa</h2>
-        <p>
-          Os dados servem <strong>exclusivamente</strong> pra:
-        </p>
-        <ul className="list-disc space-y-1 pl-6">
-          <li>autenticar você no painel da dirigência;</li>
-          <li>permitir que visitantes encontrem casas via busca e mapa;</li>
-          <li>moderar cadastros e indicações (contato cruzado antes de aprovar);</li>
-          <li>contatar a dirigência caso uma indicação envolva a casa dela.</li>
-        </ul>
-        <p>
-          A gente <strong>não</strong> vende dado, <strong>não</strong>{' '}
-          compartilha com terceiros pra marketing, e <strong>não</strong> faz
-          perfil comportamental.
-        </p>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="font-display text-2xl">Como pedir correção ou remoção</h2>
-        <p>
-          Se você é dirigência:
-        </p>
-        <ul className="list-disc space-y-1 pl-6">
-          <li>
-            Edição: faça login e abra o <Link to="/painel" className="text-primary hover:underline">painel</Link>.
-            Você pode mudar perfil, endereço, abertura, contato e fotos a
-            qualquer momento.
-          </li>
-          <li>
-            Reivindicação: se sua casa apareceu via indicação e você quer
-            assumir a ficha, abra <Link to="/" className="text-primary hover:underline">a busca</Link>,
-            entre na ficha da casa e clique em <em>Reivindique aqui</em>.
-          </li>
-          <li>
-            Arquivamento (tirar do ar): nos contate (veja abaixo). A gente
-            arquiva a ficha em até 7 dias.
-          </li>
-        </ul>
-        <p>
-          Se você só é visitante e quer deletar sua conta, nos escreva — a
-          gente apaga sua conta e seus favoritos (sem afetar fichas de casas
-          que você indicou: essas seguem moderadas pela dirigência).
-        </p>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="font-display text-2xl">Contato</h2>
-        <p>
-          Para correção, remoção ou dúvidas:{' '}
-          <a
-            href="mailto:contato@terreiros.app"
-            className="text-primary hover:underline"
+      <div>
+        {SECOES.map((s) => (
+          <section
+            key={s.num}
+            className="grid grid-cols-12 gap-x-6 border-b border-foreground/10 py-12"
           >
-            contato@terreiros.app
-          </a>
-          .
-        </p>
-      </section>
+            <div className="col-span-12 md:col-span-3">
+              <span className="font-mono text-sm text-primary">{s.num}</span>
+              <h2 className="mt-3 font-display text-3xl leading-tight">
+                {s.titulo}
+              </h2>
+            </div>
+            <div className="col-span-12 mt-6 text-foreground/85 md:col-span-9 md:mt-0">
+              {s.conteudo}
+            </div>
+          </section>
+        ))}
+      </div>
     </article>
   );
 }

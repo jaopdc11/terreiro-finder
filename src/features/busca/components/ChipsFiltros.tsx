@@ -30,12 +30,12 @@ function Chip({
       onClick={onClick}
       aria-pressed={ativo}
       className={cn(
-        'rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all duration-200 active:scale-[0.96]',
+        'h-9 border px-3.5 text-[11px] font-semibold uppercase tracking-wider transition-colors',
         ativo
-          ? 'border-primary bg-primary text-primary-foreground shadow-warm-sm'
+          ? 'border-primary bg-primary text-primary-foreground'
           : variant === 'clear'
-            ? 'border-dashed border-foreground/30 bg-transparent text-muted-foreground hover:border-foreground/60 hover:text-foreground'
-            : 'border-border/70 bg-card text-foreground/85 hover:border-primary/40 hover:bg-card hover:text-foreground shadow-warm-sm',
+            ? 'border-dashed border-foreground/40 bg-transparent text-muted-foreground hover:border-foreground hover:text-foreground'
+            : 'border-foreground/20 bg-background text-foreground hover:border-foreground hover:bg-foreground hover:text-background',
       )}
     >
       {children}
@@ -45,12 +45,14 @@ function Chip({
 
 export function ChipsFiltros({ filtros, onChange }: Props) {
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Filtros rápidos">
+    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtros rápidos">
       {TRADICOES.map((t) => (
         <Chip
           key={t.v}
           ativo={filtros.tradicao === t.v}
-          onClick={() => onChange(filtros.comTradicao(filtros.tradicao === t.v ? null : t.v))}
+          onClick={() =>
+            onChange(filtros.comTradicao(filtros.tradicao === t.v ? null : t.v))
+          }
         >
           {t.label}
         </Chip>
@@ -59,7 +61,9 @@ export function ChipsFiltros({ filtros, onChange }: Props) {
         ativo={filtros.aceitaVisitantes === 'aberto'}
         onClick={() =>
           onChange(
-            filtros.comAceitaVisitantes(filtros.aceitaVisitantes === 'aberto' ? null : 'aberto'),
+            filtros.comAceitaVisitantes(
+              filtros.aceitaVisitantes === 'aberto' ? null : 'aberto',
+            ),
           )
         }
       >
@@ -92,7 +96,7 @@ export function ChipsFiltros({ filtros, onChange }: Props) {
             )
           }
         >
-          Limpar filtros
+          ✕ Limpar
         </Chip>
       ) : null}
     </div>

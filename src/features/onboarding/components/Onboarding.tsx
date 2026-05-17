@@ -31,37 +31,36 @@ export function Onboarding() {
       aria-modal="true"
       aria-labelledby="onboarding-titulo"
       data-testid="onboarding"
-      className="fixed inset-0 z-[2100] flex items-center justify-center bg-foreground/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[2100] flex items-center justify-center bg-foreground/60 p-4"
     >
-      <div className="w-full max-w-lg rounded-2xl border border-border/60 bg-card p-7 shadow-warm-lg">
-        <div className="ornament-rule -mx-7 -mt-7 mb-5 rounded-t-2xl" aria-hidden="true" />
-        <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+      <div className="w-full max-w-xl border-2 border-foreground bg-background p-8">
+        <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
+          <span className="inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             <span className="flex gap-1" aria-hidden="true">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
                   className={
-                    'h-1.5 w-5 rounded-full ' +
-                    (i <= passo ? 'bg-primary' : 'bg-terra-areia')
+                    'h-0.5 w-6 ' +
+                    (i <= passo ? 'bg-primary' : 'bg-foreground/20')
                   }
                 />
               ))}
             </span>
-            Passo {passo + 1} de 3
+            <span className="font-mono">{String(passo + 1).padStart(2, '0')}/03</span>
           </span>
           <button
             type="button"
             onClick={pular}
-            className="text-sm text-muted-foreground transition-colors hover:text-primary"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
           >
             Pular
           </button>
         </div>
 
         {passo === 0 ? (
-          <div className="mt-4">
-            <h2 id="onboarding-titulo" className="font-display text-2xl">
+          <div className="mt-8">
+            <h2 id="onboarding-titulo" className="font-display text-4xl leading-tight">
               Salve. Bom ter você por aqui.
             </h2>
             <p className="mt-3 text-muted-foreground">
@@ -76,8 +75,8 @@ export function Onboarding() {
         ) : null}
 
         {passo === 1 ? (
-          <div className="mt-4">
-            <h2 id="onboarding-titulo" className="font-display text-2xl">
+          <div className="mt-8">
+            <h2 id="onboarding-titulo" className="font-display text-4xl leading-tight">
               Tu procura uma casa, ou é da dirigência?
             </h2>
             <p className="mt-2 text-muted-foreground">
@@ -109,8 +108,8 @@ export function Onboarding() {
         ) : null}
 
         {passo === 2 ? (
-          <div className="mt-4">
-            <h2 id="onboarding-titulo" className="font-display text-2xl">
+          <div className="mt-8">
+            <h2 id="onboarding-titulo" className="font-display text-4xl leading-tight">
               {bifurcacao === 'dirigencia' ? 'Vamos cadastrar tua casa.' : 'Vamos procurar uma casa.'}
             </h2>
             <p className="mt-2 text-muted-foreground">

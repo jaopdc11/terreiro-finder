@@ -48,17 +48,9 @@ const config: Config = {
           foreground: 'hsl(var(--card-foreground))',
         },
         terra: {
-          areia: 'hsl(var(--terra-areia))',
-          'areia-claro': 'hsl(var(--terra-areia-claro))',
           creme: 'hsl(var(--terra-creme))',
-          'creme-escuro': 'hsl(var(--terra-creme-escuro))',
           pemba: 'hsl(var(--terra-pemba))',
-          'pemba-claro': 'hsl(var(--terra-pemba-claro))',
-          'pemba-escuro': 'hsl(var(--terra-pemba-escuro))',
-          vinho: 'hsl(var(--terra-vinho))',
           grafite: 'hsl(var(--terra-grafite))',
-          'grafite-suave': 'hsl(var(--terra-grafite-suave))',
-          ocre: 'hsl(var(--terra-ocre))',
         },
       },
       fontFamily: {

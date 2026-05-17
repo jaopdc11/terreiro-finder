@@ -32,27 +32,26 @@ export function Indicar() {
 
   if (mutation.isSuccess) {
     return (
-      <section className="container max-w-xl py-14">
-        <div className="card-surface p-8 text-center">
-          <span className="text-3xl" aria-hidden="true">🪔</span>
-          <h1 className="mt-3 font-display text-3xl">Indicação recebida. Axé.</h1>
-          <p className="mt-3 text-muted-foreground">
+      <section className="container max-w-2xl py-24">
+        <div className="border-2 border-foreground p-10 text-center">
+          <p className="eyebrow text-primary">Confirmação</p>
+          <h1 className="display-hero mt-6 text-4xl">
+            Indicação<br />recebida.
+          </h1>
+          <p className="mt-6 text-foreground/75">
             Vamos contatar a casa pelo canal que você passou. A casa só aparece
             no site depois que ela autorizar.
           </p>
-          <div className="mt-6 flex justify-center gap-6 text-sm">
-            <Link
-              to="/"
-              className="text-primary underline-offset-4 hover:underline"
-            >
+          <div className="mt-8 flex justify-center gap-8 text-xs font-semibold uppercase tracking-widest">
+            <Link to="/" className="link-underline text-foreground">
               Voltar pra busca
             </Link>
             <button
               type="button"
-              className="text-primary underline-offset-4 hover:underline"
+              className="link-underline text-foreground"
               onClick={() => mutation.reset()}
             >
-              Indicar outra casa
+              Indicar outra
             </button>
           </div>
         </div>
@@ -61,23 +60,27 @@ export function Indicar() {
   }
 
   return (
-    <section className="container max-w-xl py-12">
-      <header className="space-y-3 pb-2">
-        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
-          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
-          Indicação
-        </p>
-        <h1 className="font-display text-4xl">Indicar uma casa</h1>
-        <p className="text-muted-foreground">
-          Conhece um terreiro que ainda não está aqui? Manda pra gente.{' '}
-          <strong>
-            A casa só aparece no site depois que a dirigência autorizar
-          </strong>{' '}
-          — a gente contata pelo canal que você passar.
-        </p>
-      </header>
+    <section className="container max-w-5xl py-20">
+      <div className="grid grid-cols-12 gap-x-8">
+        <header className="col-span-12 md:col-span-5">
+          <p className="eyebrow text-primary">Indicação</p>
+          <h1 className="display-hero mt-8 text-5xl">
+            Indicar<br />uma casa.
+          </h1>
+          <p className="mt-6 max-w-xs text-foreground/70">
+            Conhece um terreiro que ainda não está aqui? Manda pra gente.{' '}
+            <strong className="text-foreground">
+              A casa só aparece no site depois que a dirigência autorizar
+            </strong>{' '}
+            — a gente contata pelo canal que você passar.
+          </p>
+        </header>
 
-      <form onSubmit={onSubmit} className="card-surface mt-6 space-y-5 p-6 sm:p-7" noValidate>
+        <form
+          onSubmit={onSubmit}
+          className="col-span-12 mt-12 space-y-7 border-t border-foreground pt-10 md:col-span-7 md:mt-0 md:border-l md:border-t-0 md:pl-8 md:pt-0"
+          noValidate
+        >
         <div className="space-y-1">
           <Label htmlFor="ind-nome">Nome da casa</Label>
           <Input id="ind-nome" {...register('nome')} aria-invalid={!!errors.nome} />
@@ -142,20 +145,24 @@ export function Indicar() {
             id="ind-obs"
             rows={3}
             {...register('observacoes')}
-            className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+            className="flex w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2 text-base focus:border-primary focus:outline-none"
           />
         </div>
 
         {mutation.error ? (
-          <p role="alert" className="text-sm text-destructive">
+          <p
+            role="alert"
+            className="border-l-2 border-destructive pl-3 text-sm text-destructive"
+          >
             {mutation.error.message}
           </p>
         ) : null}
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+        <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">
           {isSubmitting ? 'Enviando…' : 'Enviar indicação'}
         </Button>
-      </form>
+        </form>
+      </div>
     </section>
   );
 }

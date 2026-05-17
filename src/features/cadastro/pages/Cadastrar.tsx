@@ -13,6 +13,8 @@ import { useCadastrarCasa } from '../hooks/useCadastrarCasa';
 
 type Acumulado = Partial<NovaCasaDeProprioInput>;
 
+const PASSOS = ['Identidade', 'Endereço', 'Abertura & Contato'] as const;
+
 export function Cadastrar() {
   const [passo, setPasso] = useState<0 | 1 | 2>(0);
   const [acumulado, setAcumulado] = useState<Acumulado>({});
@@ -33,27 +35,23 @@ export function Cadastrar() {
 
   if (mutation.isSuccess) {
     return (
-      <section className="container max-w-2xl py-14">
-        <div className="card-surface p-8 text-center">
-          <span className="text-3xl" aria-hidden="true">🪔</span>
-          <h1 className="mt-3 font-display text-3xl">Cadastro recebido. Axé.</h1>
-          <p className="mt-3 text-muted-foreground">
+      <section className="container max-w-2xl py-24">
+        <div className="border-2 border-foreground p-10 text-center">
+          <p className="eyebrow text-primary">Confirmação</p>
+          <h1 className="display-hero mt-6 text-4xl">
+            Cadastro<br />recebido.
+          </h1>
+          <p className="mt-6 text-foreground/75">
             Vamos validar suas informações. Quando a casa for aprovada, ela
             aparece no mapa <strong>verificada</strong> e você vira dirigente
             principal no seu painel.
           </p>
-          <div className="mt-6 flex justify-center gap-6 text-sm">
-            <Link
-              to="/"
-              className="text-primary underline-offset-4 hover:underline"
-            >
+          <div className="mt-8 flex justify-center gap-8 text-xs font-semibold uppercase tracking-widest">
+            <Link to="/" className="link-underline text-foreground">
               Voltar pra busca
             </Link>
-            <Link
-              to="/painel"
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              Ir pro meu painel
+            <Link to="/painel" className="link-underline text-foreground">
+              Ir pro painel
             </Link>
           </div>
         </div>
@@ -62,14 +60,13 @@ export function Cadastrar() {
   }
 
   return (
-    <section className="container max-w-2xl py-12">
-      <header className="space-y-3 pb-2">
-        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
-          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
-          Cadastro de casa
-        </p>
-        <h1 className="font-display text-4xl">Cadastrar minha casa</h1>
-        <p className="text-muted-foreground">
+    <section className="container max-w-4xl py-16">
+      <header className="border-b border-foreground pb-10">
+        <p className="eyebrow text-primary">Cadastro de casa</p>
+        <h1 className="display-hero mt-8 text-5xl">
+          Cadastrar<br />minha casa.
+        </h1>
+        <p className="mt-6 max-w-prose text-foreground/75">
           Você está cadastrando como dirigência. Depois de aprovado, a casa
           nasce verificada e você vira dirigente principal.
         </p>
@@ -77,47 +74,46 @@ export function Cadastrar() {
 
       <aside
         role="note"
-        className="mt-6 rounded-xl border border-dashed border-primary/60 bg-primary/5 p-4 text-sm"
+        className="my-10 border-l-2 border-primary bg-primary/5 px-5 py-4 text-sm"
       >
-        <p className="font-medium text-primary">
-          Você está afirmando ser dirigente desta casa.
-        </p>
-        <p className="mt-1 text-foreground/80">
-          Se você só conhece a casa mas não é da dirigência, volta e usa{' '}
-          <Link to="/indicar" className="underline">
+        <p className="eyebrow text-primary">Atenção</p>
+        <p className="mt-2 text-foreground/85">
+          Você está afirmando ser dirigente desta casa. Se você só conhece a
+          casa mas não é da dirigência, volta e usa{' '}
+          <Link to="/indicar" className="link-underline text-primary">
             Indicar uma casa
           </Link>{' '}
           — esse fluxo é o certo pra quem quer compartilhar uma casa sem ser
-          da dirigência. Aqui, vamos contatar a casa antes de aprovar.
+          da dirigência.
         </p>
       </aside>
 
       <ol
-        className="mt-6 flex items-center gap-2 text-sm"
+        className="grid grid-cols-3 gap-0 border-y border-foreground"
         aria-label="Progresso do cadastro"
       >
-        {(['Identidade', 'Endereço', 'Abertura & Contato'] as const).map((t, i) => (
+        {PASSOS.map((t, i) => (
           <li
             key={t}
             className={
-              'flex-1 rounded-lg border px-3 py-2.5 text-center text-xs font-medium transition-colors sm:text-sm ' +
+              'flex items-center gap-3 border-r border-foreground/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest last:border-r-0 ' +
               (i === passo
-                ? 'border-primary bg-primary/10 text-primary shadow-warm-sm'
+                ? 'bg-foreground text-background'
                 : i < passo
-                  ? 'border-primary/40 bg-primary/5 text-foreground/80'
-                  : 'border-border/60 bg-card/40 text-muted-foreground')
+                  ? 'text-primary'
+                  : 'text-muted-foreground')
             }
             aria-current={i === passo ? 'step' : undefined}
           >
-            <span className="mr-1 inline-block" aria-hidden="true">
-              {i < passo ? '✓' : i + 1 + '.'}
+            <span className="font-mono text-[10px] opacity-70">
+              {i < passo ? '✓' : String(i + 1).padStart(2, '0')}
             </span>
-            {t}
+            <span className="truncate">{t}</span>
           </li>
         ))}
       </ol>
 
-      <div className="mt-8 card-surface p-6 sm:p-7">
+      <div className="mt-10">
         {passo === 0 ? (
           <PassoIdentidade inicial={acumulado} onAvancar={aoConcluirIdentidade} />
         ) : null}

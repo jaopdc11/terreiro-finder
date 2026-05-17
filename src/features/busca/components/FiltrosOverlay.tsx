@@ -8,7 +8,14 @@ import {
 } from '@/features/casas/domain/blocoCandombleEnums';
 import type { FiltrosBusca } from '../domain/FiltrosBusca';
 
-const LINHAS_UMBANDA = ['caboclo', 'pretovelho', 'crianca', 'marinheiro', 'exu', 'pombagira'];
+const LINHAS_UMBANDA = [
+  'caboclo',
+  'pretovelho',
+  'crianca',
+  'marinheiro',
+  'exu',
+  'pombagira',
+];
 const NACOES_CANDOMBLE: CandombleNacao[] = [
   'ketu',
   'jeje',
@@ -25,6 +32,32 @@ interface Props {
   onAplicar(filtros: FiltrosBusca): void;
 }
 
+function ToggleTag({
+  ativo,
+  onClick,
+  children,
+}: {
+  ativo: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={ativo}
+      className={
+        'h-9 border px-3.5 text-[11px] font-semibold uppercase tracking-wider transition-colors ' +
+        (ativo
+          ? 'border-primary bg-primary text-primary-foreground'
+          : 'border-foreground/20 bg-background text-foreground hover:border-foreground hover:bg-foreground hover:text-background')
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
 export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) {
   useTeclaEsc(aberto, onFechar);
 
@@ -35,98 +68,103 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
       role="dialog"
       aria-modal="true"
       aria-labelledby="filtros-titulo"
-      className="fixed inset-0 z-[2000] flex items-end justify-center bg-foreground/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-[2000] flex justify-end bg-foreground/40"
       onClick={onFechar}
     >
       <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border/60 bg-card p-6 shadow-warm-lg sm:rounded-2xl"
+        className="flex h-full w-full max-w-md flex-col border-l-2 border-foreground bg-background"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between">
-          <h2 id="filtros-titulo" className="font-display text-2xl">
-            Mais filtros
-          </h2>
+        <div className="flex items-center justify-between border-b border-foreground px-6 py-5">
+          <div>
+            <p className="eyebrow text-muted-foreground">Refinar</p>
+            <h2
+              id="filtros-titulo"
+              className="mt-1 font-display text-3xl leading-tight"
+            >
+              Filtros
+            </h2>
+          </div>
           <button
             type="button"
             onClick={onFechar}
             aria-label="Fechar filtros"
-            className="text-muted-foreground hover:text-primary"
+            className="h-10 w-10 border border-foreground text-foreground hover:bg-foreground hover:text-background"
           >
             ✕
           </button>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="flex-1 space-y-7 overflow-y-auto px-6 py-6">
           <div>
-            <Label htmlFor="filtro-cidade">Cidade</Label>
+            <Label
+              htmlFor="filtro-cidade"
+              className="eyebrow text-muted-foreground"
+            >
+              Cidade
+            </Label>
             <Input
               id="filtro-cidade"
               value={filtros.cidade ?? ''}
-              onChange={(e) => onAplicar(filtros.comCidade(e.target.value || null))}
+              onChange={(e) =>
+                onAplicar(filtros.comCidade(e.target.value || null))
+              }
               placeholder="Itajaí"
+              className="mt-2"
             />
           </div>
 
           <div>
-            <Label htmlFor="filtro-bairro">Bairro</Label>
+            <Label
+              htmlFor="filtro-bairro"
+              className="eyebrow text-muted-foreground"
+            >
+              Bairro
+            </Label>
             <Input
               id="filtro-bairro"
               value={filtros.bairro ?? ''}
-              onChange={(e) => onAplicar(filtros.comBairro(e.target.value || null))}
+              onChange={(e) =>
+                onAplicar(filtros.comBairro(e.target.value || null))
+              }
               placeholder="Cordeiros"
+              className="mt-2"
             />
           </div>
 
           {filtros.tradicao === 'umbanda' ? (
             <div>
-              <p className="text-sm font-medium">Linhas trabalhadas</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {LINHAS_UMBANDA.map((tag) => {
-                  const ativo = filtros.tags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => onAplicar(filtros.comTagAlternada(tag))}
-                      aria-pressed={ativo}
-                      className={
-                        'rounded-full border px-3 py-1 text-sm ' +
-                        (ativo
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'border-border bg-card hover:bg-muted')
-                      }
-                    >
-                      {tag}
-                    </button>
-                  );
-                })}
+              <p className="eyebrow text-muted-foreground">Linhas trabalhadas</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {LINHAS_UMBANDA.map((tag) => (
+                  <ToggleTag
+                    key={tag}
+                    ativo={filtros.tags.includes(tag)}
+                    onClick={() => onAplicar(filtros.comTagAlternada(tag))}
+                  >
+                    {tag}
+                  </ToggleTag>
+                ))}
               </div>
             </div>
           ) : null}
 
           {filtros.tradicao === 'candomble' ? (
             <div>
-              <p className="text-sm font-medium">Nação</p>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <p className="eyebrow text-muted-foreground">Nação</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
                 {NACOES_CANDOMBLE.map((n) => {
                   const ativo = filtros.nacaoCandomble === n;
                   return (
-                    <button
+                    <ToggleTag
                       key={n}
-                      type="button"
+                      ativo={ativo}
                       onClick={() =>
                         onAplicar(filtros.comNacaoCandomble(ativo ? null : n))
                       }
-                      aria-pressed={ativo}
-                      className={
-                        'rounded-full border px-3 py-1 text-sm ' +
-                        (ativo
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'border-border bg-card hover:bg-muted')
-                      }
                     >
                       {CANDOMBLE_NACAO_LABEL[n]}
-                    </button>
+                    </ToggleTag>
                   );
                 })}
               </div>
@@ -134,30 +172,38 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
           ) : null}
 
           {filtros.tradicao === 'quimbanda' ? (
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex cursor-pointer items-start gap-3 border border-foreground/20 p-4 text-sm hover:border-foreground/40">
               <input
                 type="checkbox"
                 checked={filtros.soAbertasQuimbanda}
                 onChange={(e) =>
                   onAplicar(filtros.comSoAbertasQuimbanda(e.target.checked))
                 }
-                className="h-4 w-4"
+                className="mt-0.5 h-4 w-4 accent-primary"
               />
-              <span>Só casas abertas a não-iniciados</span>
+              <div>
+                <p className="font-medium text-foreground">
+                  Só casas abertas a não-iniciados
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Filtra Quimbandas que recebem quem ainda não tem fundamento.
+                </p>
+              </div>
             </label>
           ) : null}
 
           {!filtros.tradicao ? (
-            <p className="text-xs text-muted-foreground">
-              Selecione uma tradição pra ver filtros específicos dela.
+            <p className="border-l-2 border-foreground/20 pl-3 text-xs text-muted-foreground">
+              Selecione uma tradição lá em cima pra ver filtros específicos
+              dela.
             </p>
           ) : null}
+        </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onFechar}>
-              Ver resultados
-            </Button>
-          </div>
+        <div className="border-t border-foreground p-4">
+          <Button variant="default" onClick={onFechar} className="w-full">
+            Ver resultados
+          </Button>
         </div>
       </div>
     </div>

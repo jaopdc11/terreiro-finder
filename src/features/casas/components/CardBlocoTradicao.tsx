@@ -7,34 +7,38 @@ import { CANDOMBLE_NACAO_LABEL } from '../domain/blocoCandombleEnums';
 import type { Casa } from '../domain/Casa';
 
 /**
- * Card "Sobre a tradição" na ficha pública. Renderiza os campos do bloco
- * específico (Candomblé ou Quimbanda) quando a casa pertence a essa tradição
- * e o dirigente preencheu ao menos 1 campo. Umbanda tem layout próprio
- * (linhas/linhagem viram chips na busca, não no card).
- *
- * RLS permite leitura pública dessas tabelas quando a casa correspondente
- * está aprovada (`supabase/migrations/0002_rls.sql`).
+ * Bloco "Sobre a tradição" na ficha pública. Layout grid editorial:
+ * label compacto à esquerda, valor à direita. Sem caixa, com divisores
+ * finos entre linhas.
  */
 export function CardBlocoTradicao({ casa }: { casa: Casa }) {
   if (casa.tradicaoPrincipal === 'candomble') {
-    return <CardCandomble casaId={casa.id} />;
+    return <BlocoCandomble casaId={casa.id} />;
   }
   if (casa.tradicaoPrincipal === 'quimbanda') {
-    return <CardQuimbanda casaId={casa.id} />;
+    return <BlocoQuimbanda casaId={casa.id} />;
   }
   return null;
 }
 
-function Card({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Linha({
+  rotulo,
+  children,
+}: {
+  rotulo: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="rounded-lg border border-border bg-card p-6">
-      <h2 className="font-display text-xl text-foreground">{titulo}</h2>
-      <div className="mt-3 text-sm text-foreground/90">{children}</div>
-    </section>
+    <div className="grid grid-cols-12 gap-4 border-t border-foreground/10 py-4 first:border-t-0">
+      <dt className="eyebrow col-span-12 text-muted-foreground sm:col-span-3">
+        {rotulo}
+      </dt>
+      <dd className="col-span-12 text-foreground sm:col-span-9">{children}</dd>
+    </div>
   );
 }
 
-function CardCandomble({ casaId }: { casaId: string }) {
+function BlocoCandomble({ casaId }: { casaId: string }) {
   const { client } = useServices();
   const repo = useMemo(() => new CasaCandombleRepository(client), [client]);
   const { data: bloco } = useQuery({
@@ -45,24 +49,27 @@ function CardCandomble({ casaId }: { casaId: string }) {
   if (!bloco || !bloco.temConteudo()) return null;
 
   return (
-    <Card titulo="Sobre a tradição">
-      <dl className="grid gap-3 sm:grid-cols-2">
+    <section>
+      <p className="eyebrow text-muted-foreground">Sobre a tradição</p>
+      <dl className="mt-4 border-t border-foreground/20">
         {bloco.nacao ? (
           <Linha rotulo="Nação">{CANDOMBLE_NACAO_LABEL[bloco.nacao]}</Linha>
         ) : null}
-        {bloco.orixaDaCasa ? <Linha rotulo="Orixá da casa">{bloco.orixaDaCasa}</Linha> : null}
+        {bloco.orixaDaCasa ? (
+          <Linha rotulo="Orixá da casa">{bloco.orixaDaCasa}</Linha>
+        ) : null}
         {bloco.raizLinhagem ? (
-          <Linha rotulo="Raiz / Linhagem">{bloco.raizLinhagem}</Linha>
+          <Linha rotulo="Raiz / linhagem">{bloco.raizLinhagem}</Linha>
         ) : null}
         {bloco.linguaRitual ? (
           <Linha rotulo="Língua ritual">{bloco.linguaRitual}</Linha>
         ) : null}
       </dl>
-    </Card>
+    </section>
   );
 }
 
-function CardQuimbanda({ casaId }: { casaId: string }) {
+function BlocoQuimbanda({ casaId }: { casaId: string }) {
   const { client } = useServices();
   const repo = useMemo(() => new CasaQuimbandaRepository(client), [client]);
   const { data: bloco } = useQuery({
@@ -73,29 +80,21 @@ function CardQuimbanda({ casaId }: { casaId: string }) {
   if (!bloco || !bloco.temConteudo()) return null;
 
   return (
-    <Card titulo="Sobre a tradição">
-      <dl className="grid gap-3 sm:grid-cols-2">
+    <section>
+      <p className="eyebrow text-muted-foreground">Sobre a tradição</p>
+      <dl className="mt-4 border-t border-foreground/20">
         {bloco.corrente ? <Linha rotulo="Corrente">{bloco.corrente}</Linha> : null}
         {bloco.raizLinhagem ? (
-          <Linha rotulo="Raiz / Linhagem">{bloco.raizLinhagem}</Linha>
+          <Linha rotulo="Raiz / linhagem">{bloco.raizLinhagem}</Linha>
         ) : null}
         {bloco.abertaANaoIniciados !== null ? (
-          <Linha rotulo="Abertura a não-iniciados">
-            {bloco.abertaANaoIniciados ? 'Sim' : 'Só iniciados'}
+          <Linha rotulo="Abertura">
+            {bloco.abertaANaoIniciados
+              ? 'Aberta a não-iniciados'
+              : 'Só iniciados'}
           </Linha>
         ) : null}
       </dl>
-    </Card>
-  );
-}
-
-function Linha({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-        {rotulo}
-      </dt>
-      <dd className="mt-1">{children}</dd>
-    </div>
+    </section>
   );
 }

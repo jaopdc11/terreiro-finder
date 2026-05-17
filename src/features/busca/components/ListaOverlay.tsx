@@ -9,6 +9,11 @@ interface Props {
   onFechar(): void;
 }
 
+/**
+ * Painel lateral direito com a lista de casas. Sem sombra; entra firme
+ * com borda esquerda grossa. Listagem em estilo editorial — divisores
+ * finos entre itens, tipografia hierárquica.
+ */
 export function ListaOverlay({ casas, aberto, onFechar }: Props) {
   useTeclaEsc(aberto, onFechar);
 
@@ -19,74 +24,89 @@ export function ListaOverlay({ casas, aberto, onFechar }: Props) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="lista-titulo"
-      className="fixed inset-0 z-[2000] flex items-end justify-center bg-foreground/40 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-[2000] flex justify-end bg-foreground/40"
       onClick={onFechar}
     >
       <div
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl border border-border/60 bg-card p-6 shadow-warm-lg sm:rounded-2xl"
+        className="flex h-full w-full max-w-xl flex-col border-l-2 border-foreground bg-background"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between">
-          <h2 id="lista-titulo" className="font-display text-2xl">
-            Casas{' '}
-            <span className="text-base font-normal text-muted-foreground">
-              ({casas.length})
-            </span>
-          </h2>
+        <div className="flex items-center justify-between border-b border-foreground px-6 py-5">
+          <div>
+            <p className="eyebrow text-muted-foreground">Lista</p>
+            <h2 id="lista-titulo" className="mt-1 font-display text-3xl leading-tight">
+              {casas.length}{' '}
+              <span className="text-base font-normal text-muted-foreground">
+                {casas.length === 1 ? 'casa' : 'casas'}
+              </span>
+            </h2>
+          </div>
           <button
             type="button"
             onClick={onFechar}
             aria-label="Fechar lista"
-            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-terra-areia-claro/50 hover:text-foreground"
+            className="h-10 w-10 border border-foreground text-foreground hover:bg-foreground hover:text-background"
           >
             ✕
           </button>
         </div>
 
-        {casas.length === 0 ? (
-          <div className="mt-6 rounded-xl border border-dashed border-border bg-background/40 p-8 text-center">
-            <p className="font-display text-lg">
-              Não achamos casa que combine com esses filtros.
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Tenta menos filtros, ou indique uma casa que você conhece.
-            </p>
-            <Link
-              to="/indicar"
-              className="mt-5 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-warm-sm hover:bg-terra-pemba-escuro"
-            >
-              Indicar uma casa
-            </Link>
-          </div>
-        ) : (
-          <ul className="mt-5 space-y-3">
-            {casas.map((casa) => (
-              <li key={casa.id}>
-                <Link
-                  to={`/casa/${casa.slug.toString()}`}
-                  className="card-surface card-surface-hover block p-4"
-                >
-                  <h3 className="font-display text-lg leading-tight">
-                    {casa.nome}
-                  </h3>
-                  <p className="mt-0.5 text-xs uppercase tracking-wide text-muted-foreground">
-                    {casa.tradicaoPrincipal}
-                    {casa.bairro ? ` · ${casa.bairro}` : ''}
-                    {casa.cidade ? ` · ${casa.cidade}` : ''}
-                  </p>
-                  {casa.sacerdoteNome ? (
-                    <p className="mt-1.5 text-sm text-foreground/80">
-                      com {casa.sacerdoteNome}
-                    </p>
-                  ) : null}
-                  <div className="mt-3">
-                    <BadgesAbertura casa={casa} />
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="flex-1 overflow-y-auto">
+          {casas.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="eyebrow text-muted-foreground">Sem resultado</p>
+              <p className="mt-4 font-display text-2xl leading-snug">
+                Nenhuma casa combina com esses filtros.
+              </p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Tenta menos filtros, ou indica uma casa que você conhece.
+              </p>
+              <Link
+                to="/indicar"
+                className="mt-6 inline-block border border-foreground bg-foreground px-6 py-3 text-xs font-semibold uppercase tracking-wider text-background hover:bg-primary"
+              >
+                Indicar uma casa
+              </Link>
+            </div>
+          ) : (
+            <ul className="divide-y divide-foreground/10">
+              {casas.map((casa, idx) => (
+                <li key={casa.id}>
+                  <Link
+                    to={`/casa/${casa.slug.toString()}`}
+                    className="block px-6 py-5 transition-colors hover:bg-muted"
+                  >
+                    <div className="flex items-baseline gap-4">
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                      <div className="flex-1">
+                        <p className="eyebrow text-primary">
+                          {casa.tradicaoPrincipal}
+                        </p>
+                        <h3 className="mt-1 font-display text-xl leading-tight">
+                          {casa.nome}
+                        </h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {casa.bairro ? `${casa.bairro} · ` : ''}
+                          {casa.cidade}
+                        </p>
+                        {casa.sacerdoteNome ? (
+                          <p className="mt-1 text-sm text-foreground/75">
+                            com {casa.sacerdoteNome}
+                          </p>
+                        ) : null}
+                        <div className="mt-3">
+                          <BadgesAbertura casa={casa} />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );
