@@ -5,6 +5,7 @@ import { useCasaDoPainel, useMinhasCasas } from '../hooks/usePainel';
 import { AbaPerfil } from '../components/AbaPerfil';
 import { AbaAbertura } from '../components/AbaAbertura';
 import { AbaTradicaoUmbanda } from '../components/AbaTradicaoUmbanda';
+import { AbaFotos } from '../components/AbaFotos';
 
 type Aba = 'perfil' | 'tradicao' | 'fotos' | 'abertura';
 
@@ -141,12 +142,7 @@ function PainelDeCasa({
             </p>
           )
         ) : null}
-        {aba === 'fotos' ? (
-          <p className="text-muted-foreground">
-            Upload de fotos chega em seguida — compressão client-side, máximo 5
-            fotos por casa.
-          </p>
-        ) : null}
+        {aba === 'fotos' ? <AbaFotos casaId={casa.id} /> : null}
       </div>
     </section>
   );
