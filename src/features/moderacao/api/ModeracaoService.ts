@@ -1,38 +1,45 @@
 import { ServiceError } from '@/shared/lib/errors';
 import type { CasasRepository } from '@/features/casas/api/CasasRepository';
 import type { IndicacoesRepository } from '@/features/indicacao/api/IndicacoesRepository';
+import type { ReivindicacoesRepository } from '@/features/painel/api/ReivindicacoesRepository';
 
 /**
- * Orquestra o fluxo de moderação em 2 passos (escopo MVP §3.4).
+ * Orquestra fluxos de moderação (escopo MVP §3.4).
  *
- *   Passo 1 — aprovarIndicacao(): cria casa com status=pendente e fonte=indicacao.
- *             A casa ainda NÃO é pública (RLS bloqueia anon).
- *   Passo 2 — confirmarConsentimento(): admin contatou a casa via canalContato,
- *             registrou o canal usado e a casa autorizou. A casa vira aprovada
- *             — agora visível no mapa como "indicada, não verificada".
+ * Indicação — 2 passos:
+ *   1. aprovarIndicacao() → cria casa (pendente, indicacao). Invisível ao anon.
+ *   2. confirmarConsentimento() → casa vira aprovada (visível como "indicada,
+ *      não verificada").
  *
- * Recusar marca a indicação como recusada com motivo. Adiar é no-op.
+ * Reivindicação — contato cruzado:
+ *   aprovarReivindicacao() → admin contatou a casa via canal registrado
+ *   originalmente; com OK, vincula user em casa_dirigentes e muda
+ *   casas.fonte pra 'reivindicada' (casa passa a estar verificada).
  */
 export class ModeracaoService {
   constructor(
     private readonly indicacoes: IndicacoesRepository,
     private readonly casas: CasasRepository,
+    private readonly reivindicacoes?: ReivindicacoesRepository,
   ) {}
 
-  async aprovarIndicacao(indicacaoId: string, admin: { userId: string }): Promise<{ casaId: string }> {
+  async aprovarIndicacao(
+    indicacaoId: string,
+    admin: { userId: string },
+  ): Promise<{ casaId: string }> {
     const indicacao = await this.indicacoes.buscarPorId(indicacaoId);
     if (!indicacao) {
-      throw new ServiceError('MOD_INDICACAO_NAO_ENCONTRADA', `Indicação ${indicacaoId} não existe`);
+      throw new ServiceError(
+        'MOD_INDICACAO_NAO_ENCONTRADA',
+        `Indicação ${indicacaoId} não existe`,
+      );
     }
     if (!indicacao.estaPendente()) {
       throw new ServiceError('MOD_INDICACAO_NAO_PENDENTE', 'Indicação já foi moderada');
     }
 
-    // 1) Cria casa (pendente, indicacao) — repository resolve slug em cascata.
     const payload = indicacao.paraNovaCasa(slugInicial(indicacao));
     const casaId = await this.casas.criarDeIndicacao(payload);
-
-    // 2) Marca indicação como aprovada vinculada à casa.
     await this.indicacoes.marcarAprovada(indicacao.id, casaId, admin.userId);
 
     return { casaId };
@@ -51,24 +58,95 @@ export class ModeracaoService {
     admin: { userId: string },
   ): Promise<void> {
     if (motivo.trim().length < 3) {
-      throw new ServiceError('MOD_MOTIVO_OBRIGATORIO', 'Diz o motivo da recusa (pelo menos 3 caracteres)');
+      throw new ServiceError(
+        'MOD_MOTIVO_OBRIGATORIO',
+        'Diz o motivo da recusa (pelo menos 3 caracteres)',
+      );
     }
     const i = await this.indicacoes.buscarPorId(indicacaoId);
     if (!i) {
-      throw new ServiceError('MOD_INDICACAO_NAO_ENCONTRADA', `Indicação ${indicacaoId} não existe`);
+      throw new ServiceError(
+        'MOD_INDICACAO_NAO_ENCONTRADA',
+        `Indicação ${indicacaoId} não existe`,
+      );
     }
     if (!i.estaPendente()) {
       throw new ServiceError('MOD_INDICACAO_NAO_PENDENTE', 'Indicação já foi moderada');
     }
     await this.indicacoes.marcarRecusada(indicacaoId, motivo.trim(), admin.userId);
   }
+
+  /**
+   * Reivindicação: aprovação após contato cruzado. Em sequência (sem
+   * transação SQL — basta o admin re-executar se algum passo falhar):
+   *   1. Vínculo user → casa em casa_dirigentes (papel principal).
+   *   2. casas.fonte = 'reivindicada' (Casa.estaVerificada vira true).
+   *   3. reivindicacao.status = 'aprovada' + moderado_por/em.
+   */
+  async aprovarReivindicacao(
+    reivindicacaoId: string,
+    admin: { userId: string },
+  ): Promise<void> {
+    if (!this.reivindicacoes) {
+      throw new ServiceError(
+        'MOD_REIVINDICACOES_INDISPONIVEIS',
+        'ReivindicacoesRepository não injetado',
+      );
+    }
+    const r = await this.reivindicacoes.buscarPorId(reivindicacaoId);
+    if (!r) {
+      throw new ServiceError(
+        'MOD_REIVINDICACAO_NAO_ENCONTRADA',
+        `Reivindicação ${reivindicacaoId} não existe`,
+      );
+    }
+    if (!r.podeSerAprovada()) {
+      throw new ServiceError(
+        'MOD_REIVINDICACAO_NAO_PENDENTE',
+        'Reivindicação já foi moderada',
+      );
+    }
+
+    await this.casas.vincularDirigente(r.casaId, r.userId, 'principal');
+    await this.casas.marcarComoReivindicada(r.casaId);
+    await this.reivindicacoes.marcarAprovada(r.id, admin.userId);
+  }
+
+  async recusarReivindicacao(
+    reivindicacaoId: string,
+    motivo: string,
+    admin: { userId: string },
+  ): Promise<void> {
+    if (!this.reivindicacoes) {
+      throw new ServiceError(
+        'MOD_REIVINDICACOES_INDISPONIVEIS',
+        'ReivindicacoesRepository não injetado',
+      );
+    }
+    if (motivo.trim().length < 3) {
+      throw new ServiceError(
+        'MOD_MOTIVO_OBRIGATORIO',
+        'Diz o motivo da recusa (pelo menos 3 caracteres)',
+      );
+    }
+    const r = await this.reivindicacoes.buscarPorId(reivindicacaoId);
+    if (!r) {
+      throw new ServiceError(
+        'MOD_REIVINDICACAO_NAO_ENCONTRADA',
+        `Reivindicação ${reivindicacaoId} não existe`,
+      );
+    }
+    if (!r.podeSerAprovada()) {
+      throw new ServiceError(
+        'MOD_REIVINDICACAO_NAO_PENDENTE',
+        'Reivindicação já foi moderada',
+      );
+    }
+    await this.reivindicacoes.marcarRecusada(reivindicacaoId, motivo.trim(), admin.userId);
+  }
 }
 
 function slugInicial(indicacao: { nome: string }): string {
-  // Slug bruto que o repository usará como ponto de partida pra cascata.
-  // O Indicacao.paraNovaCasa exige um slug válido; o repo descobre se já existe
-  // e itera (kebab(nome) → kebab(nome)-kebab(bairro) → -2, -3, ...).
-  // Aqui usamos kebab(nome). O Slug VO valida.
   return indicacao.nome
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')

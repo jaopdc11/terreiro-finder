@@ -103,6 +103,41 @@ export class CasasRepository {
     }
   }
 
+  /**
+   * Vincula um usuário a uma casa como dirigente. Restrito ao admin (RLS).
+   * Idempotente: se já existir vínculo, retorna sem erro.
+   */
+  async vincularDirigente(
+    casaId: string,
+    userId: string,
+    papel: 'principal' | 'auxiliar' = 'principal',
+  ): Promise<void> {
+    const { error } = await this.client
+      .from('casa_dirigentes')
+      .upsert({ casa_id: casaId, user_id: userId, papel }, { onConflict: 'casa_id,user_id' });
+    if (error) {
+      throw new RepositoryError('CASA_VINCULAR_DIRIGENTE_FALHOU', error.message, {
+        cause: error,
+      });
+    }
+  }
+
+  /**
+   * Passo final da reivindicação: muda fonte pra 'reivindicada' — a casa
+   * passa a satisfazer Casa.estaVerificada(). Restrito ao admin (RLS).
+   */
+  async marcarComoReivindicada(casaId: string): Promise<void> {
+    const { error } = await this.client
+      .from('casas')
+      .update({ fonte: 'reivindicada' })
+      .eq('id', casaId);
+    if (error) {
+      throw new RepositoryError('CASA_MARCAR_REIVINDICADA_FALHOU', error.message, {
+        cause: error,
+      });
+    }
+  }
+
   private async resolverSlugDisponivel(nome: string, bairro: string | null): Promise<string> {
     const base = Slug.deTexto(nome);
     if (!(await this.slugExiste(base.toString()))) return base.toString();
