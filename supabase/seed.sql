@@ -1,0 +1,6 @@
+-- seed.sql — vazio por padrão.
+--
+-- Seeds em runtime ficam em tests/e2e/fixtures/SeedItajai.ts (classe POO).
+-- Aqui só vão fixtures de DESENVOLVIMENTO local que sobrevivem a um `supabase
+-- db reset`. Por enquanto sem dados — usuário admin é criado no fluxo de auth
+-- da Fase 1, não direto no banco.
