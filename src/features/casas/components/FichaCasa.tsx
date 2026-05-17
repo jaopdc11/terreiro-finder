@@ -36,7 +36,10 @@ export function FichaCasa({ casa }: { casa: Casa }) {
           <p className="mt-1 text-foreground/80">
             Esta casa foi indicada pela comunidade e ainda não foi confirmada pela própria
             dirigência. Você é da casa?{' '}
-            <Link to="/reivindicar" className="font-medium text-primary hover:underline">
+            <Link
+              to={`/reivindicar?casa=${casa.slug.toString()}`}
+              className="font-medium text-primary hover:underline"
+            >
               Reivindique aqui
             </Link>
             .

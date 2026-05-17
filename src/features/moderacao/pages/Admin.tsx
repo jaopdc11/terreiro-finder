@@ -3,13 +3,16 @@ import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import {
   useAprovarIndicacao,
+  useAprovarReivindicacao,
   useCasasPendentesDeConsentimento,
   useConfirmarConsentimento,
   useIndicacoesPendentes,
   useRecusarIndicacao,
+  useRecusarReivindicacao,
+  useReivindicacoesPendentes,
 } from '../hooks/useFilaModeracao';
 
-type Aba = 'passo-1' | 'passo-2';
+type Aba = 'passo-1' | 'passo-2' | 'reivindicacoes';
 
 export function Admin() {
   const [aba, setAba] = useState<Aba>('passo-1');
@@ -18,21 +21,31 @@ export function Admin() {
     <section className="container max-w-5xl py-8">
       <h1 className="font-display text-3xl">Moderação</h1>
       <p className="mt-2 text-muted-foreground">
-        Indicações entram em duas etapas: <strong>validar</strong> (passo 1) e
-        depois <strong>confirmar consentimento</strong> da casa contatada (passo
-        2). Casa só fica pública depois do passo 2.
+        Indicações entram em duas etapas (validar → confirmar consentimento da
+        casa). Reivindicações exigem contato cruzado: você contata pelo canal
+        já registrado da casa antes de aprovar.
       </p>
 
-      <div role="tablist" className="mt-6 flex gap-2 border-b border-border">
+      <div role="tablist" className="mt-6 flex flex-wrap gap-2 border-b border-border">
         <TabButton ativo={aba === 'passo-1'} onClick={() => setAba('passo-1')}>
           Passo 1 — Indicações pendentes
         </TabButton>
         <TabButton ativo={aba === 'passo-2'} onClick={() => setAba('passo-2')}>
           Passo 2 — Confirmar consentimento
         </TabButton>
+        <TabButton
+          ativo={aba === 'reivindicacoes'}
+          onClick={() => setAba('reivindicacoes')}
+        >
+          Reivindicações
+        </TabButton>
       </div>
 
-      <div className="mt-6">{aba === 'passo-1' ? <Passo1 /> : <Passo2 />}</div>
+      <div className="mt-6">
+        {aba === 'passo-1' ? <Passo1 /> : null}
+        {aba === 'passo-2' ? <Passo2 /> : null}
+        {aba === 'reivindicacoes' ? <Reivindicacoes /> : null}
+      </div>
     </section>
   );
 }
@@ -176,6 +189,129 @@ function Passo2() {
           </div>
         </li>
       ))}
+    </ul>
+  );
+}
+
+type CasaJoin = {
+  slug: string;
+  nome: string;
+  whatsapp: string | null;
+  telefone: string | null;
+  email_contato: string | null;
+};
+
+type ReivindicacaoComCasa = {
+  id: string;
+  user_id: string;
+  casa_id: string;
+  observacoes: string | null;
+  status: string;
+  created_at: string;
+  casa: CasaJoin | CasaJoin[] | null;
+};
+
+function casaDaJoin(c: CasaJoin | CasaJoin[] | null): CasaJoin | null {
+  if (!c) return null;
+  return Array.isArray(c) ? c[0] ?? null : c;
+}
+
+function Reivindicacoes() {
+  const { data, isLoading } = useReivindicacoesPendentes();
+  const aprovar = useAprovarReivindicacao();
+  const recusar = useRecusarReivindicacao();
+  const [motivos, setMotivos] = useState<Record<string, string>>({});
+
+  if (isLoading) return <p className="text-muted-foreground">Carregando…</p>;
+  const itens = (data ?? []) as unknown as ReivindicacaoComCasa[];
+  if (itens.length === 0) {
+    return (
+      <p className="text-muted-foreground">
+        Nenhuma reivindicação pendente. Conforme pessoas reivindicarem casas não
+        verificadas, elas aparecem aqui.
+      </p>
+    );
+  }
+
+  return (
+    <ul className="space-y-3" data-testid="lista-reivindicacoes-pendentes">
+      {itens.map((r) => {
+        const casa = casaDaJoin(r.casa);
+        return (
+          <li key={r.id} className="rounded-lg border border-border bg-card p-4">
+            <header>
+              <h2 className="font-display text-lg">
+                {casa?.nome ?? 'Casa removida'}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Pedido criado em{' '}
+                {new Date(r.created_at).toLocaleDateString('pt-BR')}
+              </p>
+            </header>
+
+            <div className="mt-3 rounded-md bg-muted/50 p-3 text-sm">
+              <p className="font-medium text-foreground">
+                Contate pelos canais já registrados da casa:
+              </p>
+              <ul className="mt-1 space-y-0.5">
+                {casa?.whatsapp ? (
+                  <li>📱 WhatsApp: <code>{casa.whatsapp}</code></li>
+                ) : null}
+                {casa?.telefone ? (
+                  <li>☎ Telefone: <code>{casa.telefone}</code></li>
+                ) : null}
+                {casa?.email_contato ? (
+                  <li>✉ Email: <code>{casa.email_contato}</code></li>
+                ) : null}
+                {!casa?.whatsapp && !casa?.telefone && !casa?.email_contato ? (
+                  <li className="text-muted-foreground">
+                    Nenhum canal registrado — busca o Instagram da casa pelo
+                    nome.
+                  </li>
+                ) : null}
+              </ul>
+            </div>
+
+            {r.observacoes ? (
+              <div className="mt-3 text-sm">
+                <p className="font-medium">O que a pessoa disse:</p>
+                <p className="mt-1 whitespace-pre-line text-foreground/90">
+                  {r.observacoes}
+                </p>
+              </div>
+            ) : null}
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                disabled={aprovar.isPending}
+                onClick={() => aprovar.mutate(r.id)}
+              >
+                Casa confirmou — aprovar
+              </Button>
+              <div className="flex flex-1 gap-2">
+                <Input
+                  placeholder="Motivo da recusa"
+                  value={motivos[r.id] ?? ''}
+                  onChange={(e) =>
+                    setMotivos((m) => ({ ...m, [r.id]: e.target.value }))
+                  }
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={recusar.isPending}
+                  onClick={() =>
+                    recusar.mutate({ id: r.id, motivo: motivos[r.id] ?? '' })
+                  }
+                >
+                  Recusar
+                </Button>
+              </div>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }
