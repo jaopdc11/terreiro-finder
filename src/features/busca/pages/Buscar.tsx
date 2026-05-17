@@ -15,7 +15,7 @@ export function Buscar() {
 
   return (
     <div className="relative flex h-[calc(100vh-9rem)] flex-col">
-      <div className="border-b border-border bg-card/95 p-3 backdrop-blur">
+      <div className="border-b border-border bg-card p-3">
         <div className="container flex flex-wrap items-center gap-2">
           <ChipsFiltros filtros={filtros} onChange={aplicar} />
           <div className="ml-auto flex gap-2">

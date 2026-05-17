@@ -12,16 +12,18 @@ interface Props {
 }
 
 /**
- * Mantém o canvas do Leaflet sincronizado com o tamanho real do container.
- * Sintoma sem isso: mapa "travado" — drag sem efeito, zoom só nas bordas,
- * tiles cortados — porque o Leaflet mediu o canvas antes do layout flex
- * resolver.
+ * Força o Leaflet a recalcular o tamanho do canvas após o layout final.
+ * Sintoma sem isso: mapa "travado" — drag sem efeito, tiles cortados —
+ * porque o Leaflet mediu o canvas antes do flex/calc resolver.
  *
- * Três frentes pra cobrir todos os cenários de timing:
- *   1) mount: rAF + retries (0ms, 100ms, 500ms) cobre layouts assíncronos
- *   2) ResizeObserver no container — cobre flex que muda (overlay abre/fecha,
- *      sidebar, conteúdo carrega, devtools).
- *   3) window resize + orientationchange — mobile.
+ * Disparos:
+ *   - mount: rAF + retries em 100ms e 500ms (cobre layout async)
+ *   - window resize / orientationchange (mobile + devtools)
+ *
+ * Não usamos ResizeObserver: ele entra em loop com invalidateSize porque
+ * cada invalidateSize redimensiona painéis internos, o observer dispara,
+ * dispara invalidateSize de novo, etc. Consequência: ~30% de CPU constante
+ * e scroll lento na página inteira.
  */
 function AjusteDeTamanho() {
   const map = useMap();
@@ -37,10 +39,6 @@ function AjusteDeTamanho() {
     window.addEventListener('resize', fix);
     window.addEventListener('orientationchange', fix);
 
-    const container = map.getContainer();
-    const ro = new ResizeObserver(fix);
-    ro.observe(container);
-
     return () => {
       cancelado = true;
       cancelAnimationFrame(rafId);
@@ -48,7 +46,6 @@ function AjusteDeTamanho() {
       clearTimeout(t2);
       window.removeEventListener('resize', fix);
       window.removeEventListener('orientationchange', fix);
-      ro.disconnect();
     };
   }, [map]);
   return null;
@@ -56,9 +53,7 @@ function AjusteDeTamanho() {
 
 export function MapaCasas({ casas }: Props) {
   const comCoord = useMemo(() => casas.filter((c) => c.coordenadas !== null), [casas]);
-  // key estável evita que Strict Mode (dev) cause double-mount no
-  // MapContainer e deixe um leaflet-container fantasma — bug conhecido de
-  // react-leaflet v4.
+  // key estável evita double-mount em Strict Mode (bug conhecido react-leaflet v4).
   const idRef = useRef('mapa-itajai-singleton');
 
   return (
@@ -68,6 +63,11 @@ export function MapaCasas({ casas }: Props) {
       zoom={13}
       scrollWheelZoom
       style={{ height: '100%', width: '100%' }}
+      // Animações do Leaflet rodam em rAF contínuo mesmo quando nada acontece.
+      // Pra mapa estático (poucos pins, sem realtime), desabilitar libera CPU.
+      zoomAnimation={false}
+      fadeAnimation={false}
+      markerZoomAnimation={false}
       aria-label="Mapa com casas"
     >
       <AjusteDeTamanho />
