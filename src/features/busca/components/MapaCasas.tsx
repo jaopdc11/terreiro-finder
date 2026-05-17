@@ -51,6 +51,31 @@ function AjusteDeTamanho() {
   return null;
 }
 
+/**
+ * Leaflet renderiza os botões de zoom como `<a title="Zoom in">` em inglês,
+ * sem `aria-label`. Substituímos title/aria-label em pt-BR e adicionamos
+ * `role="button"` (são <a> sem href real, screen readers tratam mal por default).
+ */
+function ZoomA11y() {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    const inBtn = container.querySelector<HTMLElement>('.leaflet-control-zoom-in');
+    const outBtn = container.querySelector<HTMLElement>('.leaflet-control-zoom-out');
+    if (inBtn) {
+      inBtn.setAttribute('aria-label', 'Aproximar mapa');
+      inBtn.setAttribute('title', 'Aproximar mapa');
+      inBtn.setAttribute('role', 'button');
+    }
+    if (outBtn) {
+      outBtn.setAttribute('aria-label', 'Afastar mapa');
+      outBtn.setAttribute('title', 'Afastar mapa');
+      outBtn.setAttribute('role', 'button');
+    }
+  }, [map]);
+  return null;
+}
+
 export function MapaCasas({ casas }: Props) {
   const comCoord = useMemo(() => casas.filter((c) => c.coordenadas !== null), [casas]);
   // key estável evita double-mount em Strict Mode (bug conhecido react-leaflet v4).
@@ -71,6 +96,7 @@ export function MapaCasas({ casas }: Props) {
       aria-label="Mapa com casas"
     >
       <AjusteDeTamanho />
+      <ZoomA11y />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
