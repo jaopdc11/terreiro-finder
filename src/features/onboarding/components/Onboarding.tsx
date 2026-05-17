@@ -31,17 +31,29 @@ export function Onboarding() {
       aria-modal="true"
       aria-labelledby="onboarding-titulo"
       data-testid="onboarding"
-      className="fixed inset-0 z-[2100] flex items-center justify-center bg-foreground/40 p-4"
+      className="fixed inset-0 z-[2100] flex items-center justify-center bg-foreground/50 p-4 backdrop-blur-sm"
     >
-      <div className="w-full max-w-lg rounded-lg bg-card p-6 shadow-lg">
+      <div className="w-full max-w-lg rounded-2xl border border-border/60 bg-card p-7 shadow-warm-lg">
+        <div className="ornament-rule -mx-7 -mt-7 mb-5 rounded-t-2xl" aria-hidden="true" />
         <div className="flex items-center justify-between">
-          <span className="text-xs uppercase tracking-wide text-muted-foreground">
+          <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+            <span className="flex gap-1" aria-hidden="true">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className={
+                    'h-1.5 w-5 rounded-full ' +
+                    (i <= passo ? 'bg-primary' : 'bg-terra-areia')
+                  }
+                />
+              ))}
+            </span>
             Passo {passo + 1} de 3
           </span>
           <button
             type="button"
             onClick={pular}
-            className="text-sm text-muted-foreground hover:text-primary"
+            className="text-sm text-muted-foreground transition-colors hover:text-primary"
           >
             Pular
           </button>

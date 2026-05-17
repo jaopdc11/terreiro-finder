@@ -8,10 +8,16 @@ import { Link } from 'react-router-dom';
  */
 export function Politica() {
   return (
-    <article className="container max-w-3xl space-y-6 py-10 text-foreground/90">
-      <header>
-        <h1 className="font-display text-4xl">Política de privacidade</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+    <article className="container max-w-3xl space-y-8 py-12 text-foreground/90">
+      <header className="space-y-3 border-b border-border/60 pb-6">
+        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
+          Privacidade
+        </p>
+        <h1 className="font-display text-4xl sm:text-5xl">
+          Política de privacidade
+        </h1>
+        <p className="text-sm text-muted-foreground">
           Última atualização: 17 de maio de 2026
         </p>
       </header>

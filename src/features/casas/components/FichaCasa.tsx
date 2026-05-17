@@ -15,7 +15,7 @@ const TRADICAO_LABEL: Record<string, string> = {
 
 function Card({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-border bg-card p-6">
+    <section className="card-surface p-6 sm:p-7">
       <h2 className="font-display text-xl text-foreground">{titulo}</h2>
       <div className="mt-3 text-sm text-foreground/90">{children}</div>
     </section>
@@ -27,19 +27,19 @@ export function FichaCasa({ casa }: { casa: Casa }) {
   const contato = casa.contato?.principal();
 
   return (
-    <article className="container max-w-3xl space-y-6 py-8">
+    <article className="container max-w-3xl space-y-6 py-10">
       {!casa.estaVerificada() ? (
         <aside
           role="note"
-          className="rounded-lg border border-dashed border-primary bg-primary/5 p-4 text-sm"
+          className="rounded-xl border border-dashed border-primary/60 bg-primary/5 p-4 text-sm"
         >
           <p className="font-medium text-primary">Casa indicada — não verificada</p>
           <p className="mt-1 text-foreground/80">
-            Esta casa foi indicada pela comunidade e ainda não foi confirmada pela própria
-            dirigência. Você é da casa?{' '}
+            Esta casa foi indicada pela comunidade e ainda não foi confirmada
+            pela própria dirigência. Você é da casa?{' '}
             <Link
               to={`/reivindicar?casa=${casa.slug.toString()}`}
-              className="font-medium text-primary hover:underline"
+              className="font-medium text-primary underline-offset-4 hover:underline"
             >
               Reivindique aqui
             </Link>
@@ -48,15 +48,18 @@ export function FichaCasa({ casa }: { casa: Casa }) {
         </aside>
       ) : null}
 
-      <header className="space-y-3">
-        <p className="text-sm uppercase tracking-wide text-muted-foreground">
+      <header className="space-y-4">
+        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
           {TRADICAO_LABEL[casa.tradicaoPrincipal] ?? casa.tradicaoPrincipal}
         </p>
-        <h1 className="font-display text-4xl text-foreground">{casa.nome}</h1>
+        <h1 className="font-display text-4xl leading-tight text-foreground sm:text-5xl">
+          {casa.nome}
+        </h1>
         {casa.sacerdoteNome ? (
-          <p className="text-lg text-foreground/80">com {casa.sacerdoteNome}</p>
+          <p className="text-lg text-foreground/75">com {casa.sacerdoteNome}</p>
         ) : null}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 pt-1">
           <BadgesAbertura casa={casa} />
           <BotaoFavorito casaId={casa.id} />
         </div>
@@ -77,9 +80,11 @@ export function FichaCasa({ casa }: { casa: Casa }) {
       <CardBlocoTradicao casa={casa} />
 
       <Card titulo="Como visitar">
-        <dl className="grid gap-3 sm:grid-cols-2">
+        <dl className="grid gap-4 sm:grid-cols-2">
           <div>
-            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Endereço</dt>
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+              Endereço
+            </dt>
             <dd className="mt-1">
               {endereco ?? (
                 <span className="text-muted-foreground">
@@ -109,27 +114,30 @@ export function FichaCasa({ casa }: { casa: Casa }) {
             {casa.contato?.whatsapp ? (
               <li>
                 <a
-                  className="text-primary hover:underline"
+                  className="inline-flex items-center gap-2 text-primary underline-offset-4 hover:underline"
                   href={`https://wa.me/${casa.contato.whatsapp.replace(/\D/g, '')}`}
                 >
-                  WhatsApp: {casa.contato.whatsapp}
+                  <span aria-hidden="true">📱</span> WhatsApp: {casa.contato.whatsapp}
                 </a>
               </li>
             ) : null}
             {casa.contato?.telefone ? (
               <li>
                 <a
-                  className="text-primary hover:underline"
+                  className="inline-flex items-center gap-2 text-primary underline-offset-4 hover:underline"
                   href={`tel:${casa.contato.telefone.replace(/\D/g, '')}`}
                 >
-                  Telefone: {casa.contato.telefone}
+                  <span aria-hidden="true">☎</span> Telefone: {casa.contato.telefone}
                 </a>
               </li>
             ) : null}
             {casa.contato?.email ? (
               <li>
-                <a className="text-primary hover:underline" href={`mailto:${casa.contato.email}`}>
-                  {casa.contato.email}
+                <a
+                  className="inline-flex items-center gap-2 text-primary underline-offset-4 hover:underline"
+                  href={`mailto:${casa.contato.email}`}
+                >
+                  <span aria-hidden="true">✉</span> {casa.contato.email}
                 </a>
               </li>
             ) : null}

@@ -34,13 +34,19 @@ export function Cadastro() {
   });
 
   return (
-    <section className="container max-w-md py-12">
-      <h1 className="font-display text-3xl">Criar conta</h1>
-      <p className="mt-2 text-muted-foreground">
-        Conta gratuita. Serve pra favoritar, indicar uma casa ou pra dirigência gerenciar a sua.
-      </p>
+    <section className="container max-w-md py-14">
+      <header className="space-y-2 text-center">
+        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
+          Nova conta
+        </p>
+        <h1 className="font-display text-4xl">Criar conta</h1>
+        <p className="text-muted-foreground">
+          Gratuita. Serve pra favoritar, indicar ou gerir a sua casa.
+        </p>
+      </header>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
+      <form onSubmit={onSubmit} className="card-surface mt-8 space-y-5 p-6 sm:p-7" noValidate>
         <CampoForm
           label="Nome completo"
           autoComplete="name"

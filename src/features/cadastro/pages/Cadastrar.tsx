@@ -33,20 +33,29 @@ export function Cadastrar() {
 
   if (mutation.isSuccess) {
     return (
-      <section className="container max-w-2xl py-12">
-        <h1 className="font-display text-3xl">Cadastro recebido. Axé.</h1>
-        <p className="mt-3 text-muted-foreground">
-          Vamos validar suas informações. Quando a casa for aprovada, ela
-          aparece no mapa <strong>verificada</strong> e você vira dirigente
-          principal no seu painel.
-        </p>
-        <div className="mt-6 flex gap-3">
-          <Link to="/" className="text-primary hover:underline">
-            Voltar pra busca
-          </Link>
-          <Link to="/painel" className="text-primary hover:underline">
-            Ir pro meu painel
-          </Link>
+      <section className="container max-w-2xl py-14">
+        <div className="card-surface p-8 text-center">
+          <span className="text-3xl" aria-hidden="true">🪔</span>
+          <h1 className="mt-3 font-display text-3xl">Cadastro recebido. Axé.</h1>
+          <p className="mt-3 text-muted-foreground">
+            Vamos validar suas informações. Quando a casa for aprovada, ela
+            aparece no mapa <strong>verificada</strong> e você vira dirigente
+            principal no seu painel.
+          </p>
+          <div className="mt-6 flex justify-center gap-6 text-sm">
+            <Link
+              to="/"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              Voltar pra busca
+            </Link>
+            <Link
+              to="/painel"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              Ir pro meu painel
+            </Link>
+          </div>
         </div>
       </section>
     );
@@ -54,15 +63,21 @@ export function Cadastrar() {
 
   return (
     <section className="container max-w-2xl py-12">
-      <h1 className="font-display text-3xl">Cadastrar minha casa</h1>
-      <p className="mt-2 text-muted-foreground">
-        Você está cadastrando como dirigência. Depois de aprovado, a casa nasce
-        verificada e você vira dirigente principal.
-      </p>
+      <header className="space-y-3 pb-2">
+        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
+          Cadastro de casa
+        </p>
+        <h1 className="font-display text-4xl">Cadastrar minha casa</h1>
+        <p className="text-muted-foreground">
+          Você está cadastrando como dirigência. Depois de aprovado, a casa
+          nasce verificada e você vira dirigente principal.
+        </p>
+      </header>
 
       <aside
         role="note"
-        className="mt-4 rounded-md border border-dashed border-primary bg-primary/5 p-4 text-sm"
+        className="mt-6 rounded-xl border border-dashed border-primary/60 bg-primary/5 p-4 text-sm"
       >
         <p className="font-medium text-primary">
           Você está afirmando ser dirigente desta casa.
@@ -85,21 +100,24 @@ export function Cadastrar() {
           <li
             key={t}
             className={
-              'flex-1 rounded-md border px-3 py-2 text-center ' +
+              'flex-1 rounded-lg border px-3 py-2.5 text-center text-xs font-medium transition-colors sm:text-sm ' +
               (i === passo
-                ? 'border-primary bg-primary/5 font-medium text-primary'
+                ? 'border-primary bg-primary/10 text-primary shadow-warm-sm'
                 : i < passo
-                  ? 'border-border bg-muted text-foreground'
-                  : 'border-border text-muted-foreground')
+                  ? 'border-primary/40 bg-primary/5 text-foreground/80'
+                  : 'border-border/60 bg-card/40 text-muted-foreground')
             }
             aria-current={i === passo ? 'step' : undefined}
           >
-            {i + 1}. {t}
+            <span className="mr-1 inline-block" aria-hidden="true">
+              {i < passo ? '✓' : i + 1 + '.'}
+            </span>
+            {t}
           </li>
         ))}
       </ol>
 
-      <div className="mt-6">
+      <div className="mt-8 card-surface p-6 sm:p-7">
         {passo === 0 ? (
           <PassoIdentidade inicial={acumulado} onAvancar={aoConcluirIdentidade} />
         ) : null}

@@ -19,44 +19,43 @@ export function Header() {
   };
 
   return (
-    <header className="border-b border-border bg-card">
+    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="container flex items-center justify-between gap-4 py-4">
-        <Link to="/" className="font-display text-2xl font-semibold text-primary">
-          terreiros
+        <Link
+          to="/"
+          className="group flex items-center gap-2 font-display text-2xl font-medium text-primary"
+          aria-label="terreiros — voltar pra busca"
+        >
+          <span
+            aria-hidden="true"
+            className="inline-block h-3 w-3 rounded-full bg-primary shadow-warm-sm transition-transform group-hover:scale-110"
+          />
+          <span className="leading-none">terreiros</span>
         </Link>
 
-        <nav aria-label="Principal" className="hidden gap-6 text-sm md:flex">
-          <Link to="/" className="hover:text-primary">
-            Buscar
-          </Link>
-          <Link to="/indicar" className="hover:text-primary">
-            Indicar uma casa
-          </Link>
+        <nav
+          aria-label="Principal"
+          className="hidden items-center gap-1 text-sm md:flex"
+        >
+          <NavLink to="/">Buscar</NavLink>
+          <NavLink to="/indicar">Indicar uma casa</NavLink>
           {mostrarCadastrar ? (
-            <Link to="/cadastrar" className="hover:text-primary">
+            <NavLink to="/cadastrar" destaque>
               Cadastrar minha casa
-            </Link>
+            </NavLink>
           ) : null}
-          {estado.sessao ? (
-            <Link to="/painel" className="hover:text-primary">
-              Meu painel
-            </Link>
-          ) : null}
+          {estado.sessao ? <NavLink to="/painel">Meu painel</NavLink> : null}
           {estado.sessao?.podeAdministrar() ? (
-            <Link to="/admin" className="hover:text-primary">
-              Moderação
-            </Link>
+            <NavLink to="/admin">Moderação</NavLink>
           ) : null}
-          <Link to="/sobre" className="hover:text-primary">
-            Sobre
-          </Link>
+          <NavLink to="/sobre">Sobre</NavLink>
         </nav>
 
         <div className="flex items-center gap-2">
           {estado.carregando ? null : estado.sessao ? (
             <>
               <span className="hidden text-sm text-muted-foreground md:inline">
-                Salve, {estado.sessao.nomeExibicao}
+                Salve, <span className="text-foreground">{estado.sessao.nomeExibicao}</span>
               </span>
               <Button variant="ghost" size="sm" onClick={sair}>
                 Sair
@@ -77,5 +76,29 @@ export function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+function NavLink({
+  to,
+  children,
+  destaque,
+}: {
+  to: string;
+  children: React.ReactNode;
+  destaque?: boolean;
+}) {
+  return (
+    <Link
+      to={to}
+      className={
+        'rounded-md px-3 py-1.5 transition-colors ' +
+        (destaque
+          ? 'font-medium text-primary hover:bg-primary/5'
+          : 'text-foreground/80 hover:bg-terra-areia-claro/50 hover:text-foreground')
+      }
+    >
+      {children}
+    </Link>
   );
 }

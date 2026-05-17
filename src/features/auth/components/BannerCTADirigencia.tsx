@@ -51,24 +51,25 @@ export function BannerCTADirigencia() {
     <aside
       role="region"
       aria-label="Cadastre sua casa"
-      className="border-b border-primary/40 bg-primary/5"
+      className="border-b border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent"
     >
       <div className="container flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
         <p className="text-foreground/90">
+          <span aria-hidden="true" className="mr-1.5">🪔</span>
           <strong>Axé, {estado.sessao.nomeExibicao}.</strong> Você se cadastrou
           como dirigência — vamos registrar sua casa?
         </p>
         <div className="flex items-center gap-2">
           <Link
             to="/cadastrar"
-            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground shadow-warm-sm transition-all hover:bg-terra-pemba-escuro hover:shadow-warm"
           >
             Cadastrar minha casa
           </Link>
           <button
             type="button"
             onClick={dispensar}
-            className="text-xs text-muted-foreground hover:text-foreground"
+            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             aria-label="Dispensar este aviso"
           >
             depois

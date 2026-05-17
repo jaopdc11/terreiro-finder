@@ -16,10 +16,12 @@ interface Props {
 function Chip({
   ativo,
   onClick,
+  variant,
   children,
 }: {
   ativo: boolean;
   onClick: () => void;
+  variant?: 'default' | 'clear';
   children: React.ReactNode;
 }) {
   return (
@@ -28,10 +30,12 @@ function Chip({
       onClick={onClick}
       aria-pressed={ativo}
       className={cn(
-        'rounded-full border px-3 py-1 text-sm transition-colors',
+        'rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all duration-200 active:scale-[0.96]',
         ativo
-          ? 'border-primary bg-primary text-primary-foreground'
-          : 'border-border bg-card text-foreground hover:bg-muted',
+          ? 'border-primary bg-primary text-primary-foreground shadow-warm-sm'
+          : variant === 'clear'
+            ? 'border-dashed border-foreground/30 bg-transparent text-muted-foreground hover:border-foreground/60 hover:text-foreground'
+            : 'border-border/70 bg-card text-foreground/85 hover:border-primary/40 hover:bg-card hover:text-foreground shadow-warm-sm',
       )}
     >
       {children}
@@ -74,8 +78,21 @@ export function ChipsFiltros({ filtros, onChange }: Props) {
         Endereço público
       </Chip>
       {!filtros.estaVazio() ? (
-        <Chip ativo={false} onClick={() => onChange(filtros.comTradicao(null).comCidade(null).comBairro(null).comAceitaVisitantes(null).comEnderecoVisibilidade(null))}>
-          Limpar
+        <Chip
+          ativo={false}
+          variant="clear"
+          onClick={() =>
+            onChange(
+              filtros
+                .comTradicao(null)
+                .comCidade(null)
+                .comBairro(null)
+                .comAceitaVisitantes(null)
+                .comEnderecoVisibilidade(null),
+            )
+          }
+        >
+          Limpar filtros
         </Chip>
       ) : null}
     </div>

@@ -20,21 +20,30 @@
 
 @layer base {
   :root {
-    /* Paleta Terra/Pemba (HSL sem o "hsl()") */
-    --terra-areia: 35 35% 78%;       /* bege-areia base */
-    --terra-creme: 38 50% 94%;       /* creme background */
-    --terra-pemba: 0 65% 38%;        /* vermelho-pemba acento */
-    --terra-vinho: 350 45% 26%;      /* vinho profundo */
-    --terra-grafite: 220 12% 18%;    /* grafite texto */
+    /*
+     * Paleta Terra/Pemba — refinada pro rework de design.
+     * HSL sem o "hsl()". Tons mantêm hue 0/35/350 (família terra-pemba).
+     */
+    --terra-areia: 35 35% 78%;
+    --terra-areia-claro: 35 40% 86%;
+    --terra-creme: 38 50% 96%;
+    --terra-creme-escuro: 38 35% 88%;
+    --terra-pemba: 0 65% 38%;
+    --terra-pemba-claro: 0 55% 52%;
+    --terra-pemba-escuro: 0 70% 28%;
+    --terra-vinho: 350 45% 26%;
+    --terra-grafite: 220 12% 18%;
+    --terra-grafite-suave: 220 10% 32%;
+    --terra-ocre: 32 60% 50%;
 
     /* Tokens shadcn mapeados pra Terra/Pemba */
-    --background: 38 50% 94%;
+    --background: 38 50% 96%;
     --foreground: 220 12% 18%;
 
-    --card: 38 50% 97%;
+    --card: 0 0% 100%;
     --card-foreground: 220 12% 18%;
 
-    --popover: 38 50% 97%;
+    --popover: 0 0% 100%;
     --popover-foreground: 220 12% 18%;
 
     --primary: 0 65% 38%;
@@ -43,7 +52,7 @@
     --secondary: 35 35% 78%;
     --secondary-foreground: 220 12% 18%;
 
-    --muted: 35 25% 88%;
+    --muted: 35 30% 90%;
     --muted-foreground: 220 8% 38%;
 
     --accent: 350 45% 26%;
@@ -52,11 +61,19 @@
     --destructive: 0 75% 42%;
     --destructive-foreground: 38 50% 97%;
 
-    --border: 35 25% 80%;
-    --input: 35 25% 80%;
+    --border: 35 22% 82%;
+    --input: 35 25% 84%;
     --ring: 0 65% 38%;
 
-    --radius: 0.5rem;
+    --radius: 0.625rem;
+
+    /* Sombras quentes (matiz pêssego/areia) — combinam com a paleta terra
+       melhor do que sombras cinza puro. Aplicadas via utility .shadow-warm. */
+    --shadow-warm-sm: 0 1px 2px 0 hsl(20 30% 25% / 0.06);
+    --shadow-warm-md: 0 2px 4px -1px hsl(20 30% 25% / 0.08),
+                      0 1px 2px 0 hsl(20 30% 25% / 0.04);
+    --shadow-warm-lg: 0 10px 25px -5px hsl(20 30% 25% / 0.10),
+                      0 4px 6px -2px hsl(20 30% 25% / 0.05);
   }
 
   * {
@@ -69,10 +86,74 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    /* Textura sutil de fundo — pontos quase imperceptíveis, dão profundidade
+       sem competir com o conteúdo. Inspirado em pratos de barro / pemba. */
+    background-image: radial-gradient(
+      hsl(var(--terra-areia) / 0.15) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: theme('fontFamily.display');
     @apply tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl leading-tight md:text-5xl;
+    font-weight: 500;
+  }
+
+  h2 {
+    @apply text-2xl leading-snug md:text-3xl;
+    font-weight: 500;
+  }
+
+  /* Focus ring acolhedor (pemba 30%) em todo elemento focado por teclado. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring/60 ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .shadow-warm-sm {
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .shadow-warm {
+    box-shadow: var(--shadow-warm-md);
+  }
+  .shadow-warm-lg {
+    box-shadow: var(--shadow-warm-lg);
+  }
+
+  /* Card de seção: borda sutil + sombra quente + transição. */
+  .card-surface {
+    @apply rounded-xl border border-border/60 bg-card;
+    box-shadow: var(--shadow-warm-sm);
+  }
+  .card-surface-hover {
+    transition: box-shadow 200ms ease, transform 200ms ease,
+      border-color 200ms ease;
+  }
+  .card-surface-hover:hover {
+    box-shadow: var(--shadow-warm-md);
+    border-color: hsl(var(--terra-areia));
+  }
+
+  /* Faixa decorativa baseada em pemba/vinho — usada como linha de identidade. */
+  .ornament-rule {
+    background-image: linear-gradient(
+      to right,
+      hsl(var(--terra-pemba)) 0%,
+      hsl(var(--terra-pemba)) 25%,
+      hsl(var(--terra-ocre)) 50%,
+      hsl(var(--terra-vinho)) 75%,
+      hsl(var(--terra-vinho)) 100%
+    );
+    height: 2px;
   }
 }

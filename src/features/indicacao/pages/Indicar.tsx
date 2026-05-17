@@ -32,23 +32,29 @@ export function Indicar() {
 
   if (mutation.isSuccess) {
     return (
-      <section className="container max-w-xl py-12">
-        <h1 className="font-display text-3xl">Indicação recebida. Axé.</h1>
-        <p className="mt-3 text-muted-foreground">
-          Vamos contatar a casa pelo canal que você passou. A casa só aparece no
-          site depois que ela autorizar.
-        </p>
-        <div className="mt-6 flex gap-3">
-          <Link to="/" className="text-primary hover:underline">
-            Voltar pra busca
-          </Link>
-          <button
-            type="button"
-            className="text-primary hover:underline"
-            onClick={() => mutation.reset()}
-          >
-            Indicar outra casa
-          </button>
+      <section className="container max-w-xl py-14">
+        <div className="card-surface p-8 text-center">
+          <span className="text-3xl" aria-hidden="true">🪔</span>
+          <h1 className="mt-3 font-display text-3xl">Indicação recebida. Axé.</h1>
+          <p className="mt-3 text-muted-foreground">
+            Vamos contatar a casa pelo canal que você passou. A casa só aparece
+            no site depois que ela autorizar.
+          </p>
+          <div className="mt-6 flex justify-center gap-6 text-sm">
+            <Link
+              to="/"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              Voltar pra busca
+            </Link>
+            <button
+              type="button"
+              className="text-primary underline-offset-4 hover:underline"
+              onClick={() => mutation.reset()}
+            >
+              Indicar outra casa
+            </button>
+          </div>
         </div>
       </section>
     );
@@ -56,14 +62,22 @@ export function Indicar() {
 
   return (
     <section className="container max-w-xl py-12">
-      <h1 className="font-display text-3xl">Indicar uma casa</h1>
-      <p className="mt-2 text-muted-foreground">
-        Conhece um terreiro que ainda não está aqui? Manda pra gente. <strong>A casa
-        só aparece no site depois que a dirigência autorizar</strong> — a gente
-        contata pelo canal que você passar.
-      </p>
+      <header className="space-y-3 pb-2">
+        <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+          <span aria-hidden="true" className="h-1 w-6 rounded-full bg-primary" />
+          Indicação
+        </p>
+        <h1 className="font-display text-4xl">Indicar uma casa</h1>
+        <p className="text-muted-foreground">
+          Conhece um terreiro que ainda não está aqui? Manda pra gente.{' '}
+          <strong>
+            A casa só aparece no site depois que a dirigência autorizar
+          </strong>{' '}
+          — a gente contata pelo canal que você passar.
+        </p>
+      </header>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
+      <form onSubmit={onSubmit} className="card-surface mt-6 space-y-5 p-6 sm:p-7" noValidate>
         <div className="space-y-1">
           <Label htmlFor="ind-nome">Nome da casa</Label>
           <Input id="ind-nome" {...register('nome')} aria-invalid={!!errors.nome} />

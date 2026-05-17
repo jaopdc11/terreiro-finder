@@ -35,9 +35,13 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
       role="dialog"
       aria-modal="true"
       aria-labelledby="filtros-titulo"
-      className="fixed inset-0 z-[2000] flex items-end justify-center bg-foreground/30 sm:items-center"
+      className="fixed inset-0 z-[2000] flex items-end justify-center bg-foreground/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      onClick={onFechar}
     >
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-lg bg-card p-6 sm:rounded-lg">
+      <div
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border/60 bg-card p-6 shadow-warm-lg sm:rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between">
           <h2 id="filtros-titulo" className="font-display text-2xl">
             Mais filtros
