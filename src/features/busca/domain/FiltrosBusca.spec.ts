@@ -56,6 +56,27 @@ describe('FiltrosBusca', () => {
         .comTradicao('umbanda');
       expect(f.tags).toEqual(['caboclo']);
     });
+
+    it('comNacaoCandomble seta nação só quando tradição é candomble', () => {
+      const f = FiltrosBusca.vazio()
+        .comTradicao('candomble')
+        .comNacaoCandomble('ketu');
+      expect(f.nacaoCandomble).toBe('ketu');
+    });
+
+    it('mudar tradição zera nacaoCandomble e soAbertasQuimbanda', () => {
+      const a = FiltrosBusca.vazio()
+        .comTradicao('candomble')
+        .comNacaoCandomble('ketu')
+        .comTradicao('quimbanda');
+      expect(a.nacaoCandomble).toBeNull();
+
+      const b = FiltrosBusca.vazio()
+        .comTradicao('quimbanda')
+        .comSoAbertasQuimbanda(true)
+        .comTradicao('umbanda');
+      expect(b.soAbertasQuimbanda).toBe(false);
+    });
   });
 
   describe('serialização URL', () => {
@@ -83,6 +104,20 @@ describe('FiltrosBusca', () => {
       const p = f.toQueryParams();
       expect(p.has('tradicao')).toBe(false);
       expect(p.get('cidade')).toBe('Itajaí');
+    });
+
+    it('round-trip preserva nacaoCandomble e soAbertasQuimbanda', () => {
+      const original = FiltrosBusca.vazio()
+        .comTradicao('candomble')
+        .comNacaoCandomble('jeje');
+      const recriada = FiltrosBusca.fromUrl(original.toQueryParams());
+      expect(recriada.nacaoCandomble).toBe('jeje');
+
+      const original2 = FiltrosBusca.vazio()
+        .comTradicao('quimbanda')
+        .comSoAbertasQuimbanda(true);
+      const recriada2 = FiltrosBusca.fromUrl(original2.toQueryParams());
+      expect(recriada2.soAbertasQuimbanda).toBe(true);
     });
   });
 

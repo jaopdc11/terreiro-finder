@@ -10,7 +10,6 @@ export const tradicaoPrincipalSchema = z.enum([
   'umbanda',
   'candomble',
   'quimbanda',
-  'tambor_de_mina',
   'omoloco',
   'xamba',
   'outra',

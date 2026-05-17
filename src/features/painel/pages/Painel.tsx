@@ -6,6 +6,8 @@ import { AbaPerfil } from '../components/AbaPerfil';
 import { AbaAbertura } from '../components/AbaAbertura';
 import { AbaEndereco } from '../components/AbaEndereco';
 import { AbaTradicaoUmbanda } from '../components/AbaTradicaoUmbanda';
+import { AbaTradicaoCandomble } from '../components/AbaTradicaoCandomble';
+import { AbaTradicaoQuimbanda } from '../components/AbaTradicaoQuimbanda';
 import { AbaFotos } from '../components/AbaFotos';
 
 type Aba = 'perfil' | 'endereco' | 'tradicao' | 'fotos' | 'abertura';
@@ -139,11 +141,16 @@ function PainelDeCasa({
         {aba === 'tradicao' ? (
           casa.tradicaoPrincipal === 'umbanda' ? (
             <AbaTradicaoUmbanda casaId={casa.id} />
+          ) : casa.tradicaoPrincipal === 'candomble' ? (
+            <AbaTradicaoCandomble casaId={casa.id} />
+          ) : casa.tradicaoPrincipal === 'quimbanda' ? (
+            <AbaTradicaoQuimbanda casaId={casa.id} />
           ) : (
             <p className="text-muted-foreground">
               Editor para tradição{' '}
               <strong>{casa.tradicaoPrincipal}</strong> chega numa próxima
-              fase. Por enquanto, o bloco específico está só em Umbanda.
+              fase. O bloco específico aparece em Umbanda, Candomblé e
+              Quimbanda.
             </p>
           )
         ) : null}

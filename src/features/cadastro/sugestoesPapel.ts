@@ -8,7 +8,7 @@
  * vai por tradição. Casa adota a forma que faz sentido pra ela.
  */
 export const SUGESTOES_PAPEL = [
-  // Universais (Umbanda, Omolocô, Tambor de Mina, Xambá)
+  // Universais (Umbanda, Omolocô, Xambá)
   'Pai de Santo',
   'Mãe de Santo',
   'Pai Espiritual',

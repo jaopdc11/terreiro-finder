@@ -2,9 +2,21 @@ import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { useTeclaEsc } from '@/shared/hooks/useTeclaEsc';
+import {
+  CANDOMBLE_NACAO_LABEL,
+  type CandombleNacao,
+} from '@/features/casas/domain/blocoCandombleEnums';
 import type { FiltrosBusca } from '../domain/FiltrosBusca';
 
 const LINHAS_UMBANDA = ['caboclo', 'pretovelho', 'crianca', 'marinheiro', 'exu', 'pombagira'];
+const NACOES_CANDOMBLE: CandombleNacao[] = [
+  'ketu',
+  'jeje',
+  'angola',
+  'efon',
+  'nago_vodun',
+  'outra',
+];
 
 interface Props {
   filtros: FiltrosBusca;
@@ -86,11 +98,56 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
                 })}
               </div>
             </div>
-          ) : (
+          ) : null}
+
+          {filtros.tradicao === 'candomble' ? (
+            <div>
+              <p className="text-sm font-medium">Nação</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {NACOES_CANDOMBLE.map((n) => {
+                  const ativo = filtros.nacaoCandomble === n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() =>
+                        onAplicar(filtros.comNacaoCandomble(ativo ? null : n))
+                      }
+                      aria-pressed={ativo}
+                      className={
+                        'rounded-full border px-3 py-1 text-sm ' +
+                        (ativo
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border bg-card hover:bg-muted')
+                      }
+                    >
+                      {CANDOMBLE_NACAO_LABEL[n]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
+          {filtros.tradicao === 'quimbanda' ? (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={filtros.soAbertasQuimbanda}
+                onChange={(e) =>
+                  onAplicar(filtros.comSoAbertasQuimbanda(e.target.checked))
+                }
+                className="h-4 w-4"
+              />
+              <span>Só casas abertas a não-iniciados</span>
+            </label>
+          ) : null}
+
+          {!filtros.tradicao ? (
             <p className="text-xs text-muted-foreground">
               Selecione uma tradição pra ver filtros específicos dela.
             </p>
-          )}
+          ) : null}
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onFechar}>

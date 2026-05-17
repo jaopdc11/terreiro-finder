@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import type { Casa } from '../domain/Casa';
 import { BadgesAbertura } from './BadgesAbertura';
+import { CardBlocoTradicao } from './CardBlocoTradicao';
 import { BotaoFavorito } from '@/features/favoritos/components/BotaoFavorito';
 
 const TRADICAO_LABEL: Record<string, string> = {
   umbanda: 'Umbanda',
   candomble: 'Candomblé',
   quimbanda: 'Quimbanda',
-  tambor_de_mina: 'Tambor de Mina',
   omoloco: 'Omolocô',
   xamba: 'Xambá',
   outra: 'Outra tradição',
@@ -73,6 +73,8 @@ export function FichaCasa({ casa }: { casa: Casa }) {
           <p className="whitespace-pre-line">{casa.descricao}</p>
         </Card>
       ) : null}
+
+      <CardBlocoTradicao casa={casa} />
 
       <Card titulo="Como visitar">
         <dl className="grid gap-3 sm:grid-cols-2">

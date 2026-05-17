@@ -6,7 +6,6 @@ const TRADICOES: { v: TradicaoPrincipal; label: string }[] = [
   { v: 'umbanda', label: 'Umbanda' },
   { v: 'candomble', label: 'Candomblé' },
   { v: 'quimbanda', label: 'Quimbanda' },
-  { v: 'tambor_de_mina', label: 'Tambor de Mina' },
 ];
 
 interface Props {

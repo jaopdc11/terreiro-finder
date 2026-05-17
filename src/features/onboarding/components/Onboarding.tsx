@@ -53,9 +53,9 @@ export function Onboarding() {
               Salve. Bom ter você por aqui.
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Aqui é um lugar pra encontrar terreiros — Umbanda, Candomblé, Quimbanda,
-              Tambor de Mina, Omolocô. <strong>Cada casa fala por si</strong>; a gente só
-              ajuda na descoberta.
+              Aqui é um lugar pra encontrar terreiros — Umbanda, Candomblé,
+              Quimbanda, Omolocô, Xambá. <strong>Cada casa fala por si</strong>;
+              a gente só ajuda na descoberta.
             </p>
             <div className="mt-6 flex justify-end gap-2">
               <Button onClick={avancar}>Bora</Button>

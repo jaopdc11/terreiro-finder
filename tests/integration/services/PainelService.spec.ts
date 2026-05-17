@@ -2,6 +2,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { SupabaseTestHarness } from '../../setup/SupabaseTestHarness';
 import { CasasPainelRepository } from '@/features/casas/api/CasasPainelRepository';
 import { CasaUmbandaRepository } from '@/features/casas/api/CasaUmbandaRepository';
+import { CasaCandombleRepository } from '@/features/casas/api/CasaCandombleRepository';
+import { CasaQuimbandaRepository } from '@/features/casas/api/CasaQuimbandaRepository';
 import { PainelService } from '@/features/painel/api/PainelService';
 import { PerfilAbertura } from '@/features/casas/domain/PerfilAbertura';
 
@@ -36,6 +38,8 @@ describe('PainelService (integração)', () => {
     svcDirigente = new PainelService(
       new CasasPainelRepository(cli),
       new CasaUmbandaRepository(cli),
+      new CasaCandombleRepository(cli),
+      new CasaQuimbandaRepository(cli),
     );
   });
 
@@ -244,6 +248,86 @@ describe('PainelService (integração)', () => {
         linhasTrabalhadas: [],
       }),
     ).rejects.toThrow(/tradição/i);
+  });
+
+  it('salvarBlocoCandomble upserta e idempotente', async () => {
+    await svcDirigente.salvarBlocoCandomble(casaCandombleId, {
+      nacao: 'ketu',
+      raizLinhagem: 'Casa Branca do Engenho Velho',
+      orixaDaCasa: 'Oxóssi',
+      linguaRitual: 'yorubá',
+    });
+    const { data } = await harness.admin
+      .from('casa_candomble')
+      .select('nacao, orixa_da_casa, lingua_ritual')
+      .eq('casa_id', casaCandombleId)
+      .single();
+    expect(data?.nacao).toBe('ketu');
+    expect(data?.orixa_da_casa).toBe('Oxóssi');
+    expect(data?.lingua_ritual).toBe('yorubá');
+
+    // upsert atualiza
+    await svcDirigente.salvarBlocoCandomble(casaCandombleId, {
+      nacao: 'jeje',
+      raizLinhagem: null,
+      orixaDaCasa: null,
+      linguaRitual: 'ewe-fon',
+    });
+    const { data: depois } = await harness.admin
+      .from('casa_candomble')
+      .select('nacao, lingua_ritual')
+      .eq('casa_id', casaCandombleId)
+      .single();
+    expect(depois?.nacao).toBe('jeje');
+    expect(depois?.lingua_ritual).toBe('ewe-fon');
+  });
+
+  it('salvarBlocoCandomble falha pra casa de tradição diferente', async () => {
+    await expect(
+      svcDirigente.salvarBlocoCandomble(casaUmbandaId, {
+        nacao: 'ketu',
+        raizLinhagem: null,
+        orixaDaCasa: null,
+        linguaRitual: null,
+      }),
+    ).rejects.toThrow(/tradição/i);
+  });
+
+  it('salvarBlocoQuimbanda upserta com casa de tradição quimbanda', async () => {
+    // Cria casa quimbanda específica pra esse teste (beforeEach só cria umbanda + candomble).
+    const { data: q } = await harness.admin
+      .from('casas')
+      .insert({
+        slug: `painel-quim-${Date.now()}`,
+        nome: 'Templo de Exu Tranca-Ruas [PAINEL]',
+        tradicao_principal: 'quimbanda',
+        status: 'aprovada',
+        fonte: 'proprio',
+        cidade: 'Itajaí',
+        estado: 'SC',
+      })
+      .select('id')
+      .single();
+    const qid = q!.id;
+    await harness.admin.from('casa_dirigentes').insert({
+      casa_id: qid,
+      user_id: dirigenteId,
+      papel: 'principal',
+    });
+
+    await svcDirigente.salvarBlocoQuimbanda(qid, {
+      corrente: 'Quimbanda tradicional',
+      raizLinhagem: 'Tata João do Bará',
+      abertaANaoIniciados: true,
+    });
+    const { data } = await harness.admin
+      .from('casa_quimbanda')
+      .select('corrente, raiz_linhagem, aberta_a_nao_iniciados')
+      .eq('casa_id', qid)
+      .single();
+    expect(data?.corrente).toBe('Quimbanda tradicional');
+    expect(data?.raiz_linhagem).toBe('Tata João do Bará');
+    expect(data?.aberta_a_nao_iniciados).toBe(true);
   });
 
   it('dirigente NÃO consegue mudar status/fonte via update direto', async () => {

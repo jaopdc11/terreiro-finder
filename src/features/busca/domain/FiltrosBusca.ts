@@ -10,6 +10,10 @@ import {
   type AceitaVisitantes,
   type EnderecoVisibilidade,
 } from '@/features/casas/domain/PerfilAbertura';
+import {
+  candombleNacao,
+  type CandombleNacao,
+} from '@/features/casas/domain/blocoCandombleEnums';
 
 export const filtrosBuscaSchema = z.object({
   tradicao: tradicaoPrincipalSchema.optional(),
@@ -19,6 +23,10 @@ export const filtrosBuscaSchema = z.object({
   enderecoVisibilidade: enderecoVisibilidadeSchema.optional(),
   /** Linhas trabalhadas / linhagem (text[] no banco) — só faz sentido com tradicao=umbanda. */
   tags: z.array(z.string().trim().min(1)).optional(),
+  /** Filtra por nação do Candomblé — só faz sentido com tradicao=candomble. */
+  nacaoCandomble: candombleNacao.optional(),
+  /** Filtra Quimbanda aberta a não-iniciados — só faz sentido com tradicao=quimbanda. */
+  soAbertasQuimbanda: z.boolean().optional(),
 });
 
 export type FiltrosBuscaInput = z.infer<typeof filtrosBuscaSchema>;
@@ -36,10 +44,12 @@ export class FiltrosBusca {
     readonly aceitaVisitantes: AceitaVisitantes | null,
     readonly enderecoVisibilidade: EnderecoVisibilidade | null,
     readonly tags: ReadonlyArray<string>,
+    readonly nacaoCandomble: CandombleNacao | null,
+    readonly soAbertasQuimbanda: boolean,
   ) {}
 
   static vazio(): FiltrosBusca {
-    return new FiltrosBusca(null, null, null, null, null, []);
+    return new FiltrosBusca(null, null, null, null, null, [], null, false);
   }
 
   static parse(raw: unknown): FiltrosBusca {
@@ -58,6 +68,8 @@ export class FiltrosBusca {
       v.aceitaVisitantes ?? null,
       v.enderecoVisibilidade ?? null,
       Object.freeze([...(v.tags ?? [])]),
+      v.nacaoCandomble ?? null,
+      v.soAbertasQuimbanda ?? false,
     );
   }
 
@@ -75,6 +87,11 @@ export class FiltrosBusca {
     if (visib) obj.enderecoVisibilidade = visib;
     const tags = params.getAll('tags').filter((t) => t.length > 0);
     if (tags.length > 0) obj.tags = tags;
+    const nacao = params.get('nacaoCandomble');
+    if (nacao) obj.nacaoCandomble = nacao;
+    if (params.get('soAbertasQuimbanda') === 'true') {
+      obj.soAbertasQuimbanda = true;
+    }
     return FiltrosBusca.parse(obj);
   }
 
@@ -87,6 +104,8 @@ export class FiltrosBusca {
     if (this.aceitaVisitantes) p.set('aceitaVisitantes', this.aceitaVisitantes);
     if (this.enderecoVisibilidade) p.set('enderecoVisibilidade', this.enderecoVisibilidade);
     for (const tag of [...this.tags].sort()) p.append('tags', tag);
+    if (this.nacaoCandomble) p.set('nacaoCandomble', this.nacaoCandomble);
+    if (this.soAbertasQuimbanda) p.set('soAbertasQuimbanda', 'true');
     return p;
   }
 
@@ -100,12 +119,17 @@ export class FiltrosBusca {
       this.aceitaVisitantes,
       this.enderecoVisibilidade,
       [...this.tags].sort(),
+      this.nacaoCandomble,
+      this.soAbertasQuimbanda,
     ];
   }
 
   comTradicao(t: TradicaoPrincipal | null): FiltrosBusca {
-    // Mudou de tradição → tags ficam órfãs (eram específicas da tradição anterior).
+    // Mudou de tradição → filtros polimórficos ficam órfãos (eram específicos
+    // da tradição anterior). Mantemos tags só se a tradição não mudou.
     const novasTags = t === this.tradicao ? this.tags : [];
+    const novaNacao = t === 'candomble' ? this.nacaoCandomble : null;
+    const novaAbertura = t === 'quimbanda' ? this.soAbertasQuimbanda : false;
     return new FiltrosBusca(
       t,
       this.cidade,
@@ -113,37 +137,25 @@ export class FiltrosBusca {
       this.aceitaVisitantes,
       this.enderecoVisibilidade,
       novasTags,
+      novaNacao,
+      novaAbertura,
     );
   }
 
   comCidade(c: string | null): FiltrosBusca {
-    return new FiltrosBusca(
-      this.tradicao,
-      c,
-      this.bairro,
-      this.aceitaVisitantes,
-      this.enderecoVisibilidade,
-      this.tags,
-    );
+    return this.copiaCom({ cidade: c });
   }
 
   comBairro(b: string | null): FiltrosBusca {
-    return new FiltrosBusca(
-      this.tradicao,
-      this.cidade,
-      b,
-      this.aceitaVisitantes,
-      this.enderecoVisibilidade,
-      this.tags,
-    );
+    return this.copiaCom({ bairro: b });
   }
 
   comAceitaVisitantes(v: AceitaVisitantes | null): FiltrosBusca {
-    return new FiltrosBusca(this.tradicao, this.cidade, this.bairro, v, this.enderecoVisibilidade, this.tags);
+    return this.copiaCom({ aceitaVisitantes: v });
   }
 
   comEnderecoVisibilidade(v: EnderecoVisibilidade | null): FiltrosBusca {
-    return new FiltrosBusca(this.tradicao, this.cidade, this.bairro, this.aceitaVisitantes, v, this.tags);
+    return this.copiaCom({ enderecoVisibilidade: v });
   }
 
   comTagAlternada(tag: string): FiltrosBusca {
@@ -152,14 +164,15 @@ export class FiltrosBusca {
     const set = new Set(this.tags);
     if (set.has(t)) set.delete(t);
     else set.add(t);
-    return new FiltrosBusca(
-      this.tradicao,
-      this.cidade,
-      this.bairro,
-      this.aceitaVisitantes,
-      this.enderecoVisibilidade,
-      Object.freeze([...set]),
-    );
+    return this.copiaCom({ tags: Object.freeze([...set]) });
+  }
+
+  comNacaoCandomble(n: CandombleNacao | null): FiltrosBusca {
+    return this.copiaCom({ nacaoCandomble: n });
+  }
+
+  comSoAbertasQuimbanda(v: boolean): FiltrosBusca {
+    return this.copiaCom({ soAbertasQuimbanda: v });
   }
 
   estaVazio(): boolean {
@@ -169,7 +182,38 @@ export class FiltrosBusca {
       !this.bairro &&
       !this.aceitaVisitantes &&
       !this.enderecoVisibilidade &&
-      this.tags.length === 0
+      this.tags.length === 0 &&
+      !this.nacaoCandomble &&
+      !this.soAbertasQuimbanda
+    );
+  }
+
+  private copiaCom(
+    overrides: Partial<{
+      cidade: string | null;
+      bairro: string | null;
+      aceitaVisitantes: AceitaVisitantes | null;
+      enderecoVisibilidade: EnderecoVisibilidade | null;
+      tags: ReadonlyArray<string>;
+      nacaoCandomble: CandombleNacao | null;
+      soAbertasQuimbanda: boolean;
+    }>,
+  ): FiltrosBusca {
+    return new FiltrosBusca(
+      this.tradicao,
+      overrides.cidade !== undefined ? overrides.cidade : this.cidade,
+      overrides.bairro !== undefined ? overrides.bairro : this.bairro,
+      overrides.aceitaVisitantes !== undefined
+        ? overrides.aceitaVisitantes
+        : this.aceitaVisitantes,
+      overrides.enderecoVisibilidade !== undefined
+        ? overrides.enderecoVisibilidade
+        : this.enderecoVisibilidade,
+      overrides.tags ?? this.tags,
+      overrides.nacaoCandomble !== undefined
+        ? overrides.nacaoCandomble
+        : this.nacaoCandomble,
+      overrides.soAbertasQuimbanda ?? this.soAbertasQuimbanda,
     );
   }
 }

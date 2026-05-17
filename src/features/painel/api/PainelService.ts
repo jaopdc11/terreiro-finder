@@ -5,7 +5,11 @@ import type {
   PerfilCasaInput,
 } from '@/features/casas/api/CasasPainelRepository';
 import type { CasaUmbandaRepository } from '@/features/casas/api/CasaUmbandaRepository';
+import type { CasaCandombleRepository } from '@/features/casas/api/CasaCandombleRepository';
+import type { CasaQuimbandaRepository } from '@/features/casas/api/CasaQuimbandaRepository';
 import type { BlocoUmbandaInput } from '@/features/casas/domain/BlocoUmbanda';
+import type { BlocoCandombleInput } from '@/features/casas/domain/BlocoCandomble';
+import type { BlocoQuimbandaInput } from '@/features/casas/domain/BlocoQuimbanda';
 import type { PerfilAbertura } from '@/features/casas/domain/PerfilAbertura';
 
 /**
@@ -20,6 +24,8 @@ export class PainelService {
   constructor(
     private readonly casas: CasasPainelRepository,
     private readonly umbanda: CasaUmbandaRepository,
+    private readonly candomble: CasaCandombleRepository,
+    private readonly quimbanda: CasaQuimbandaRepository,
   ) {}
 
   async salvarPerfil(casaId: string, input: PerfilCasaInput): Promise<void> {
@@ -46,7 +52,7 @@ export class PainelService {
     await this.casas.atualizarEndereco(casaId, input);
   }
 
-  /** Salva o bloco específico da tradição. Por ora só Umbanda no MVP. */
+  /** Salva o bloco específico da tradição Umbanda. */
   async salvarBlocoUmbanda(casaId: string, input: BlocoUmbandaInput): Promise<void> {
     const casa = await this.casas.buscarPorId(casaId);
     if (!casa) {
@@ -59,5 +65,39 @@ export class PainelService {
       );
     }
     await this.umbanda.upsert(casaId, input);
+  }
+
+  async salvarBlocoCandomble(
+    casaId: string,
+    input: BlocoCandombleInput,
+  ): Promise<void> {
+    const casa = await this.casas.buscarPorId(casaId);
+    if (!casa) {
+      throw new ServiceError('PAINEL_CASA_NAO_ENCONTRADA', `Casa ${casaId} não existe`);
+    }
+    if (casa.tradicaoPrincipal !== 'candomble') {
+      throw new ServiceError(
+        'PAINEL_TRADICAO_INCOMPATIVEL',
+        'Bloco Candomblé só vale pra casas com tradição Candomblé.',
+      );
+    }
+    await this.candomble.upsert(casaId, input);
+  }
+
+  async salvarBlocoQuimbanda(
+    casaId: string,
+    input: BlocoQuimbandaInput,
+  ): Promise<void> {
+    const casa = await this.casas.buscarPorId(casaId);
+    if (!casa) {
+      throw new ServiceError('PAINEL_CASA_NAO_ENCONTRADA', `Casa ${casaId} não existe`);
+    }
+    if (casa.tradicaoPrincipal !== 'quimbanda') {
+      throw new ServiceError(
+        'PAINEL_TRADICAO_INCOMPATIVEL',
+        'Bloco Quimbanda só vale pra casas com tradição Quimbanda.',
+      );
+    }
+    await this.quimbanda.upsert(casaId, input);
   }
 }

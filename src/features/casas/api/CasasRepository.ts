@@ -88,6 +88,18 @@ export class CasasRepository {
       query = query.in('id', ids);
     }
 
+    if (filtros.tradicao === 'candomble' && filtros.nacaoCandomble) {
+      const ids = await this.idsComNacaoCandomble(filtros.nacaoCandomble);
+      if (ids.length === 0) return [];
+      query = query.in('id', ids);
+    }
+
+    if (filtros.tradicao === 'quimbanda' && filtros.soAbertasQuimbanda) {
+      const ids = await this.idsAbertasQuimbanda();
+      if (ids.length === 0) return [];
+      query = query.in('id', ids);
+    }
+
     query = query.order('aprovada_em', { ascending: false }).limit(500);
 
     const { data, error } = await query;
@@ -314,6 +326,30 @@ export class CasasRepository {
       .or(`linhas_trabalhadas.ov.{${tags.join(',')}},linhagem.ov.{${tags.join(',')}}`);
     if (error) {
       throw new RepositoryError('CASAS_TAGS_FALHOU', error.message, { cause: error });
+    }
+    return (data ?? []).map((r) => r.casa_id as string);
+  }
+
+  private async idsComNacaoCandomble(nacao: string): Promise<string[]> {
+    const { data, error } = await this.client
+      .from('casa_candomble')
+      .select('casa_id')
+      .eq('nacao', nacao);
+    if (error) {
+      throw new RepositoryError('CASAS_NACAO_FALHOU', error.message, { cause: error });
+    }
+    return (data ?? []).map((r) => r.casa_id as string);
+  }
+
+  private async idsAbertasQuimbanda(): Promise<string[]> {
+    const { data, error } = await this.client
+      .from('casa_quimbanda')
+      .select('casa_id')
+      .eq('aberta_a_nao_iniciados', true);
+    if (error) {
+      throw new RepositoryError('CASAS_QUIMBANDA_ABERTAS_FALHOU', error.message, {
+        cause: error,
+      });
     }
     return (data ?? []).map((r) => r.casa_id as string);
   }

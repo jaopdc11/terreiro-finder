@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export interface CasaSeedInput {
   slug: string;
   nome: string;
-  tradicao: 'umbanda' | 'candomble' | 'quimbanda' | 'tambor_de_mina' | 'omoloco' | 'xamba' | 'outra';
+  tradicao: 'umbanda' | 'candomble' | 'quimbanda' | 'omoloco' | 'xamba' | 'outra';
   status?: 'pendente' | 'aprovada' | 'recusada' | 'arquivada';
   fonte?: 'indicacao' | 'proprio' | 'reivindicada';
   cidade?: string;
