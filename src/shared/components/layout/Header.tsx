@@ -29,6 +29,16 @@ export function Header() {
           <Link to="/indicar" className="hover:text-primary">
             Indicar uma casa
           </Link>
+          {estado.sessao ? (
+            <Link to="/painel" className="hover:text-primary">
+              Meu painel
+            </Link>
+          ) : null}
+          {estado.sessao?.podeAdministrar() ? (
+            <Link to="/admin" className="hover:text-primary">
+              Moderação
+            </Link>
+          ) : null}
           <Link to="/sobre" className="hover:text-primary">
             Sobre
           </Link>

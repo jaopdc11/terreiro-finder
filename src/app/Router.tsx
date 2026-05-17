@@ -12,6 +12,7 @@ import { CasaFicha } from '@/features/casas/pages/CasaFicha';
 import { Indicar } from '@/features/indicacao/pages/Indicar';
 import { Admin } from '@/features/moderacao/pages/Admin';
 import { Reivindicar } from '@/features/painel/pages/Reivindicar';
+import { Painel } from '@/features/painel/pages/Painel';
 import { Protegido } from './guards/Protegido';
 
 export function Router() {
@@ -40,6 +41,14 @@ export function Router() {
             element={
               <Protegido>
                 <Reivindicar />
+              </Protegido>
+            }
+          />
+          <Route
+            path="/painel"
+            element={
+              <Protegido>
+                <Painel />
               </Protegido>
             }
           />
