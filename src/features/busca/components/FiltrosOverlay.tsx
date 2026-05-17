@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
+import { useTeclaEsc } from '@/shared/hooks/useTeclaEsc';
 import type { FiltrosBusca } from '../domain/FiltrosBusca';
 
 const LINHAS_UMBANDA = ['caboclo', 'pretovelho', 'crianca', 'marinheiro', 'exu', 'pombagira'];
@@ -14,14 +14,7 @@ interface Props {
 }
 
 export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) {
-  useEffect(() => {
-    if (!aberto) return;
-    const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onFechar();
-    };
-    window.addEventListener('keydown', onEsc);
-    return () => window.removeEventListener('keydown', onEsc);
-  }, [aberto, onFechar]);
+  useTeclaEsc(aberto, onFechar);
 
   if (!aberto) return null;
 

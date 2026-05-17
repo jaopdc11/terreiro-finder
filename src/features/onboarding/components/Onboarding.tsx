@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
+import { useTeclaEsc } from '@/shared/hooks/useTeclaEsc';
 import { useOnboardingStore, type Bifurcacao } from '../stores/onboardingStore';
 
 export function Onboarding() {
@@ -12,6 +13,9 @@ export function Onboarding() {
   const pular = useOnboardingStore((s) => s.pular);
   const concluir = useOnboardingStore((s) => s.concluir);
   const navigate = useNavigate();
+
+  // Esc pula o onboarding (mesma semântica do botão "Pular").
+  useTeclaEsc(!concluido, pular);
 
   if (concluido) return null;
 

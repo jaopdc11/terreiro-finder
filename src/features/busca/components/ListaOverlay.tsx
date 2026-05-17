@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Casa } from '@/features/casas/domain/Casa';
 import { BadgesAbertura } from '@/features/casas/components/BadgesAbertura';
+import { useTeclaEsc } from '@/shared/hooks/useTeclaEsc';
 
 interface Props {
   casas: ReadonlyArray<Casa>;
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export function ListaOverlay({ casas, aberto, onFechar }: Props) {
+  useTeclaEsc(aberto, onFechar);
+
   if (!aberto) return null;
 
   return (
