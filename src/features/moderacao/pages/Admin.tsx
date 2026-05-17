@@ -352,6 +352,7 @@ function CadastrosDiretos() {
   const { data, isLoading } = useCadastrosDiretosPendentes();
   const aprovar = useAprovarCadastroDireto();
   const recusar = useRecusarCadastroDireto();
+  const [motivos, setMotivos] = useState<Record<string, string>>({});
 
   if (isLoading) return <p className="text-muted-foreground">Carregando…</p>;
   const itens = (data ?? []) as unknown as CasaCadastroDireto[];
@@ -364,71 +365,82 @@ function CadastrosDiretos() {
     );
   }
 
-  const confirmarRecusa = (id: string) => {
-    if (window.confirm("Recusar este cadastro? A casa fica com status \"recusada\".")) {
-      recusar.mutate(id);
-    }
-  };
-
   return (
     <ul className="space-y-3" data-testid="lista-cadastros-pendentes">
-      {itens.map((c) => (
-        <li key={c.id} className="rounded-lg border border-border bg-card p-4">
-          <header className="flex items-baseline justify-between gap-3">
-            <h2 className="font-display text-lg">{c.nome}</h2>
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">
-              {c.tradicao_principal}
-            </span>
-          </header>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {c.bairro ? `${c.bairro}, ` : ""}{c.cidade}/{c.estado}
-          </p>
-          <p className="mt-2 text-sm">
-            <strong>Cadastrado por:</strong> {nomeCriador(c.criador)}
-            {c.sacerdote_nome ? <> · <strong>Sacerdote:</strong> {c.sacerdote_nome}</> : null}
-          </p>
-
-          {c.canal_validacao ? (
-            <div className="mt-3 rounded-md bg-muted/50 p-3 text-sm">
-              <p className="font-medium text-foreground">
-                Como validar a dirigência (contato cruzado):
-              </p>
-              <p className="mt-1 whitespace-pre-line text-foreground/90">
-                {c.canal_validacao}
-              </p>
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-destructive">
-              Sem canal de validação informado — recuse ou contate o cadastrante
-              direto via email do perfil.
+      {itens.map((c) => {
+        const motivo = motivos[c.id]?.trim() ?? '';
+        return (
+          <li key={c.id} className="rounded-lg border border-border bg-card p-4">
+            <header className="flex items-baseline justify-between gap-3">
+              <h2 className="font-display text-lg">{c.nome}</h2>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {c.tradicao_principal}
+              </span>
+            </header>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {c.bairro ? `${c.bairro}, ` : ''}{c.cidade}/{c.estado}
             </p>
-          )}
+            <p className="mt-2 text-sm">
+              <strong>Cadastrado por:</strong> {nomeCriador(c.criador)}
+              {c.sacerdote_nome ? <> · <strong>Sacerdote:</strong> {c.sacerdote_nome}</> : null}
+            </p>
 
-          <p className="mt-3 text-sm text-muted-foreground">
-            <strong>Atenção:</strong> só clique abaixo depois de contatar pelo
-            canal acima e confirmar que essa pessoa é da dirigência. Aprovar
-            vincula como dirigente principal e publica a casa{' '}
-            <strong>verificada</strong>.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              disabled={aprovar.isPending}
-              onClick={() => aprovar.mutate(c.id)}
-            >
-              Validei dirigência — publicar
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={recusar.isPending}
-              onClick={() => confirmarRecusa(c.id)}
-            >
-              Recusar
-            </Button>
-          </div>
-        </li>
-      ))}
+            {c.canal_validacao ? (
+              <div className="mt-3 rounded-md bg-muted/50 p-3 text-sm">
+                <p className="font-medium text-foreground">
+                  Como validar a dirigência (contato cruzado):
+                </p>
+                <p className="mt-1 whitespace-pre-line text-foreground/90">
+                  {c.canal_validacao}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-destructive">
+                Sem canal de validação informado — recuse ou contate o cadastrante
+                direto via email do perfil.
+              </p>
+            )}
+
+            <p className="mt-3 text-sm text-muted-foreground">
+              <strong>Atenção:</strong> só clique em "Validei" depois de contatar
+              pelo canal acima e confirmar que essa pessoa é da dirigência.
+              Aprovar vincula como dirigente principal e publica a casa{' '}
+              <strong>verificada</strong>.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                disabled={aprovar.isPending}
+                onClick={() => aprovar.mutate(c.id)}
+              >
+                Validei dirigência — publicar
+              </Button>
+              <div className="flex flex-1 gap-2">
+                <Input
+                  placeholder="Motivo da recusa (opcional)"
+                  value={motivos[c.id] ?? ''}
+                  onChange={(e) =>
+                    setMotivos((m) => ({ ...m, [c.id]: e.target.value }))
+                  }
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={recusar.isPending}
+                  onClick={() =>
+                    recusar.mutate({
+                      casaId: c.id,
+                      motivo: motivo.length > 0 ? motivo : null,
+                    })
+                  }
+                >
+                  Recusar
+                </Button>
+              </div>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }

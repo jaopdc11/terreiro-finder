@@ -230,10 +230,10 @@ export function useRecusarCadastroDireto() {
   const svc = useSvc();
 
   return useMutation({
-    mutationFn: async (casaId: string) => {
+    mutationFn: async (input: { casaId: string; motivo: string | null }) => {
       const sess = sessao.use.getState().sessao;
       if (!sess) throw new Error('Sem sessão');
-      return svc.recusarCadastroDireto(casaId, { userId: sess.userId });
+      return svc.recusarCadastroDireto(input.casaId, { userId: sess.userId }, input.motivo);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: QK_CADASTROS_DIRETOS }),
   });

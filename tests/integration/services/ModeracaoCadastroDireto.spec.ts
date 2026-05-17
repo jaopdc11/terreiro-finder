@@ -170,16 +170,36 @@ describe('ModeracaoService · cadastro direto (integração)', () => {
 
     const { data: casa } = await harness.admin
       .from('casas')
-      .select('status')
+      .select('status, motivo_recusa')
       .eq('id', casaId)
       .single();
     expect(casa?.status).toBe('recusada');
+    expect(casa?.motivo_recusa).toBeNull();
 
     const { data: dirigentes } = await harness.admin
       .from('casa_dirigentes')
       .select('user_id')
       .eq('casa_id', casaId);
     expect(dirigentes ?? []).toHaveLength(0);
+  });
+
+  it('recusar com motivo persiste em casas.motivo_recusa', async () => {
+    const casaId = await criarComoDirigente('Pra Recusar Com Motivo');
+    await svcAdmin.recusarCadastroDireto(
+      casaId,
+      { userId: adminId },
+      'Não confirmamos a dirigência via canal de validação.',
+    );
+
+    const { data: casa } = await harness.admin
+      .from('casas')
+      .select('status, motivo_recusa')
+      .eq('id', casaId)
+      .single();
+    expect(casa?.status).toBe('recusada');
+    expect(casa?.motivo_recusa).toBe(
+      'Não confirmamos a dirigência via canal de validação.',
+    );
   });
 
   it('outro usuário (não admin) tenta aprovar → bloqueado pela RLS', async () => {

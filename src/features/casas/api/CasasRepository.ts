@@ -19,7 +19,7 @@ const CAMPOS_SELECT = `
   whatsapp, telefone, email_contato,
   texto_antes_visita,
   created_at, updated_at, aprovada_em, aprovada_por, criada_por,
-  canal_validacao, papel_dirigencia_proposto
+  canal_validacao, papel_dirigencia_proposto, motivo_recusa
 `.trim();
 
 /**
@@ -194,13 +194,18 @@ export class CasasRepository {
    * Marca casa pendente como recusada. Status vai pra 'recusada'; sem
    * motivo persistido nesta versão (débito Fase 5).
    */
-  async recusarCasaPendente(casaId: string, admin: { userId: string }): Promise<void> {
+  async recusarCasaPendente(
+    casaId: string,
+    admin: { userId: string },
+    motivo: string | null = null,
+  ): Promise<void> {
     const { error } = await this.client
       .from('casas')
       .update({
         status: 'recusada',
         aprovada_por: admin.userId,
         aprovada_em: new Date().toISOString(),
+        motivo_recusa: motivo,
       })
       .eq('id', casaId);
     if (error) {

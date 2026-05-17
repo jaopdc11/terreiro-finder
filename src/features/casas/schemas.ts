@@ -59,6 +59,7 @@ export const casaRowSchema = z.object({
   criada_por: z.string().uuid().nullable().optional(),
   canal_validacao: z.string().nullable().optional(),
   papel_dirigencia_proposto: z.string().nullable().optional(),
+  motivo_recusa: z.string().nullable().optional(),
 });
 
 export type CasaRow = z.infer<typeof casaRowSchema>;

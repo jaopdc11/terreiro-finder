@@ -121,13 +121,13 @@ export class ModeracaoService {
   }
 
   /**
-   * Recusa um cadastro direto. Status vira 'recusada'; motivo não é
-   * persistido no MVP (coluna `motivo_recusa` em `casas` não existe ainda
-   * — fica como débito da Fase 5).
+   * Recusa um cadastro direto. Status vira 'recusada'; motivo persistido
+   * em `casas.motivo_recusa` quando informado (migration 0009).
    */
   async recusarCadastroDireto(
     casaId: string,
     admin: { userId: string },
+    motivo: string | null = null,
   ): Promise<void> {
     const casa = await this.casas.findById(casaId);
     if (!casa) {
@@ -139,7 +139,7 @@ export class ModeracaoService {
         'Casa não está em cadastro direto pendente',
       );
     }
-    await this.casas.recusarCasaPendente(casaId, admin);
+    await this.casas.recusarCasaPendente(casaId, admin, motivo);
   }
 
   async aprovarReivindicacao(
