@@ -34,6 +34,12 @@ export const cadastroSchema = z
     email: emailSchema,
     senha: senhaSchema,
     confirmacao: senhaSchema,
+    /**
+     * Se marcado: profile.role nasce 'dirigente' via user_metadata.intent.
+     * Não é validação de identidade — só intenção declarada. O admin ainda
+     * confirma quando a casa for cadastrada.
+     */
+    eDirigencia: z.boolean().default(false),
   })
   .refine((v) => v.senha === v.confirmacao, {
     message: 'As senhas não batem',

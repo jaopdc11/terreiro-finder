@@ -42,6 +42,7 @@ export class Casa {
     readonly aprovadaEm: Date | null,
     readonly aprovadaPor: string | null,
     readonly criadaPor: string | null,
+    readonly papelDirigenciaProposto: string | null,
   ) {}
 
   static fromRow(raw: unknown): Casa {
@@ -86,6 +87,7 @@ export class Casa {
       row.aprovada_em ? new Date(row.aprovada_em) : null,
       row.aprovada_por,
       row.criada_por ?? null,
+      row.papel_dirigencia_proposto ?? null,
     );
   }
 

@@ -19,7 +19,7 @@ const CAMPOS_SELECT = `
   whatsapp, telefone, email_contato,
   texto_antes_visita,
   created_at, updated_at, aprovada_em, aprovada_por, criada_por,
-  canal_validacao
+  canal_validacao, papel_dirigencia_proposto
 `.trim();
 
 /**
@@ -56,6 +56,9 @@ export interface NovaCasaDeDirigencia {
 
   /** Canal pelo qual o admin valida a dirigência antes de aprovar. */
   canal_validacao: string;
+
+  /** Como a dirigência se apresenta (Pai/Mãe de Santo, Babalorixá, Tata, ...). */
+  papel_dirigencia_proposto: string;
 }
 
 export class CasasRepository {
@@ -231,10 +234,17 @@ export class CasasRepository {
     casaId: string,
     userId: string,
     papel: 'principal' | 'auxiliar' = 'principal',
+    papelDescricao: string | null = null,
   ): Promise<void> {
-    const { error } = await this.client
-      .from('casa_dirigentes')
-      .upsert({ casa_id: casaId, user_id: userId, papel }, { onConflict: 'casa_id,user_id' });
+    const { error } = await this.client.from('casa_dirigentes').upsert(
+      {
+        casa_id: casaId,
+        user_id: userId,
+        papel,
+        papel_descricao: papelDescricao,
+      },
+      { onConflict: 'casa_id,user_id' },
+    );
     if (error) {
       throw new RepositoryError('CASA_VINCULAR_DIRIGENTE_FALHOU', error.message, {
         cause: error,

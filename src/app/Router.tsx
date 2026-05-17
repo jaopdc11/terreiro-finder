@@ -7,6 +7,7 @@ import { Login } from '@/features/auth/pages/Login';
 import { Cadastro } from '@/features/auth/pages/Cadastro';
 import { RecuperarSenha } from '@/features/auth/pages/RecuperarSenha';
 import { Onboarding } from '@/features/onboarding/components/Onboarding';
+import { BannerCTADirigencia } from '@/features/auth/components/BannerCTADirigencia';
 import { Buscar } from '@/features/busca/pages/Buscar';
 import { CasaFicha } from '@/features/casas/pages/CasaFicha';
 import { Indicar } from '@/features/indicacao/pages/Indicar';
@@ -20,6 +21,7 @@ export function Router() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
+      <BannerCTADirigencia />
       <Onboarding />
       <main className="flex-1">
         <Routes>

@@ -25,6 +25,7 @@ export function Cadastro() {
         ...(v.nomeExibicao ? { nomeExibicao: v.nomeExibicao } : {}),
         email: v.email,
         senha: v.senha,
+        eDirigencia: v.eDirigencia,
       });
       navigate('/', { replace: true });
     } catch (e) {
@@ -73,6 +74,24 @@ export function Cadastro() {
           erro={errors.confirmacao?.message}
           {...register('confirmacao')}
         />
+
+        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-card p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+          <input
+            type="checkbox"
+            className="mt-1 h-4 w-4"
+            {...register('eDirigencia')}
+          />
+          <span className="text-sm">
+            <strong className="block font-medium text-foreground">
+              Sou da dirigência de uma casa
+            </strong>
+            <span className="mt-1 block text-muted-foreground">
+              Marque se você é Pai/Mãe de Santo, Babalorixá, Iyalorixá, Tata,
+              Tateto ou equivalente em outra tradição. Você poderá cadastrar
+              sua casa logo depois.
+            </span>
+          </span>
+        </label>
 
         {erroServidor ? (
           <p role="alert" className="text-sm text-destructive">

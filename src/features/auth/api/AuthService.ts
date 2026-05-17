@@ -8,6 +8,12 @@ export interface CadastroPayload {
   nomeExibicao?: string;
   email: string;
   senha: string;
+  /**
+   * Se true, passa `intent='dirigencia'` em user_metadata pro trigger
+   * handle_new_user setar profile.role='dirigente' direto. Senão, role
+   * default 'visitante'.
+   */
+  eDirigencia?: boolean;
 }
 
 /**
@@ -33,6 +39,7 @@ export class AuthService {
         data: {
           nome_completo: payload.nomeCompleto,
           nome_exibicao: payload.nomeExibicao ?? payload.nomeCompleto,
+          intent: payload.eDirigencia ? 'dirigencia' : 'visitante',
         },
       },
     });

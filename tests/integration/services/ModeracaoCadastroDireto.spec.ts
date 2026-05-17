@@ -36,6 +36,7 @@ function payloadBase(nome: string): NovaCasaDeDirigencia {
     telefone: null,
     email_contato: null,
     canal_validacao: 'Instagram da casa @teste-cadastro',
+    papel_dirigencia_proposto: 'Mãe de Santo',
   };
 }
 

@@ -4,6 +4,7 @@ import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { passoIdentidadeSchema, type PassoIdentidadeInput } from '../schemas';
+import { SUGESTOES_PAPEL } from '../sugestoesPapel';
 
 const TRADICOES = [
   { v: 'umbanda', label: 'Umbanda' },
@@ -62,6 +63,31 @@ export function PassoIdentidade({ inicial, onAvancar }: Props) {
         </select>
         {errors.tradicao_principal ? (
           <p role="alert" className="text-sm text-destructive">{errors.tradicao_principal.message}</p>
+        ) : null}
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="c-papel">Como você é chamada(o) na casa?</Label>
+        <Input
+          id="c-papel"
+          list="sugestoes-papel"
+          {...register('papel_dirigencia')}
+          aria-invalid={!!errors.papel_dirigencia}
+          placeholder="Ex.: Mãe de Santo, Babalorixá, Tata"
+        />
+        <datalist id="sugestoes-papel">
+          {SUGESTOES_PAPEL.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+        <p className="text-xs text-muted-foreground">
+          Use o termo que a sua casa adota. Texto livre — as sugestões servem só
+          de guia. Esse título aparece na ficha pública.
+        </p>
+        {errors.papel_dirigencia ? (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.papel_dirigencia.message}
+          </p>
         ) : null}
       </div>
 

@@ -9,12 +9,17 @@ import {
 const opcional = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((v) => (typeof v === 'string' && v.trim().length === 0 ? undefined : v), schema.optional());
 
-/** Passo 1 — quem é a casa + como validar a dirigência. */
+/** Passo 1 — quem é a casa + como validar a dirigência + papel da pessoa. */
 export const passoIdentidadeSchema = z.object({
   nome: z.string().trim().min(2, 'Diz o nome da casa'),
   sacerdote_nome: opcional(z.string().trim().min(2, 'Nome muito curto')),
   tradicao_principal: tradicaoPrincipalSchema,
   descricao: opcional(z.string().trim().min(10, 'Conta um pouco mais — ao menos 10 caracteres')),
+  papel_dirigencia: z
+    .string()
+    .trim()
+    .min(3, 'Diz como você é chamada(o) na casa — ao menos 3 caracteres.')
+    .max(60, 'Texto muito longo'),
   canal_validacao: z
     .string()
     .trim()

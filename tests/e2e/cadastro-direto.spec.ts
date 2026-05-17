@@ -75,6 +75,9 @@ test.describe('cadastro direto pela dirigência', () => {
     await main.getByLabel('Nome da casa').fill(NOME_CASA);
     await main.getByLabel('Tradição principal').selectOption('umbanda');
     await main
+      .getByLabel(/Como você é chamada/i)
+      .fill('Mãe de Santo');
+    await main
       .getByLabel(/Como podemos validar/i)
       .fill('Instagram da casa @cadastro-e2e — DM pra Mãe Tester');
     await main.getByRole('button', { name: 'Próximo' }).click();

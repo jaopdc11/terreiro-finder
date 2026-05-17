@@ -115,7 +115,8 @@ export class ModeracaoService {
       );
     }
 
-    await this.casas.vincularDirigente(casa.id, casa.criadaPor, 'principal');
+    const papel = casa.papelDirigenciaProposto?.trim() || null;
+    await this.casas.vincularDirigente(casa.id, casa.criadaPor, 'principal', papel);
     await this.casas.aprovarCasaPendente(casa.id, admin);
   }
 

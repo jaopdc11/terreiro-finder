@@ -131,8 +131,10 @@ test.describe('reivindicação com contato cruzado', () => {
     // O que a pessoa disse aparece
     await expect(lista.getByText(/Mãe Joana de Aruanda/i)).toBeVisible();
 
-    // Aprova
-    await lista.getByRole('button', { name: /Casa confirmou — aprovar/ }).click();
+    // Aprova só a entrada dessa reivindicação (DB compartilhado com outras
+    // reivindicações de specs anteriores/script de dev — filtra pelo texto).
+    const item = lista.getByRole('listitem').filter({ hasText: /Mãe Joana de Aruanda/i });
+    await item.getByRole('button', { name: /Casa confirmou — aprovar/ }).click();
     // Fila esvazia (ou ao menos a entrada some)
     await expect(lista.getByText(/Mãe Joana de Aruanda/i)).toBeHidden({ timeout: 5_000 });
     await cAdm.close();
