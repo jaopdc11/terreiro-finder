@@ -21,10 +21,16 @@ import { Protegido } from './guards/Protegido';
 export function Router() {
   return (
     <div className="flex min-h-screen flex-col">
+      <a
+        href="#conteudo-principal"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[3000] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+      >
+        Pular pro conteúdo principal
+      </a>
       <Header />
       <BannerCTADirigencia />
       <Onboarding />
-      <main className="flex-1">
+      <main id="conteudo-principal" className="flex-1">
         <Routes>
           <Route path="/" element={<Buscar />} />
           <Route path="/casa/:slug" element={<CasaFicha />} />
