@@ -4,6 +4,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Leaflet usa z-index interno alto (panes 200-700, controles ~1000). Sem fixar
+ * o container num stacking context baixo, overlays (modal de filtros, lista)
+ * ficam abaixo dos pins/zoom. Esses overrides resolvem.
+ */
+.leaflet-container {
+  z-index: 0;
+}
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1;
+}
+
 @layer base {
   :root {
     /* Paleta Terra/Pemba (HSL sem o "hsl()") */

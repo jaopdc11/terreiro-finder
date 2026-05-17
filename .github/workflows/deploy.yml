@@ -1,8 +1,10 @@
 name: Deploy GitHub Pages
 
+# Deploy fica em workflow_dispatch (manual) até termos um projeto Supabase
+# remoto criado. Sem URL+anon-key reais pra hidratar `import.meta.env` no
+# build, o site sobe e mostra erro em runtime. Ao ativar trigger em push,
+# adicionar `env:` com secrets do GitHub.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -20,13 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 11 }
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

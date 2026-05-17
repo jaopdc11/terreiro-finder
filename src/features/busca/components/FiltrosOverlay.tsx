@@ -30,7 +30,7 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
       role="dialog"
       aria-modal="true"
       aria-labelledby="filtros-titulo"
-      className="fixed inset-0 z-40 flex items-end justify-center bg-foreground/30 sm:items-center"
+      className="fixed inset-0 z-[2000] flex items-end justify-center bg-foreground/30 sm:items-center"
     >
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-lg bg-card p-6 sm:rounded-lg">
         <div className="flex items-center justify-between">

@@ -6,13 +6,22 @@ on:
   pull_request:
     branches: [main]
 
+# Chaves padrão do `supabase start` local — idênticas em qualquer host.
+# Não é segredo: o Supabase local sempre nasce com essas.
+env:
+  SUPABASE_URL: http://127.0.0.1:54321
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+  SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+  SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+  VITE_SUPABASE_URL: http://127.0.0.1:54321
+  VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+
 jobs:
   lint-typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 11 }
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -27,19 +36,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 11 }
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Vitest unit
+
+      - name: Vitest unit (jsdom)
         run: pnpm test:unit
-      # Integration roda só quando Supabase local estiver disponível no CI (Fase 1+).
-      # - uses: supabase/setup-cli@v1
-      #   with: { version: latest }
-      # - run: supabase start
-      # - run: pnpm test:integration
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Sobe Supabase local
+        run: supabase start --workdir .
+      - name: Vitest integration (RLS contra Postgres real)
+        run: pnpm test:integration
 
   playwright:
     runs-on: ubuntu-latest
@@ -47,15 +59,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 11 }
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm build
-      - run: pnpm test:e2e
+
+      - name: Instala Chromium do Playwright
+        run: pnpm exec playwright install --with-deps chromium
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Sobe Supabase local
+        run: supabase start --workdir .
+
+      - name: Build app
+        run: pnpm build
+      - name: E2E (Playwright desktop + mobile)
+        run: pnpm test:e2e
+
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -63,5 +86,4 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-  # lighthouse-ci roda apenas em PRs (bloqueante) e em main (informativo).
-  # Habilitar depois que houver mais conteúdo na home.
+  # lighthouse-ci: gate em PRs depois de termos mais conteúdo na home (Fase 5).

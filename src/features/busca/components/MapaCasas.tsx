@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { useEffect, useMemo } from 'react';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import { Link } from 'react-router-dom';
 import type { Casa } from '@/features/casas/domain/Casa';
 import { BadgesAbertura } from '@/features/casas/components/BadgesAbertura';
@@ -9,6 +9,30 @@ const CENTRO_ITAJAI: [number, number] = [-26.9078, -48.6614];
 
 interface Props {
   casas: ReadonlyArray<Casa>;
+}
+
+/**
+ * Quando o MapContainer monta em um pai com layout em flex/calc, o Leaflet
+ * mede o canvas antes da altura final ser aplicada e o mapa fica "travado"
+ * (não dá pra arrastar e tiles aparecem cortados). invalidateSize força o
+ * recálculo. Também acompanhamos resize de janela e mudanças de orientação.
+ */
+function AjusteDeTamanho() {
+  const map = useMap();
+  useEffect(() => {
+    const fix = () => map.invalidateSize();
+    // 1) Mount: aguarda um tick pra o layout flex resolver.
+    const t = setTimeout(fix, 0);
+    // 2) Resize de janela (orientação no mobile, devtools no desktop).
+    window.addEventListener('resize', fix);
+    window.addEventListener('orientationchange', fix);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', fix);
+      window.removeEventListener('orientationchange', fix);
+    };
+  }, [map]);
+  return null;
 }
 
 export function MapaCasas({ casas }: Props) {
@@ -23,6 +47,7 @@ export function MapaCasas({ casas }: Props) {
       // Necessário pra leitor de tela e teste a11y; Leaflet não expõe role nativo.
       aria-label="Mapa com casas"
     >
+      <AjusteDeTamanho />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

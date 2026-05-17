@@ -27,7 +27,7 @@ export function Onboarding() {
       aria-modal="true"
       aria-labelledby="onboarding-titulo"
       data-testid="onboarding"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4"
+      className="fixed inset-0 z-[2100] flex items-center justify-center bg-foreground/40 p-4"
     >
       <div className="w-full max-w-lg rounded-lg bg-card p-6 shadow-lg">
         <div className="flex items-center justify-between">
