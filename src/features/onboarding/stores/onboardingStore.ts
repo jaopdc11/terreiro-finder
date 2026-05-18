@@ -39,7 +39,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       reset: () => set({ passo: 0, bifurcacao: null, concluido: false }),
     }),
     {
-      name: 'terreiros.onboarding',
+      name: 'encruza.onboarding',
       storage: createJSONStorage(() => localStorage),
     },
   ),

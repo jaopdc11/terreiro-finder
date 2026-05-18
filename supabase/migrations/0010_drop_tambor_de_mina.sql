@@ -3,16 +3,18 @@
 -- Se aparecer casa no banco com essa tradição (defensivo), reclassificamos
 -- como 'outra' antes do enum reset.
 
--- 1. Defensivo: move qualquer casa com tradicao_principal='tambor_de_mina' pra 'outra'.
+-- 1. Defensivo: move qualquer casa/indicação com tradicao_principal='tambor_de_mina' pra 'outra'.
 update public.casas set tradicao_principal = 'outra'
+  where tradicao_principal = 'tambor_de_mina';
+update public.indicacoes_casa set tradicao_principal = 'outra'
   where tradicao_principal = 'tambor_de_mina';
 
 -- 2. Drop tabela específica (idempotente).
 drop table if exists public.casa_tambor_de_mina;
 
 -- 3. Reconstrói o enum sem 'tambor_de_mina'. Postgres não permite remover
---    valor de enum existente; o jeito é criar novo type, fazer cast da
---    coluna, dropar o antigo.
+--    valor de enum existente; o jeito é criar novo type, fazer cast das
+--    colunas que usam o enum, e dropar o antigo.
 alter type public.tradicao_principal rename to tradicao_principal_old;
 
 create type public.tradicao_principal as enum (
@@ -20,6 +22,10 @@ create type public.tradicao_principal as enum (
 );
 
 alter table public.casas
+  alter column tradicao_principal type public.tradicao_principal
+  using tradicao_principal::text::public.tradicao_principal;
+
+alter table public.indicacoes_casa
   alter column tradicao_principal type public.tradicao_principal
   using tradicao_principal::text::public.tradicao_principal;
 

@@ -101,7 +101,7 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
               onChange={(e) =>
                 onAplicar(filtros.comCidade(e.target.value || null))
               }
-              placeholder="Itajaí"
+              placeholder="Ex.: Itajaí"
             />
           </div>
 

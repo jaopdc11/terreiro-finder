@@ -12,7 +12,7 @@ const SECOES: Secao[] = [
     titulo: 'O que o site faz',
     conteudo: (
       <p>
-        O <strong className="text-foreground">terreiros</strong> é um site
+        O <strong className="text-foreground">Encruza</strong> é um site
         gratuito que auxilia pessoas a encontrar casas de religiões de matriz
         afro e afro-indígena. A dor que buscamos endereçar é a{' '}
         <em>descoberta</em>: o visitante deseja chegar a uma casa séria, e a
@@ -158,10 +158,10 @@ const SECOES: Secao[] = [
       <p>
         Para correções, remoções ou dúvidas:{' '}
         <a
-          href="mailto:contato@terreiros.app"
+          href="mailto:contato@encruza.app"
           className="link-underline text-primary"
         >
-          contato@terreiros.app
+          contato@encruza.app
         </a>
         .
       </p>

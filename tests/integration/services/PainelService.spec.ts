@@ -120,6 +120,7 @@ describe('PainelService (integração)', () => {
       whatsapp: '47999990001',
       telefone: null,
       emailContato: null,
+      site: null,
     });
     const { data } = await harness.admin
       .from('casas')

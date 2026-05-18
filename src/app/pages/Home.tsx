@@ -22,6 +22,11 @@ const PRINCIPIOS = [
     t: 'Privacidade real',
     d: 'Religião é dado sensível. Nada é compartilhado.',
   },
+  {
+    n: '05',
+    t: 'Sempre gratuito',
+    d: 'Sem custo, nunca, pra nada. Sem anúncios.',
+  },
 ];
 
 const PASSOS = [
@@ -59,10 +64,11 @@ export function Home() {
           </h1>
           <div className="mt-10 grid grid-cols-12 gap-x-6">
             <p className="col-span-12 text-lg leading-relaxed text-muted-foreground md:col-span-7">
-              <strong className="text-foreground">terreiros</strong> é um site
+              <strong className="text-foreground">Encruza</strong> é um site
               gratuito de busca de casas de matriz afro e afro-indígena. A dor
               que buscamos endereçar é a <em>descoberta</em>: quem busca,
-              encontra. Quem é da casa, aparece.
+              encontra. Quem é da casa, aparece. Começamos por Itajaí (SC);
+              a ideia é abranger o resto do Brasil.
             </p>
             <div className="col-span-12 mt-6 flex flex-wrap gap-3 md:col-span-5 md:mt-0 md:justify-end md:self-end">
               <Link to="/mapa">
@@ -122,7 +128,7 @@ export function Home() {
                 Inegociáveis.
               </h2>
               <p className="mt-3 max-w-xs text-muted-foreground">
-                Quatro pontos que orientam decisões de produto, comunicação e
+                Cinco pontos que orientam decisões de produto, comunicação e
                 modelagem de dados.
               </p>
             </div>

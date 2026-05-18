@@ -29,7 +29,7 @@ export class GeocodingService {
 
   constructor(
     private readonly fetchImpl: typeof fetch = fetch,
-    private readonly userAgent: string = 'terreiros/0.0 (contato@terreiros.app)',
+    private readonly userAgent: string = 'encruza/0.0 (contato@encruza.app)',
   ) {}
 
   async buscar(consulta: string): Promise<ResultadoGeocoding | null> {

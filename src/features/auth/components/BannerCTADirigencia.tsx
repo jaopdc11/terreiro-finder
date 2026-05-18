@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useServices } from '@/shared/hooks/useServices';
 import { useMinhasCasas } from '@/features/painel/hooks/usePainel';
 
-const DISPENSADO_KEY = 'terreiros.banner-cta-dirigencia';
+const DISPENSADO_KEY = 'encruza.banner-cta-dirigencia';
 
 /**
  * Banner abaixo do header para dirigência sem casa vinculada. Estilo

@@ -53,6 +53,11 @@ const PRINCIPIOS = [
     t: 'Privacidade real',
     d: 'Religião é dado sensível. Nada é compartilhado.',
   },
+  {
+    n: '05',
+    t: 'Sempre gratuito',
+    d: 'Sem custo, nunca, pra nada. Sem anúncios.',
+  },
 ];
 
 export function Landing() {
@@ -69,20 +74,23 @@ export function Landing() {
         <div className="container relative py-20 md:py-28">
           <div className="mx-auto max-w-3xl text-center">
             <p className="eyebrow eyebrow-ornado inline-flex items-center">
-              MVP · Itajaí / SC
+              Itajaí · SC
             </p>
             <h1 className="mt-6 text-4xl font-semibold tracking-tight text-foreground md:text-6xl">
               Encontre uma casa de matriz afro{' '}
               <span className="display-serif italic text-primary">
-                de verdade
+                para você
               </span>
               .
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              O <strong className="text-foreground">terreiros</strong> é um
+              O <strong className="text-foreground">Encruza</strong> é um
               site gratuito de busca de casas de Umbanda, Candomblé, Quimbanda
               e outras tradições afro e afro-indígenas. A casa decide o que
               aparece; ajudamos na descoberta.
+            </p>
+            <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground">
+              Começamos por Itajaí (SC). A ideia é abranger o resto do Brasil.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Link to="/mapa">
@@ -110,7 +118,7 @@ export function Landing() {
                 <span className="h-2.5 w-2.5 rounded-full bg-muted" />
                 <span className="h-2.5 w-2.5 rounded-full bg-muted" />
                 <span className="ml-3 font-mono text-xs text-muted-foreground">
-                  terreiros.app/mapa
+                  encruza.app/mapa
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-0 bg-card">
@@ -214,7 +222,7 @@ export function Landing() {
                 Inegociáveis.
               </h2>
               <p className="mt-4 max-w-xs text-muted-foreground">
-                Quatro pontos que orientam decisões de produto, comunicação e
+                Cinco pontos que orientam decisões de produto, comunicação e
                 modelagem de dados.
               </p>
               <FioComNo className="mt-8 hidden h-32 w-6 md:block" />

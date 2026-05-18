@@ -100,7 +100,7 @@ export function Indicar() {
             <Label htmlFor="ind-cidade">Cidade</Label>
             <Input
               id="ind-cidade"
-              defaultValue="Itajaí"
+              placeholder="Cidade da casa"
               {...register('cidade')}
               aria-invalid={!!errors.cidade}
             />
@@ -114,7 +114,7 @@ export function Indicar() {
             <Label htmlFor="ind-estado">Estado (sigla)</Label>
             <Input
               id="ind-estado"
-              defaultValue="SC"
+              placeholder="UF"
               maxLength={2}
               {...register('estado')}
               aria-invalid={!!errors.estado}

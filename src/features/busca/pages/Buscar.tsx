@@ -45,7 +45,7 @@ export function Buscar() {
       <aside className="hidden w-full flex-col border-r border-border bg-card/40 md:flex md:w-[24rem] md:max-w-[24rem]">
         <header className="border-b border-border bg-background px-6 py-5">
           <p className="eyebrow eyebrow-ornado inline-flex items-center">
-            Mapa · Itajaí
+            Mapa{filtros.cidade ? ` · ${filtros.cidade}` : ''}
           </p>
           <div className="mt-3 flex items-baseline gap-3">
             <h1 className="text-3xl font-semibold tracking-tight">
@@ -62,7 +62,7 @@ export function Buscar() {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {filtros.estaVazio()
-              ? 'Todas as casas cadastradas em Itajaí.'
+              ? 'Todas as casas cadastradas.'
               : 'Resultados para os filtros selecionados.'}
           </p>
         </header>

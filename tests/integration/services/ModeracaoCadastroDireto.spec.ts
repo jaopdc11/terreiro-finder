@@ -35,6 +35,7 @@ function payloadBase(nome: string): NovaCasaDeDirigencia {
     whatsapp: '47999000000',
     telefone: null,
     email_contato: null,
+    site: null,
     canal_validacao: 'Instagram da casa @teste-cadastro',
     papel_dirigencia_proposto: 'Mãe de Santo',
   };

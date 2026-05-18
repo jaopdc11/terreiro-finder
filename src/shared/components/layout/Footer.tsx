@@ -13,11 +13,11 @@ export function Footer() {
           <Link
             to="/"
             className="flex items-center gap-2.5 text-foreground"
-            aria-label="terreiros"
+            aria-label="Encruza"
           >
-            <Marca size={18} />
+            <Marca size={24} />
             <span className="text-base font-semibold tracking-tight">
-              terreiros
+              Encruza
             </span>
           </Link>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
@@ -49,10 +49,10 @@ export function Footer() {
             </li>
             <li>
               <a
-                href="mailto:contato@terreiros.app"
+                href="mailto:contato@encruza.app"
                 className="text-muted-foreground hover:text-foreground"
               >
-                contato@terreiros.app
+                contato@encruza.app
               </a>
             </li>
           </ul>
@@ -61,14 +61,14 @@ export function Footer() {
         <div className="col-span-12 md:col-span-2">
           <p className="mb-3 text-xs font-semibold text-foreground">Comunidade</p>
           <p className="text-sm text-muted-foreground">
-            MVP Itajaí/SC.<br />Feito com axé, sem fins lucrativos.
+            Itajaí (SC).<br />Feito com axé, sem fins lucrativos.
           </p>
         </div>
       </div>
 
       <div className="border-t border-border">
         <div className="container flex flex-wrap items-center justify-between gap-3 py-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} terreiros</p>
+          <p>© {new Date().getFullYear()} Encruza</p>
           <p>Cada casa fala por si.</p>
         </div>
       </div>

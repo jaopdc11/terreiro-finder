@@ -4,29 +4,25 @@ interface Props {
 }
 
 /**
- * Marca gráfica: ponto pemba com anel. Discreta — combina com tipografia
- * minúscula do logo "terreiros". Inspirado nas marcações de pemba (giz)
- * sem cair em iconografia religiosa explícita.
+ * Marca gráfica do "Encruza": tridente 🔱. Usa o emoji Unicode renderizado
+ * pela fonte de emoji do SO — fica idêntico ao WhatsApp em cada plataforma.
+ * Cor é controlada pelo renderer do sistema (dourado em Apple/Google/Noto).
  */
-export function Marca({ size = 20, className }: Props) {
+export function Marca({ size = 22, className }: Props) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 20 20"
-      className={className}
+    <span
+      role="img"
       aria-hidden="true"
+      className={className}
+      style={{
+        fontSize: `${size}px`,
+        lineHeight: 1,
+        display: 'inline-block',
+        fontFamily:
+          '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla","EmojiOne Color","Android Emoji",sans-serif',
+      }}
     >
-      <circle
-        cx="10"
-        cy="10"
-        r="9"
-        fill="none"
-        stroke="hsl(var(--foreground))"
-        strokeOpacity="0.18"
-        strokeWidth="1"
-      />
-      <circle cx="10" cy="10" r="4" fill="hsl(var(--terra-pemba))" />
-    </svg>
+      🔱
+    </span>
   );
 }

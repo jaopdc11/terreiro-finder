@@ -63,7 +63,8 @@ export function PassoEndereco({ inicial, onVoltar, onAvancar }: Props) {
           <Label htmlFor="c-cidade">Cidade</Label>
           <Input
             id="c-cidade"
-            defaultValue={inicial.cidade ?? 'Itajaí'}
+            defaultValue={inicial.cidade ?? ''}
+            placeholder="Sua cidade"
             {...register('cidade')}
             aria-invalid={!!errors.cidade}
           />
@@ -76,7 +77,8 @@ export function PassoEndereco({ inicial, onVoltar, onAvancar }: Props) {
           <Input
             id="c-estado"
             maxLength={2}
-            defaultValue={inicial.estado ?? 'SC'}
+            defaultValue={inicial.estado ?? ''}
+            placeholder="UF"
             {...register('estado')}
             aria-invalid={!!errors.estado}
           />

@@ -29,11 +29,11 @@ export function Header() {
         <Link
           to="/"
           className="flex items-center gap-2.5 text-foreground transition-colors hover:text-primary"
-          aria-label="terreiros — voltar pra home"
+          aria-label="Encruza — voltar pra home"
         >
-          <Marca size={18} />
+          <Marca size={24} />
           <span className="text-base font-semibold tracking-tight">
-            terreiros
+            Encruza
           </span>
         </Link>
 
