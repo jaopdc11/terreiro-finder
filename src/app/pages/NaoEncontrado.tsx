@@ -4,7 +4,7 @@ import { Button } from '@/shared/ui/button';
 export function NaoEncontrado() {
   return (
     <section className="container max-w-xl py-24 text-center">
-      <p className="eyebrow">404</p>
+      <p className="eyebrow eyebrow-ornado inline-flex items-center">404</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
         Página não encontrada.
       </h1>

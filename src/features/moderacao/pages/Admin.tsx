@@ -22,19 +22,21 @@ export function Admin() {
 
   return (
     <section className="container max-w-6xl py-16">
-      <header className="border-b border-foreground pb-10">
-        <p className="eyebrow text-primary">Admin</p>
-        <h1 className="display-hero mt-6 text-5xl">Moderação<em>.</em></h1>
-        <p className="mt-6 max-w-2xl text-foreground/75">
-          Indicações entram em duas etapas (validar → confirmar consentimento
-          da casa). Reivindicações exigem contato cruzado: você contata pelo
-          canal já registrado da casa antes de aprovar.
+      <header className="border-b border-border pb-8">
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">Admin</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+          Moderação
+        </h1>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Indicações entram em duas etapas: validar e confirmar consentimento
+          da casa. Reivindicações exigem contato cruzado pelo canal já
+          registrado antes da aprovação.
         </p>
       </header>
 
       <div
         role="tablist"
-        className="flex flex-wrap items-stretch divide-x divide-foreground/10 border-b border-foreground"
+        className="mt-8 flex flex-wrap items-stretch overflow-hidden rounded-md border border-border"
       >
         <TabButton ativo={aba === 'passo-1'} onClick={() => setAba('passo-1')} num="01">
           Indicações pendentes
@@ -85,10 +87,10 @@ function TabButton({
       aria-selected={ativo}
       onClick={onClick}
       className={
-        'flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ' +
+        'flex items-center gap-2 border-r border-border px-4 py-2.5 text-sm font-medium transition-colors last:border-r-0 ' +
         (ativo
           ? 'bg-foreground text-background'
-          : 'text-foreground/70 hover:bg-foreground hover:text-background')
+          : 'bg-background text-muted-foreground hover:bg-secondary hover:text-foreground')
       }
     >
       <span className="font-mono text-[10px] opacity-60">{num}</span>

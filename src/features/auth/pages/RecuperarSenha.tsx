@@ -33,7 +33,7 @@ export function RecuperarSenha() {
     return (
       <section className="container max-w-md py-16 text-center">
         <div className="card-soft p-8">
-          <p className="eyebrow">Confirmação</p>
+          <p className="eyebrow eyebrow-ornado inline-flex items-center">Confirmação</p>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight">
             Verifique seu email.
           </h1>

@@ -34,7 +34,7 @@ export function Reivindicar() {
   if (!slug) {
     return (
       <section className="container max-w-xl py-16">
-        <p className="eyebrow">Reivindicação</p>
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">Reivindicação</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           Qual casa você reivindica?
         </h1>
@@ -100,7 +100,7 @@ export function Reivindicar() {
     return (
       <section className="container max-w-xl py-16">
         <div className="card-soft p-8">
-          <p className="eyebrow">Confirmação</p>
+          <p className="eyebrow eyebrow-ornado inline-flex items-center">Confirmação</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">
             Pedido recebido. Axé.
           </h1>
@@ -123,7 +123,7 @@ export function Reivindicar() {
   return (
     <section className="container max-w-xl py-12">
       <header>
-        <p className="eyebrow">Reivindicação</p>
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">Reivindicação</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           Reivindicar {casa.nome}
         </h1>

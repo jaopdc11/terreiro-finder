@@ -37,7 +37,7 @@ export function Cadastrar() {
     return (
       <section className="container max-w-xl py-16">
         <div className="card-soft p-8 text-center">
-          <p className="eyebrow">Confirmação</p>
+          <p className="eyebrow eyebrow-ornado inline-flex items-center">Confirmação</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">
             Cadastro recebido. Axé.
           </h1>
@@ -68,7 +68,7 @@ export function Cadastrar() {
   return (
     <section className="container max-w-3xl py-12">
       <header className="border-b border-border pb-8">
-        <p className="eyebrow">Cadastro de casa</p>
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">Cadastro de casa</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
           Cadastrar minha casa
         </h1>

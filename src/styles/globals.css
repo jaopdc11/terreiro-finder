@@ -173,13 +173,18 @@
     border-color: hsl(var(--foreground) / 0.18);
   }
 
-  /* Gradiente sutil pra fundos de hero — quase imperceptível. */
+  /* Gradiente terra — calor sutil sem virar tema "quente". Usado em heros. */
   .hero-gradient {
     background:
       radial-gradient(
-        ellipse 80% 60% at 50% 0%,
-        hsl(var(--terra-pemba) / 0.06),
-        transparent 70%
+        ellipse 70% 50% at 50% 0%,
+        hsl(38 60% 92% / 0.8),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 60% 40% at 85% 30%,
+        hsl(var(--terra-pemba) / 0.05),
+        transparent 60%
       ),
       hsl(var(--background));
   }
@@ -191,5 +196,46 @@
       linear-gradient(90deg, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
     background-size: 40px 40px;
     background-position: -1px -1px;
+  }
+
+  /* Pattern de pontos pemba — calor identitário em fundos de seção. */
+  .pattern-pemba-dots {
+    background-image: radial-gradient(
+      hsl(var(--terra-pemba) / 0.15) 1px,
+      transparent 1.5px
+    );
+    background-size: 28px 28px;
+  }
+
+  /* Citação editorial — Fraunces grande com aspas decorativas. */
+  .quote-display {
+    font-family: theme('fontFamily.display');
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    font-style: italic;
+  }
+  .quote-display::before {
+    content: '“';
+    color: hsl(var(--terra-pemba));
+    margin-right: 0.1em;
+    font-style: normal;
+  }
+  .quote-display::after {
+    content: '”';
+    color: hsl(var(--terra-pemba));
+    margin-left: 0.05em;
+    font-style: normal;
+  }
+
+  /* Eyebrow com riscos decorativos — alternativa rica de eyebrow. */
+  .eyebrow-ornado::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: hsl(var(--terra-pemba));
+    margin-right: 0.75rem;
+    vertical-align: middle;
   }
 }

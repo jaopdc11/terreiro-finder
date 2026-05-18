@@ -40,7 +40,7 @@ export function Painel() {
   if (!casas || casas.length === 0) {
     return (
       <section className="container max-w-2xl py-16">
-        <p className="eyebrow">Painel</p>
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">Painel</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
           Nenhuma casa vinculada.
         </h1>
@@ -68,7 +68,7 @@ export function Painel() {
     return (
       <section className="container max-w-4xl py-16">
         <header className="border-b border-border pb-8">
-          <p className="eyebrow">Painel da dirigência</p>
+          <p className="eyebrow eyebrow-ornado inline-flex items-center">Painel da dirigência</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
             Olá, {nome}.
           </h1>
@@ -167,28 +167,28 @@ function PainelDeCasa({
         ← Outras casas
       </button>
 
-      <header className="mt-6 border-b border-foreground pb-10">
-        <p className="eyebrow text-primary">
+      <header className="mt-6 border-b border-border pb-8">
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">
           {casa.tradicaoPrincipal} · {casa.cidade}/{casa.estado}
         </p>
-        <h1 className="display-hero mt-6 text-5xl text-foreground">
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
           {casa.nome}
         </h1>
         <p
           className={
-            'mt-4 inline-block border px-3 py-1 text-[11px] font-semibold uppercase tracking-widest ' +
+            'mt-4 inline-block rounded-md border px-2.5 py-1 text-xs font-medium ' +
             (casa.estaVerificada()
-              ? 'border-primary text-primary'
-              : 'border-foreground/30 text-muted-foreground')
+              ? 'border-primary/40 bg-primary/5 text-primary'
+              : 'border-border bg-background text-muted-foreground')
           }
         >
-          {casa.estaVerificada() ? 'Verificada' : 'Não verificada'}
+          {casa.estaVerificada() ? '✓ Verificada' : 'Não verificada'}
         </p>
       </header>
 
       <div
         role="tablist"
-        className="flex flex-wrap items-stretch divide-x divide-foreground/10 border-b border-foreground"
+        className="mt-8 flex flex-wrap items-stretch overflow-hidden rounded-md border border-border"
       >
         {ABAS.map((a) => (
           <button
@@ -197,10 +197,10 @@ function PainelDeCasa({
             aria-selected={aba === a.v}
             onClick={() => setAba(a.v)}
             className={
-              'flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ' +
+              'flex items-center gap-2 border-r border-border px-4 py-2.5 text-sm font-medium transition-colors last:border-r-0 ' +
               (aba === a.v
                 ? 'bg-foreground text-background'
-                : 'text-foreground/70 hover:bg-foreground hover:text-background')
+                : 'bg-background text-muted-foreground hover:bg-secondary hover:text-foreground')
             }
           >
             <span className="font-mono text-[10px] opacity-60">{a.num}</span>

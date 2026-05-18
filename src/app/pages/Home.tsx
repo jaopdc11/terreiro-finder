@@ -47,10 +47,15 @@ export function Home() {
     <article>
       <section className="border-b border-border">
         <div className="container py-20 md:py-24">
-          <p className="eyebrow">Sobre o projeto</p>
+          <p className="eyebrow eyebrow-ornado inline-flex items-center">
+            Sobre o projeto
+          </p>
           <h1 className="mt-6 text-4xl font-semibold tracking-tight text-foreground md:text-6xl">
             Um lugar para encontrar uma casa{' '}
-            <span className="text-primary">— e ser encontrado</span>.
+            <span className="display-serif italic text-primary">
+              — e ser encontrado
+            </span>
+            .
           </h1>
           <div className="mt-10 grid grid-cols-12 gap-x-6">
             <p className="col-span-12 text-lg leading-relaxed text-muted-foreground md:col-span-7">

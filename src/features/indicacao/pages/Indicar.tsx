@@ -36,7 +36,7 @@ export function Indicar() {
     return (
       <section className="container max-w-xl py-16">
         <div className="card-soft p-8 text-center">
-          <p className="eyebrow">Confirmação</p>
+          <p className="eyebrow eyebrow-ornado inline-flex items-center">Confirmação</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">
             Indicação registrada. Axé.
           </h1>
@@ -67,7 +67,7 @@ export function Indicar() {
   return (
     <section className="container max-w-xl py-12">
       <header>
-        <p className="eyebrow">Indicação</p>
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">Indicação</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
           Indicar uma casa
         </h1>

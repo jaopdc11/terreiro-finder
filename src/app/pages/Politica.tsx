@@ -173,7 +173,7 @@ export function Politica() {
   return (
     <article className="container max-w-4xl py-12">
       <header className="border-b border-border pb-8">
-        <p className="eyebrow">Privacidade</p>
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">Privacidade</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-5xl">
           Política de privacidade
         </h1>

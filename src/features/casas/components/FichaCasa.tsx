@@ -59,7 +59,7 @@ export function FichaCasa({ casa }: { casa: Casa }) {
       ) : null}
 
       <header className="border-b border-border pb-8">
-        <p className="eyebrow">
+        <p className="eyebrow eyebrow-ornado inline-flex items-center">
           {TRADICAO_LABEL[casa.tradicaoPrincipal] ?? casa.tradicaoPrincipal}
           {casa.bairro ? ` · ${casa.bairro}` : ''} · {casa.cidade}/{casa.estado}
         </p>
@@ -69,7 +69,9 @@ export function FichaCasa({ casa }: { casa: Casa }) {
         {casa.sacerdoteNome ? (
           <p className="mt-3 text-lg text-muted-foreground">
             com{' '}
-            <span className="text-foreground">{casa.sacerdoteNome}</span>
+            <span className="display-serif italic text-foreground">
+              {casa.sacerdoteNome}
+            </span>
           </p>
         ) : null}
         <div className="mt-6 flex flex-wrap items-center gap-3">
