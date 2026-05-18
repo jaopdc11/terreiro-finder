@@ -17,9 +17,10 @@ export function Buscar() {
   const totalCasas = casas?.length ?? 0;
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col md:flex-row">
+    <div className="container h-[calc(100vh-3.5rem)] px-0">
+      <div className="flex h-full flex-col border-x border-border md:flex-row">
       {/* ASIDE — desktop: lista lateral sempre visível */}
-      <aside className="hidden w-full flex-col border-r border-border bg-card/40 md:flex md:w-[26rem] md:max-w-[26rem]">
+      <aside className="hidden w-full flex-col border-r border-border bg-card/40 md:flex md:w-[24rem] md:max-w-[24rem]">
         <header className="border-b border-border bg-background px-6 py-5">
           <p className="eyebrow eyebrow-ornado inline-flex items-center">
             Mapa · Itajaí
@@ -149,6 +150,8 @@ export function Buscar() {
         ) : null}
 
         <MapaCasas casas={casas ?? []} />
+      </div>
+
       </div>
 
       <FiltrosOverlay
