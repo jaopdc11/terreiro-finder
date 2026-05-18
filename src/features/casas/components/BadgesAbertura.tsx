@@ -20,7 +20,11 @@ const FOTO_LABEL = {
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-0.5 text-[11px] font-medium text-foreground/80">
+      <span
+        aria-hidden="true"
+        className="inline-block h-1 w-1 rounded-full bg-primary/70"
+      />
       {children}
     </span>
   );
@@ -29,16 +33,20 @@ function Badge({ children }: { children: React.ReactNode }) {
 export function BadgesAbertura({ casa }: { casa: Casa }) {
   const p = casa.perfilAbertura;
   return (
-    <div className="flex flex-wrap gap-2">
-      <Badge>🚪 {VISITANTES_LABEL[p.aceitaVisitantes]}</Badge>
-      <Badge>🏠 {ENDERECO_LABEL[p.enderecoVisibilidade]}</Badge>
-      <Badge>📷 {FOTO_LABEL[p.fotoRegistro]}</Badge>
+    <div className="flex flex-wrap gap-1.5">
+      <Badge>{VISITANTES_LABEL[p.aceitaVisitantes]}</Badge>
+      <Badge>{ENDERECO_LABEL[p.enderecoVisibilidade]}</Badge>
+      <Badge>{FOTO_LABEL[p.fotoRegistro]}</Badge>
       {!casa.estaVerificada() ? (
         <span
-          className="inline-flex items-center gap-1 rounded-md border border-dashed border-primary/60 bg-primary/5 px-2 py-1 text-xs text-primary"
+          className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-primary/60 bg-primary/5 px-2.5 py-0.5 text-[11px] font-medium text-primary"
           data-testid="badge-nao-verificada"
         >
-          ⚠ Indicada — não verificada
+          <span
+            aria-hidden="true"
+            className="inline-block h-1 w-1 rounded-full bg-primary"
+          />
+          Não verificada
         </span>
       ) : null}
     </div>

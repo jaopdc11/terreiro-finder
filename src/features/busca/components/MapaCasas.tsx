@@ -109,24 +109,39 @@ export function MapaCasas({ casas }: Props) {
             position={[c.lat, c.lng]}
             icon={casa.estaVerificada() ? pinVerificada : pinNaoVerificada}
           >
-            <Popup>
-              <article className="min-w-[220px] space-y-2">
-                <header>
-                  <h3 className="font-display text-lg leading-tight">{casa.nome}</h3>
-                  <p className="text-xs text-muted-foreground">
+            <Popup minWidth={260} maxWidth={300} closeButton>
+              <article className="w-[260px]">
+                <div className="px-4 pb-3 pt-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
                     {casa.tradicaoPrincipal}
-                    {casa.bairro ? ` · ${casa.bairro}` : ''}
+                    {casa.bairro ? (
+                      <span className="ml-1 text-muted-foreground">
+                        · {casa.bairro}
+                      </span>
+                    ) : null}
                   </p>
-                </header>
-                {casa.sacerdoteNome ? (
-                  <p className="text-sm">com {casa.sacerdoteNome}</p>
-                ) : null}
-                <BadgesAbertura casa={casa} />
+                  <h3 className="mt-1.5 text-base font-semibold leading-tight tracking-tight text-foreground">
+                    {casa.nome}
+                  </h3>
+                  {casa.sacerdoteNome ? (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      com{' '}
+                      <span className="italic text-foreground">
+                        {casa.sacerdoteNome}
+                      </span>
+                    </p>
+                  ) : null}
+                  <div className="mt-3">
+                    <BadgesAbertura casa={casa} />
+                  </div>
+                </div>
                 <Link
                   to={`/casa/${casa.slug.toString()}`}
-                  className="inline-block rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground hover:opacity-90"
+                  style={{ color: 'hsl(var(--primary-foreground))' }}
+                  className="flex items-center justify-between border-t border-border bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-foreground hover:text-background"
                 >
                   Ver detalhes
+                  <span aria-hidden="true">→</span>
                 </Link>
               </article>
             </Popup>

@@ -77,17 +77,26 @@ export function Buscar() {
                 <li key={casa.id}>
                   <Link
                     to={`/casa/${casa.slug.toString()}`}
-                    className="block px-6 py-5 transition-colors hover:bg-background"
+                    className="group relative block border-l-2 border-transparent px-6 py-5 transition-all hover:border-primary hover:bg-background hover:pl-7"
                   >
                     <div className="flex items-baseline gap-3">
                       <span className="font-mono text-xs text-muted-foreground">
                         {String(idx + 1).padStart(2, '0')}
                       </span>
                       <div className="flex-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
                           {casa.tradicaoPrincipal}
+                          {casa.estaVerificada() ? (
+                            <span className="ml-2 inline-flex items-center gap-1 text-muted-foreground">
+                              <span
+                                aria-hidden="true"
+                                className="inline-block h-1 w-1 rounded-full bg-primary"
+                              />
+                              Verificada
+                            </span>
+                          ) : null}
                         </p>
-                        <h3 className="mt-0.5 text-base font-semibold text-foreground">
+                        <h3 className="mt-1 text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
                           {casa.nome}
                         </h3>
                         <p className="mt-0.5 text-sm text-muted-foreground">
@@ -106,6 +115,12 @@ export function Buscar() {
                           <BadgesAbertura casa={casa} />
                         </div>
                       </div>
+                      <span
+                        aria-hidden="true"
+                        className="self-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                      >
+                        →
+                      </span>
                     </div>
                   </Link>
                 </li>
