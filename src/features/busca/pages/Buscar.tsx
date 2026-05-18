@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { BadgesAbertura } from '@/features/casas/components/BadgesAbertura';
@@ -14,7 +14,18 @@ export function Buscar() {
   const { data: casas, isLoading, error } = useCasasFiltradas(filtros);
   const [filtrosAberto, setFiltrosAberto] = useState(false);
   const [listaAberta, setListaAberta] = useState(false);
+  const [casaAtivaId, setCasaAtivaId] = useState<string | null>(null);
+  const cardRefs = useRef<Map<string, HTMLLIElement | null>>(new Map());
   const totalCasas = casas?.length ?? 0;
+
+  // Quando casa ativa muda, scrolla o card até a visão (na aside).
+  useEffect(() => {
+    if (!casaAtivaId) return;
+    const el = cardRefs.current.get(casaAtivaId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [casaAtivaId]);
 
   return (
     <div className="container h-[calc(100vh-3.5rem)] px-0">
@@ -73,58 +84,106 @@ export function Buscar() {
             <EmptyState />
           ) : (
             <ul className="divide-y divide-border">
-              {(casas ?? []).map((casa, idx) => (
-                <li key={casa.id}>
-                  <Link
-                    to={`/casa/${casa.slug.toString()}`}
-                    className="group relative block border-l-2 border-transparent px-6 py-5 transition-all hover:border-primary hover:bg-background hover:pl-7"
+              {(casas ?? []).map((casa, idx) => {
+                const ativa = casaAtivaId === casa.id;
+                return (
+                  <li
+                    key={casa.id}
+                    ref={(el) => {
+                      cardRefs.current.set(casa.id, el);
+                    }}
                   >
-                    <div className="flex items-baseline gap-3">
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      <div className="flex-1">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
-                          {casa.tradicaoPrincipal}
-                          {casa.estaVerificada() ? (
-                            <span className="ml-2 inline-flex items-center gap-1 text-muted-foreground">
-                              <span
-                                aria-hidden="true"
-                                className="inline-block h-1 w-1 rounded-full bg-primary"
-                              />
-                              Verificada
-                            </span>
-                          ) : null}
-                        </p>
-                        <h3 className="mt-1 text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
-                          {casa.nome}
-                        </h3>
-                        <p className="mt-0.5 text-sm text-muted-foreground">
-                          {casa.bairro ? `${casa.bairro} · ` : ''}
-                          {casa.cidade}
-                        </p>
-                        {casa.sacerdoteNome ? (
-                          <p className="mt-1 text-sm text-foreground/75">
-                            com{' '}
-                            <span className="display-serif italic text-foreground">
-                              {casa.sacerdoteNome}
-                            </span>
+                    <button
+                      type="button"
+                      onClick={() => setCasaAtivaId(casa.id)}
+                      aria-pressed={ativa}
+                      className={
+                        'group relative block w-full border-l-2 px-6 py-5 text-left transition-all hover:bg-background ' +
+                        (ativa
+                          ? 'border-primary bg-background pl-7'
+                          : 'border-transparent hover:border-primary/60 hover:pl-7')
+                      }
+                    >
+                      <div className="flex items-baseline gap-3">
+                        <span
+                          className={
+                            'font-mono text-xs ' +
+                            (ativa ? 'text-primary' : 'text-muted-foreground')
+                          }
+                        >
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <div className="flex-1">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                            {casa.tradicaoPrincipal}
+                            {casa.estaVerificada() ? (
+                              <span className="ml-2 inline-flex items-center gap-1 text-muted-foreground">
+                                <span
+                                  aria-hidden="true"
+                                  className="inline-block h-1 w-1 rounded-full bg-primary"
+                                />
+                                Verificada
+                              </span>
+                            ) : null}
                           </p>
-                        ) : null}
-                        <div className="mt-3">
-                          <BadgesAbertura casa={casa} />
+                          <h3
+                            className={
+                              'mt-1 text-base font-semibold tracking-tight transition-colors ' +
+                              (ativa
+                                ? 'text-primary'
+                                : 'text-foreground group-hover:text-primary')
+                            }
+                          >
+                            {casa.nome}
+                          </h3>
+                          <p className="mt-0.5 text-sm text-muted-foreground">
+                            {casa.bairro ? `${casa.bairro} · ` : ''}
+                            {casa.cidade}
+                          </p>
+                          {casa.sacerdoteNome ? (
+                            <p className="mt-1 text-sm text-foreground/75">
+                              com{' '}
+                              <span className="display-serif italic text-foreground">
+                                {casa.sacerdoteNome}
+                              </span>
+                            </p>
+                          ) : null}
+                          <div className="mt-3">
+                            <BadgesAbertura casa={casa} />
+                          </div>
+
+                          {ativa ? (
+                            <div className="mt-4 flex items-center gap-3 border-t border-border pt-3 text-xs">
+                              <Link
+                                to={`/casa/${casa.slug.toString()}`}
+                                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                              >
+                                Ver detalhes
+                                <span aria-hidden="true">→</span>
+                              </Link>
+                              <span className="text-muted-foreground">·</span>
+                              <span className="text-muted-foreground">
+                                Mostrando no mapa
+                              </span>
+                            </div>
+                          ) : null}
                         </div>
+                        <span
+                          aria-hidden="true"
+                          className={
+                            'self-center transition-opacity ' +
+                            (ativa
+                              ? 'text-primary opacity-100'
+                              : 'text-muted-foreground opacity-0 group-hover:opacity-100')
+                          }
+                        >
+                          ●
+                        </span>
                       </div>
-                      <span
-                        aria-hidden="true"
-                        className="self-center text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        →
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              ))}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -164,7 +223,11 @@ export function Buscar() {
           </div>
         ) : null}
 
-        <MapaCasas casas={casas ?? []} />
+        <MapaCasas
+          casas={casas ?? []}
+          casaAtivaId={casaAtivaId}
+          onPopupFechado={() => setCasaAtivaId(null)}
+        />
       </div>
 
       </div>

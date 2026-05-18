@@ -36,6 +36,13 @@ export function FichaCasa({ casa }: { casa: Casa }) {
 
   return (
     <article className="container max-w-4xl py-12">
+      <Link
+        to="/mapa"
+        className="mb-8 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <span aria-hidden="true">←</span> Voltar ao mapa
+      </Link>
+
       {!casa.estaVerificada() ? (
         <aside
           role="note"

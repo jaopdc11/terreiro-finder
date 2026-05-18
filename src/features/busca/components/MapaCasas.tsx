@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import type { Marker as LeafletMarker } from 'leaflet';
 import { Link } from 'react-router-dom';
 import type { Casa } from '@/features/casas/domain/Casa';
 import { BadgesAbertura } from '@/features/casas/components/BadgesAbertura';
@@ -9,6 +10,40 @@ const CENTRO_ITAJAI: [number, number] = [-26.9078, -48.6614];
 
 interface Props {
   casas: ReadonlyArray<Casa>;
+  /** Casa a ser focada no mapa (centraliza + abre popup). */
+  casaAtivaId?: string | null;
+  /** Callback quando o popup fecha (sincroniza com o pai). */
+  onPopupFechado?: () => void;
+}
+
+/**
+ * Reage à mudança de casaAtivaId centralizando o mapa e abrindo o popup
+ * correspondente. Precisa estar dentro do MapContainer para ter acesso ao
+ * `useMap()`.
+ */
+function FocoEmCasa({
+  casaAtivaId,
+  refs,
+  casasIndex,
+}: {
+  casaAtivaId: string | null | undefined;
+  refs: React.MutableRefObject<Map<string, LeafletMarker>>;
+  casasIndex: Map<string, { lat: number; lng: number }>;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    if (!casaAtivaId) return;
+    const coord = casasIndex.get(casaAtivaId);
+    const marker = refs.current.get(casaAtivaId);
+    if (!coord || !marker) return;
+    map.flyTo([coord.lat, coord.lng], Math.max(map.getZoom(), 15), {
+      duration: 0.6,
+    });
+    // Pequeno delay pra animação rolar antes de abrir popup
+    const t = window.setTimeout(() => marker.openPopup(), 350);
+    return () => window.clearTimeout(t);
+  }, [casaAtivaId, map, refs, casasIndex]);
+  return null;
 }
 
 /**
@@ -76,10 +111,24 @@ function ZoomA11y() {
   return null;
 }
 
-export function MapaCasas({ casas }: Props) {
-  const comCoord = useMemo(() => casas.filter((c) => c.coordenadas !== null), [casas]);
+export function MapaCasas({ casas, casaAtivaId, onPopupFechado }: Props) {
+  const comCoord = useMemo(
+    () => casas.filter((c) => c.coordenadas !== null),
+    [casas],
+  );
   // key estável evita double-mount em Strict Mode (bug conhecido react-leaflet v4).
   const idRef = useRef('mapa-itajai-singleton');
+  // Refs dos markers + índice de coordenadas por casaId — usado pelo FocoEmCasa.
+  const markersRef = useRef<Map<string, LeafletMarker>>(new Map());
+  const casasIndex = useMemo(() => {
+    const m = new Map<string, { lat: number; lng: number }>();
+    for (const casa of comCoord) {
+      if (casa.coordenadas) {
+        m.set(casa.id, { lat: casa.coordenadas.lat, lng: casa.coordenadas.lng });
+      }
+    }
+    return m;
+  }, [comCoord]);
 
   return (
     <MapContainer
@@ -97,6 +146,11 @@ export function MapaCasas({ casas }: Props) {
     >
       <AjusteDeTamanho />
       <ZoomA11y />
+      <FocoEmCasa
+        casaAtivaId={casaAtivaId ?? null}
+        refs={markersRef}
+        casasIndex={casasIndex}
+      />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -108,6 +162,13 @@ export function MapaCasas({ casas }: Props) {
             key={casa.id}
             position={[c.lat, c.lng]}
             icon={casa.estaVerificada() ? pinVerificada : pinNaoVerificada}
+            ref={(ref) => {
+              if (ref) markersRef.current.set(casa.id, ref);
+              else markersRef.current.delete(casa.id);
+            }}
+            eventHandlers={{
+              popupclose: () => onPopupFechado?.(),
+            }}
           >
             <Popup minWidth={260} maxWidth={300} closeButton>
               <article className="w-[260px]">
