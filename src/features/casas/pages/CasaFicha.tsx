@@ -31,7 +31,7 @@ export function CasaFicha() {
           Pode ter sido arquivada ou o link está fora.
         </p>
         <Link to="/" className="mt-6 inline-block text-primary hover:underline">
-          Voltar pra busca
+          Voltar ao mapa
         </Link>
       </div>
     );

@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import { Header } from '@/shared/components/layout/Header';
 import { Footer } from '@/shared/components/layout/Footer';
 import { Home } from './pages/Home';
+import { Landing } from './pages/Landing';
 import { NaoEncontrado } from './pages/NaoEncontrado';
 import { Politica } from './pages/Politica';
 import { Login } from '@/features/auth/pages/Login';
@@ -32,7 +33,8 @@ export function Router() {
       <Onboarding />
       <main id="conteudo-principal" className="flex-1">
         <Routes>
-          <Route path="/" element={<Buscar />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/mapa" element={<Buscar />} />
           <Route path="/casa/:slug" element={<CasaFicha />} />
           <Route path="/sobre" element={<Home />} />
           <Route path="/politica" element={<Politica />} />

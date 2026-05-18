@@ -15,7 +15,9 @@ export function RecuperarSenha() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RecuperarSenhaInput>({ resolver: zodResolver(recuperarSenhaSchema) });
+  } = useForm<RecuperarSenhaInput>({
+    resolver: zodResolver(recuperarSenhaSchema),
+  });
 
   const onSubmit = handleSubmit(async ({ email }) => {
     setErro(null);
@@ -23,24 +25,26 @@ export function RecuperarSenha() {
       await auth.recuperarSenha(email, `${window.location.origin}/login`);
       setEnviado(true);
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Falhou enviar o link.');
+      setErro(e instanceof Error ? e.message : 'Não foi possível enviar o link.');
     }
   });
 
   if (enviado) {
     return (
-      <section className="container max-w-2xl py-24">
-        <div className="border-2 border-foreground p-10 text-center">
-          <p className="eyebrow text-primary">Confirmação</p>
-          <h1 className="display-hero mt-6 text-4xl">Olha o email.</h1>
-          <p className="mt-6 text-foreground/75">
-            Se a conta existe, mandamos um link pra você refazer a senha.
+      <section className="container max-w-md py-16 text-center">
+        <div className="card-soft p-8">
+          <p className="eyebrow">Confirmação</p>
+          <h1 className="mt-3 text-2xl font-semibold tracking-tight">
+            Verifique seu email.
+          </h1>
+          <p className="mt-3 text-muted-foreground">
+            Se a conta existir, enviamos um link para você redefinir a senha.
           </p>
           <Link
             to="/login"
-            className="link-underline mt-8 inline-block text-sm font-semibold uppercase tracking-wider text-foreground"
+            className="mt-6 inline-block text-sm font-medium text-foreground hover:underline"
           >
-            Voltar pra entrar
+            Voltar para entrar
           </Link>
         </div>
       </section>
@@ -48,50 +52,47 @@ export function RecuperarSenha() {
   }
 
   return (
-    <section className="container max-w-5xl py-20">
-      <div className="grid grid-cols-12 gap-x-8">
-        <header className="col-span-12 md:col-span-5">
-          <p className="eyebrow text-primary">Recuperação</p>
-          <h1 className="display-hero mt-8 text-5xl">
-            Esqueci<br />a senha.
-          </h1>
-          <p className="mt-6 max-w-xs text-foreground/70">
-            Diz teu email — mandamos um link pra refazer.
-          </p>
-        </header>
-
-        <form
-          onSubmit={onSubmit}
-          className="col-span-12 mt-12 space-y-8 border-t border-foreground pt-10 md:col-span-7 md:mt-0 md:border-l md:border-t-0 md:pl-8 md:pt-0"
-          noValidate
-        >
-          <CampoForm
-            label="Email"
-            type="email"
-            autoComplete="email"
-            erro={errors.email?.message}
-            {...register('email')}
-          />
-
-          {erro ? (
-            <p
-              role="alert"
-              className="border-l-2 border-destructive pl-3 text-sm text-destructive"
-            >
-              {erro}
-            </p>
-          ) : null}
-
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full"
-            size="lg"
-          >
-            {isSubmitting ? 'Enviando…' : 'Enviar link'}
-          </Button>
-        </form>
+    <section className="container max-w-md py-16">
+      <div className="text-center">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          Esqueci a senha
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Informe seu email e enviaremos um link para redefinir.
+        </p>
       </div>
+
+      <form
+        onSubmit={onSubmit}
+        className="card-soft mt-8 space-y-5 p-6"
+        noValidate
+      >
+        <CampoForm
+          label="Email"
+          type="email"
+          autoComplete="email"
+          erro={errors.email?.message}
+          {...register('email')}
+        />
+
+        {erro ? (
+          <p
+            role="alert"
+            className="rounded-md border border-destructive/30 bg-destructive/5 p-2.5 text-sm text-destructive"
+          >
+            {erro}
+          </p>
+        ) : null}
+
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={isSubmitting}
+          className="w-full"
+        >
+          {isSubmitting ? 'Enviando…' : 'Enviar link'}
+        </Button>
+      </form>
     </section>
   );
 }

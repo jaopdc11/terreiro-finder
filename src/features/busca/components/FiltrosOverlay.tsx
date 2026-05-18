@@ -47,10 +47,10 @@ function ToggleTag({
       onClick={onClick}
       aria-pressed={ativo}
       className={
-        'h-9 border px-3.5 text-[11px] font-semibold uppercase tracking-wider transition-colors ' +
+        'inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors ' +
         (ativo
-          ? 'border-primary bg-primary text-primary-foreground'
-          : 'border-foreground/20 bg-background text-foreground hover:border-foreground hover:bg-foreground hover:text-background')
+          ? 'border-primary bg-primary text-primary-foreground shadow-xs'
+          : 'border-border bg-card text-foreground shadow-xs hover:border-foreground/20 hover:bg-secondary')
       }
     >
       {children}
@@ -68,20 +68,17 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
       role="dialog"
       aria-modal="true"
       aria-labelledby="filtros-titulo"
-      className="fixed inset-0 z-[2000] flex justify-end bg-foreground/40"
+      className="fixed inset-0 z-[2000] flex justify-end bg-foreground/30 backdrop-blur-sm"
       onClick={onFechar}
     >
       <div
-        className="flex h-full w-full max-w-md flex-col border-l-2 border-foreground bg-background"
+        className="flex h-full w-full max-w-md flex-col border-l border-border bg-background shadow-soft-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-foreground px-6 py-5">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div>
-            <p className="eyebrow text-muted-foreground">Refinar</p>
-            <h2
-              id="filtros-titulo"
-              className="mt-1 font-display text-3xl leading-tight"
-            >
+            <p className="eyebrow">Refinar</p>
+            <h2 id="filtros-titulo" className="mt-1 text-xl font-semibold">
               Filtros
             </h2>
           </div>
@@ -89,20 +86,15 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
             type="button"
             onClick={onFechar}
             aria-label="Fechar filtros"
-            className="h-10 w-10 border border-foreground text-foreground hover:bg-foreground hover:text-background"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             ✕
           </button>
         </div>
 
-        <div className="flex-1 space-y-7 overflow-y-auto px-6 py-6">
-          <div>
-            <Label
-              htmlFor="filtro-cidade"
-              className="eyebrow text-muted-foreground"
-            >
-              Cidade
-            </Label>
+        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+          <div className="space-y-1.5">
+            <Label htmlFor="filtro-cidade">Cidade</Label>
             <Input
               id="filtro-cidade"
               value={filtros.cidade ?? ''}
@@ -110,17 +102,11 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
                 onAplicar(filtros.comCidade(e.target.value || null))
               }
               placeholder="Itajaí"
-              className="mt-2"
             />
           </div>
 
-          <div>
-            <Label
-              htmlFor="filtro-bairro"
-              className="eyebrow text-muted-foreground"
-            >
-              Bairro
-            </Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="filtro-bairro">Bairro</Label>
             <Input
               id="filtro-bairro"
               value={filtros.bairro ?? ''}
@@ -128,14 +114,15 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
                 onAplicar(filtros.comBairro(e.target.value || null))
               }
               placeholder="Cordeiros"
-              className="mt-2"
             />
           </div>
 
           {filtros.tradicao === 'umbanda' ? (
-            <div>
-              <p className="eyebrow text-muted-foreground">Linhas trabalhadas</p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className="space-y-2.5">
+              <p className="text-sm font-medium text-foreground">
+                Linhas trabalhadas
+              </p>
+              <div className="flex flex-wrap gap-1.5">
                 {LINHAS_UMBANDA.map((tag) => (
                   <ToggleTag
                     key={tag}
@@ -150,9 +137,9 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
           ) : null}
 
           {filtros.tradicao === 'candomble' ? (
-            <div>
-              <p className="eyebrow text-muted-foreground">Nação</p>
-              <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className="space-y-2.5">
+              <p className="text-sm font-medium text-foreground">Nação</p>
+              <div className="flex flex-wrap gap-1.5">
                 {NACOES_CANDOMBLE.map((n) => {
                   const ativo = filtros.nacaoCandomble === n;
                   return (
@@ -172,7 +159,7 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
           ) : null}
 
           {filtros.tradicao === 'quimbanda' ? (
-            <label className="flex cursor-pointer items-start gap-3 border border-foreground/20 p-4 text-sm hover:border-foreground/40">
+            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-card p-4 text-sm shadow-xs transition-colors hover:border-foreground/20">
               <input
                 type="checkbox"
                 checked={filtros.soAbertasQuimbanda}
@@ -193,15 +180,15 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
           ) : null}
 
           {!filtros.tradicao ? (
-            <p className="border-l-2 border-foreground/20 pl-3 text-xs text-muted-foreground">
+            <p className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
               Selecione uma tradição lá em cima pra ver filtros específicos
               dela.
             </p>
           ) : null}
         </div>
 
-        <div className="border-t border-foreground p-4">
-          <Button variant="default" onClick={onFechar} className="w-full">
+        <div className="border-t border-border p-4">
+          <Button variant="primary" onClick={onFechar} className="w-full">
             Ver resultados
           </Button>
         </div>

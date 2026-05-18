@@ -26,12 +26,12 @@ export type IndicacaoRow = z.infer<typeof indicacaoRowSchema>;
 
 /** Form de criar indicação (visitante logado). */
 export const novaIndicacaoSchema = z.object({
-  nome: z.string().trim().min(2, 'Diz o nome da casa'),
+  nome: z.string().trim().min(2, 'Informe o nome da casa'),
   cidade: z.string().trim().min(2, 'Cidade obrigatória'),
   estado: z
     .string()
     .trim()
-    .length(2, 'Estado em sigla (ex: SC)')
+    .length(2, 'Estado em sigla (ex.: SC)')
     .transform((v) => v.toUpperCase()),
   bairro: z.preprocess(
     (v) => (typeof v === 'string' && v.trim().length === 0 ? undefined : v),
@@ -44,7 +44,10 @@ export const novaIndicacaoSchema = z.object({
   canal_contato: z
     .string()
     .trim()
-    .min(3, 'Diz como o admin pode contatar a casa pra confirmar (Instagram, WhatsApp da casa, etc.)'),
+    .min(
+      3,
+      'Informe como o administrador pode contatar a casa para confirmar (Instagram, WhatsApp da casa, etc.)',
+    ),
   observacoes: z.preprocess(
     (v) => (typeof v === 'string' && v.trim().length === 0 ? undefined : v),
     z.string().trim().min(3).optional(),

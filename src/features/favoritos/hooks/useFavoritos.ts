@@ -34,7 +34,7 @@ export function useAlternarFavorito() {
       eraFavorito: boolean;
     }) => {
       const sess = sessao.use.getState().sessao;
-      if (!sess) throw new Error('Faça login pra favoritar.');
+      if (!sess) throw new Error('Faça login para favoritar.');
       if (eraFavorito) {
         await repo.remover(sess.userId, casaId);
       } else {

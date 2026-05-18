@@ -1,15 +1,24 @@
 import { Link } from 'react-router-dom';
+import { Button } from '@/shared/ui/button';
 
 export function NaoEncontrado() {
   return (
-    <section className="container py-16 text-center">
-      <h1 className="font-display text-4xl">Página não encontrada</h1>
-      <p className="mt-2 text-muted-foreground">
+    <section className="container max-w-xl py-24 text-center">
+      <p className="eyebrow">404</p>
+      <h1 className="mt-3 text-4xl font-semibold tracking-tight md:text-5xl">
+        Página não encontrada.
+      </h1>
+      <p className="mt-3 text-muted-foreground">
         Talvez a casa tenha mudado de endereço.
       </p>
-      <Link to="/" className="mt-6 inline-block text-primary hover:underline">
-        Voltar pra busca
-      </Link>
+      <div className="mt-8 flex justify-center gap-3">
+        <Link to="/">
+          <Button variant="primary">Voltar ao início</Button>
+        </Link>
+        <Link to="/mapa">
+          <Button variant="outline">Abrir o mapa</Button>
+        </Link>
+      </div>
     </section>
   );
 }

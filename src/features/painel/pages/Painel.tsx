@@ -39,26 +39,26 @@ export function Painel() {
 
   if (!casas || casas.length === 0) {
     return (
-      <section className="container max-w-3xl py-20">
-        <p className="eyebrow text-primary">Painel</p>
-        <h1 className="display-hero mt-8 text-5xl">
-          Sem casa<br />vinculada<em>.</em>
+      <section className="container max-w-2xl py-16">
+        <p className="eyebrow">Painel</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+          Nenhuma casa vinculada.
         </h1>
-        <p className="mt-8 max-w-prose text-foreground/80">
-          Salve, <strong className="text-foreground">{nome}</strong>. Você
-          ainda não está vinculada(o) a nenhuma casa neste painel.
+        <p className="mt-6 text-muted-foreground">
+          Olá, <strong className="text-foreground">{nome}</strong>. Sua conta
+          ainda não está vinculada a nenhuma casa neste painel.
         </p>
-        <p className="mt-4 max-w-prose text-foreground/80">
-          Se você é dirigente de uma casa que já está aqui mas marcada como{' '}
-          <em className="italic">não verificada</em>, abre a ficha dela e clica
-          em <em className="italic">Reivindique aqui</em>. Depois que
-          confirmarmos, ela aparece neste painel.
+        <p className="mt-3 text-muted-foreground">
+          Se você é dirigente de uma casa já cadastrada mas marcada como{' '}
+          <em>não verificada</em>, abra a ficha e clique em{' '}
+          <em>Reivindique aqui</em>. Após a confirmação, ela aparece neste
+          painel.
         </p>
         <Link
-          to="/"
-          className="link-underline mt-8 inline-block text-sm font-semibold uppercase tracking-wider text-foreground"
+          to="/mapa"
+          className="mt-6 inline-block text-sm font-medium text-foreground hover:underline"
         >
-          Ver casas
+          Ver casas →
         </Link>
       </section>
     );
@@ -66,14 +66,14 @@ export function Painel() {
 
   if (!casaSelecionada) {
     return (
-      <section className="container max-w-4xl py-20">
-        <header className="border-b border-foreground pb-10">
-          <p className="eyebrow text-primary">Painel da dirigência</p>
-          <h1 className="display-hero mt-8 text-5xl">
-            Salve, <em>{nome}</em>.
+      <section className="container max-w-4xl py-16">
+        <header className="border-b border-border pb-8">
+          <p className="eyebrow">Painel da dirigência</p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+            Olá, {nome}.
           </h1>
-          <p className="mt-6 max-w-md text-foreground/70">
-            Escolha uma casa pra editar.
+          <p className="mt-3 text-muted-foreground">
+            Selecione uma casa para editar.
           </p>
         </header>
 

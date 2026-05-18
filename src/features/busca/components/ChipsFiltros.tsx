@@ -30,12 +30,12 @@ function Chip({
       onClick={onClick}
       aria-pressed={ativo}
       className={cn(
-        'h-9 border px-3.5 text-[11px] font-semibold uppercase tracking-wider transition-colors',
+        'inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium transition-colors',
         ativo
-          ? 'border-primary bg-primary text-primary-foreground'
+          ? 'border-primary bg-primary text-primary-foreground shadow-xs'
           : variant === 'clear'
-            ? 'border-dashed border-foreground/40 bg-transparent text-muted-foreground hover:border-foreground hover:text-foreground'
-            : 'border-foreground/20 bg-background text-foreground hover:border-foreground hover:bg-foreground hover:text-background',
+            ? 'border-dashed border-foreground/30 bg-transparent text-muted-foreground hover:border-foreground/60 hover:text-foreground'
+            : 'border-border bg-card text-foreground shadow-xs hover:border-foreground/20 hover:bg-secondary',
       )}
     >
       {children}
@@ -45,7 +45,11 @@ function Chip({
 
 export function ChipsFiltros({ filtros, onChange }: Props) {
   return (
-    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtros rápidos">
+    <div
+      className="flex flex-wrap items-center gap-1.5"
+      role="group"
+      aria-label="Filtros rápidos"
+    >
       {TRADICOES.map((t) => (
         <Chip
           key={t.v}
@@ -96,7 +100,7 @@ export function ChipsFiltros({ filtros, onChange }: Props) {
             )
           }
         >
-          ✕ Limpar
+          Limpar
         </Chip>
       ) : null}
     </div>

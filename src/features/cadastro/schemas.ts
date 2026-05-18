@@ -11,21 +11,23 @@ const opcional = <T extends z.ZodTypeAny>(schema: T) =>
 
 /** Passo 1 — quem é a casa + como validar a dirigência + papel da pessoa. */
 export const passoIdentidadeSchema = z.object({
-  nome: z.string().trim().min(2, 'Diz o nome da casa'),
+  nome: z.string().trim().min(2, 'Informe o nome da casa'),
   sacerdote_nome: opcional(z.string().trim().min(2, 'Nome muito curto')),
   tradicao_principal: tradicaoPrincipalSchema,
-  descricao: opcional(z.string().trim().min(10, 'Conta um pouco mais — ao menos 10 caracteres')),
+  descricao: opcional(
+    z.string().trim().min(10, 'Descreva com pelo menos 10 caracteres'),
+  ),
   papel_dirigencia: z
     .string()
     .trim()
-    .min(3, 'Diz como você é chamada(o) na casa — ao menos 3 caracteres.')
+    .min(3, 'Informe como é chamado(a) na casa (mínimo de 3 caracteres)')
     .max(60, 'Texto muito longo'),
   canal_validacao: z
     .string()
     .trim()
     .min(
       5,
-      'Conta um pouco mais — pelo menos 5 caracteres. Ex.: "Instagram da casa @meucasa", "telefone fixo do espaço (47) 3344-0000", "comprovante via WhatsApp".',
+      'Forneça pelo menos 5 caracteres. Ex.: "Instagram da casa @meucasa", "telefone fixo (47) 3344-0000", "WhatsApp para comprovante".',
     ),
 });
 
@@ -39,7 +41,7 @@ export const passoEnderecoSchema = z.object({
   estado: z
     .string()
     .trim()
-    .length(2, 'Estado em sigla (ex: SC)')
+    .length(2, 'Estado em sigla (ex.: SC)')
     .transform((v) => v.toUpperCase()),
   cep: opcional(z.string().trim().min(8)),
   coord_lat: z.number().nullable().optional(),
@@ -56,18 +58,21 @@ export const passoAberturaContatoSchema = z
     telefone: opcional(z.string().trim().min(8)),
     email_contato: opcional(z.string().trim().email('Email inválido')),
     texto_antes_visita: opcional(
-      z.string().trim().min(10, 'Diz o que quem chega precisa saber — ao menos 10 caracteres'),
+      z
+        .string()
+        .trim()
+        .min(10, 'Descreva o que o visitante precisa saber (mínimo de 10 caracteres)'),
     ),
     consentimento: z.literal(true, {
       errorMap: () => ({
         message:
-          'Pra enviar, marca o consentimento. A casa decide o que aparece no site.',
+          'É necessário marcar o consentimento antes de enviar. A casa decide o que aparece no site.',
       }),
     }),
   })
   .refine(
     (v) => Boolean(v.whatsapp ?? v.telefone ?? v.email_contato),
-    'Pelo menos um canal de contato é necessário (WhatsApp, telefone ou email)',
+    'Pelo menos um canal de contato é necessário (WhatsApp, telefone ou email).',
   );
 
 /** Schema completo (depois do wizard). É o que vai pro repository. */

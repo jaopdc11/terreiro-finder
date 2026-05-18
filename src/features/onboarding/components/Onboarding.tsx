@@ -60,37 +60,39 @@ export function Onboarding() {
 
         {passo === 0 ? (
           <div className="mt-8">
-            <h2 id="onboarding-titulo" className="font-display text-4xl leading-tight">
-              Salve. Bom ter você por aqui.
+            <h2 id="onboarding-titulo" className="text-3xl font-semibold tracking-tight">
+              Bem-vindo. Axé.
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Aqui é um lugar pra encontrar terreiros — Umbanda, Candomblé,
-              Quimbanda, Omolocô, Xambá. <strong>Cada casa fala por si</strong>;
-              a gente só ajuda na descoberta.
+              Este é um espaço para encontrar terreiros — Umbanda, Candomblé,
+              Quimbanda, Omolocô, Xambá.{' '}
+              <strong>Cada casa fala por si</strong>; ajudamos na descoberta.
             </p>
             <div className="mt-6 flex justify-end gap-2">
-              <Button onClick={avancar}>Bora</Button>
+              <Button variant="primary" onClick={avancar}>
+                Continuar
+              </Button>
             </div>
           </div>
         ) : null}
 
         {passo === 1 ? (
           <div className="mt-8">
-            <h2 id="onboarding-titulo" className="font-display text-4xl leading-tight">
-              Tu procura uma casa, ou é da dirigência?
+            <h2 id="onboarding-titulo" className="text-3xl font-semibold tracking-tight">
+              Você procura uma casa ou é da dirigência?
             </h2>
             <p className="mt-2 text-muted-foreground">
-              A escolha guia o próximo passo. Dá pra mudar depois.
+              A resposta orienta o próximo passo. Você pode alterar depois.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <Button
-                variant={bifurcacao === 'visitante' ? 'default' : 'outline'}
+                variant={bifurcacao === 'visitante' ? 'primary' : 'outline'}
                 onClick={() => escolherBifurcacao('visitante')}
               >
                 Procuro uma casa
               </Button>
               <Button
-                variant={bifurcacao === 'dirigencia' ? 'default' : 'outline'}
+                variant={bifurcacao === 'dirigencia' ? 'primary' : 'outline'}
                 onClick={() => escolherBifurcacao('dirigencia')}
               >
                 Sou da dirigência
@@ -100,7 +102,7 @@ export function Onboarding() {
               <Button variant="ghost" onClick={voltar}>
                 Voltar
               </Button>
-              <Button onClick={avancar} disabled={!bifurcacao}>
+              <Button variant="primary" onClick={avancar} disabled={!bifurcacao}>
                 Avançar
               </Button>
             </div>
@@ -109,20 +111,22 @@ export function Onboarding() {
 
         {passo === 2 ? (
           <div className="mt-8">
-            <h2 id="onboarding-titulo" className="font-display text-4xl leading-tight">
-              {bifurcacao === 'dirigencia' ? 'Vamos cadastrar tua casa.' : 'Vamos procurar uma casa.'}
+            <h2 id="onboarding-titulo" className="text-3xl font-semibold tracking-tight">
+              {bifurcacao === 'dirigencia'
+                ? 'Vamos cadastrar a sua casa.'
+                : 'Vamos abrir o mapa.'}
             </h2>
             <p className="mt-2 text-muted-foreground">
               {bifurcacao === 'dirigencia'
-                ? 'Cadastro é gratuito. Você controla o quanto a casa aparece.'
-                : 'Mapa e filtros aguardam. Quem é do santo, reconhece.'}
+                ? 'O cadastro é gratuito. Você controla integralmente o que aparece publicamente.'
+                : 'O mapa e os filtros estão prontos para a busca.'}
             </p>
             <div className="mt-6 flex justify-between">
               <Button variant="ghost" onClick={voltar}>
                 Voltar
               </Button>
-              <Button onClick={() => finalizar(bifurcacao ?? 'visitante')}>
-                {bifurcacao === 'dirigencia' ? 'Cadastrar minha casa' : 'Procurar casa'}
+              <Button variant="primary" onClick={() => finalizar(bifurcacao ?? 'visitante')}>
+                {bifurcacao === 'dirigencia' ? 'Cadastrar minha casa' : 'Abrir o mapa'}
               </Button>
             </div>
           </div>

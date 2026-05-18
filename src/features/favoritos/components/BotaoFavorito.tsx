@@ -4,7 +4,7 @@ import { useAlternarFavorito, useIdsFavoritos } from '../hooks/useFavoritos';
 
 /**
  * Botão de coração toggle. Aparece pra qualquer visitante: anônimo cai num
- * link de "Entre pra favoritar"; logado alterna o favorito.
+ * link de "Entrar para favoritar"; logado alterna o favorito.
  *
  * Decisão UX: não mostramos contagem global de favoritos. Princípio §1.2:
  * a métrica social não é parte do MVP — a dor é descoberta, não engajamento.
@@ -20,10 +20,10 @@ export function BotaoFavorito({ casaId }: { casaId: string }) {
       <Link
         to="/entrar"
         className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
-        aria-label="Faça login pra favoritar esta casa"
+        aria-label="Faça login para favoritar esta casa"
       >
         <span aria-hidden="true">♡</span>
-        Entre pra favoritar
+        Entrar para favoritar
       </Link>
     );
   }

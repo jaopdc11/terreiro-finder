@@ -1,23 +1,18 @@
 import { forwardRef, type InputHTMLAttributes } from 'react';
 import { Input } from '@/shared/ui/input';
+import { Label } from '@/shared/ui/label';
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   erro?: string | undefined;
 }
 
-/**
- * Campo de formulário editorial: label em eyebrow (uppercase compacto)
- * acima, input minimalista embaixo. Erro em linha tracejada vermelha.
- */
 export const CampoForm = forwardRef<HTMLInputElement, Props>(
   ({ label, erro, id, ...rest }, ref) => {
     const inputId = id ?? rest.name;
     return (
-      <div className="space-y-2">
-        <label htmlFor={inputId} className="eyebrow block text-muted-foreground">
-          {label}
-        </label>
+      <div className="space-y-1.5">
+        <Label htmlFor={inputId}>{label}</Label>
         <Input
           ref={ref}
           id={inputId}
@@ -29,7 +24,7 @@ export const CampoForm = forwardRef<HTMLInputElement, Props>(
           <p
             id={`${inputId}-erro`}
             role="alert"
-            className="border-l-2 border-destructive pl-2 text-xs text-destructive"
+            className="text-xs text-destructive"
           >
             {erro}
           </p>

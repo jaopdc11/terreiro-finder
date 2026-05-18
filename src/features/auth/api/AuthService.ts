@@ -54,7 +54,7 @@ export class AuthService {
     if (!data.session) {
       throw new ServiceError(
         'AUTH_CONFIRMACAO_PENDENTE',
-        'Cadastro criado, confirme seu email pra entrar.',
+        'Cadastro criado. Confirme seu email para entrar.',
       );
     }
     return this.montarSessao(data.user.id, data.user.email ?? payload.email);

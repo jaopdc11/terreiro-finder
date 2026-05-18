@@ -22,13 +22,13 @@ export type LoginInput = z.infer<typeof loginSchema>;
 
 export const cadastroSchema = z
   .object({
-    nomeCompleto: z.string().trim().min(2, 'Diz teu nome completo'),
+    nomeCompleto: z.string().trim().min(2, 'Informe seu nome completo'),
     nomeExibicao: z.preprocess(
       (v) => (typeof v === 'string' && v.trim().length === 0 ? undefined : v),
       z
         .string()
         .trim()
-        .min(2, 'Diz como prefere ser chamada(o)')
+        .min(2, 'Informe como prefere ser chamado(a)')
         .optional(),
     ),
     email: emailSchema,
@@ -42,7 +42,7 @@ export const cadastroSchema = z
     eDirigencia: z.boolean().default(false),
   })
   .refine((v) => v.senha === v.confirmacao, {
-    message: 'As senhas não batem',
+    message: 'As senhas não coincidem',
     path: ['confirmacao'],
   });
 export type CadastroInput = z.infer<typeof cadastroSchema>;

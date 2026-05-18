@@ -11,7 +11,7 @@ export function useIndicar() {
   return useMutation({
     mutationFn: async (input: NovaIndicacaoInput) => {
       const sess = sessao.use.getState().sessao;
-      if (!sess) throw new Error('Você precisa estar logada(o) pra indicar.');
+      if (!sess) throw new Error('É preciso estar autenticado para indicar.');
       return repo.criarComoVisitante(sess.userId, input);
     },
   });

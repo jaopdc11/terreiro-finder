@@ -2,8 +2,9 @@ import { forwardRef, type LabelHTMLAttributes } from 'react';
 import { cn } from '@/shared/lib/cn';
 
 /**
- * Label minimalista — uppercase compacto, espaçado, em eyebrow.
- * Combina com Input em linha de base (sem caixa). Override via className.
+ * Label discreto — sentence case, tamanho pequeno, peso médio. Não usa
+ * uppercase tracking-widest (label-eyebrow seria ofensa visual em form
+ * grande). Para eyebrows de seção, use .eyebrow utility.
  */
 export const Label = forwardRef<
   HTMLLabelElement,
@@ -12,7 +13,7 @@ export const Label = forwardRef<
   <label
     ref={ref}
     className={cn(
-      'block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground',
+      'block text-sm font-medium leading-none text-foreground',
       className,
     )}
     {...props}

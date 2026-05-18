@@ -13,24 +13,20 @@ const TRADICAO_LABEL: Record<string, string> = {
   outra: 'Outra tradição',
 };
 
-/**
- * Linha de info no estilo "definition list" — label compacto à esquerda,
- * valor à direita. Grid de 12 cols pra alinhamento editorial.
- */
-function InfoLinha({
-  rotulo,
+function Card({
+  titulo,
   children,
 }: {
-  rotulo: string;
+  titulo: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-12 gap-4 border-t border-foreground/10 py-5 first:border-t-0">
-      <dt className="eyebrow col-span-12 text-muted-foreground sm:col-span-3">
-        {rotulo}
-      </dt>
-      <dd className="col-span-12 text-foreground sm:col-span-9">{children}</dd>
-    </div>
+    <section className="card-soft p-6">
+      <p className="text-sm font-semibold text-foreground">{titulo}</p>
+      <div className="mt-3 text-sm leading-relaxed text-foreground/85">
+        {children}
+      </div>
+    </section>
   );
 }
 
@@ -43,10 +39,12 @@ export function FichaCasa({ casa }: { casa: Casa }) {
       {!casa.estaVerificada() ? (
         <aside
           role="note"
-          className="mb-10 border-l-2 border-primary bg-primary/5 px-5 py-4 text-sm"
+          className="mb-8 rounded-md border border-primary/30 bg-primary/5 p-4 text-sm"
         >
-          <p className="eyebrow text-primary">Indicada — não verificada</p>
-          <p className="mt-2 text-foreground/85">
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+            Indicada · Não verificada
+          </p>
+          <p className="mt-1.5 text-foreground/85">
             Esta casa foi indicada pela comunidade e ainda não foi confirmada
             pela própria dirigência. Você é da casa?{' '}
             <Link
@@ -60,74 +58,78 @@ export function FichaCasa({ casa }: { casa: Casa }) {
         </aside>
       ) : null}
 
-      <header className="border-b border-foreground pb-10">
-        <p className="eyebrow text-primary">
+      <header className="border-b border-border pb-8">
+        <p className="eyebrow">
           {TRADICAO_LABEL[casa.tradicaoPrincipal] ?? casa.tradicaoPrincipal}
+          {casa.bairro ? ` · ${casa.bairro}` : ''} · {casa.cidade}/{casa.estado}
         </p>
-        <h1 className="display-hero mt-6 text-5xl text-foreground sm:text-7xl">
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
           {casa.nome}
         </h1>
         {casa.sacerdoteNome ? (
-          <p className="mt-6 font-display text-xl text-foreground/70">
-            com <em className="not-italic text-foreground">{casa.sacerdoteNome}</em>
+          <p className="mt-3 text-lg text-muted-foreground">
+            com{' '}
+            <span className="text-foreground">{casa.sacerdoteNome}</span>
           </p>
         ) : null}
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <BadgesAbertura casa={casa} />
           <BotaoFavorito casaId={casa.id} />
         </div>
       </header>
 
       <div className="grid grid-cols-12 gap-x-6 pt-10">
-        <div className="col-span-12 space-y-12 md:col-span-8">
+        <div className="col-span-12 space-y-6 md:col-span-7">
           {casa.textoAntesVisita ? (
-            <section>
-              <p className="eyebrow text-muted-foreground">Antes da primeira visita</p>
-              <p className="mt-4 whitespace-pre-line text-lg leading-relaxed text-foreground/85">
-                {casa.textoAntesVisita}
-              </p>
-            </section>
+            <Card titulo="Antes da primeira visita">
+              <p className="whitespace-pre-line">{casa.textoAntesVisita}</p>
+            </Card>
           ) : null}
 
           {casa.descricao ? (
-            <section>
-              <p className="eyebrow text-muted-foreground">Sobre a casa</p>
-              <p className="mt-4 whitespace-pre-line text-lg leading-relaxed text-foreground/85">
-                {casa.descricao}
-              </p>
-            </section>
+            <Card titulo="Sobre a casa">
+              <p className="whitespace-pre-line">{casa.descricao}</p>
+            </Card>
           ) : null}
 
           <CardBlocoTradicao casa={casa} />
         </div>
 
-        <aside className="col-span-12 mt-12 md:col-span-4 md:mt-0 md:border-l md:border-foreground/10 md:pl-6">
-          <section className="border border-foreground p-6">
-            <p className="eyebrow text-muted-foreground">Como visitar</p>
-            <dl className="mt-2">
-              <InfoLinha rotulo="Endereço">
-                {endereco ?? (
-                  <span className="text-muted-foreground">
-                    Sob contato — combine pela casa.
-                  </span>
-                )}
-              </InfoLinha>
-              <InfoLinha rotulo="Visitação">
-                {
+        <aside className="col-span-12 mt-6 space-y-6 md:col-span-5 md:mt-0">
+          <Card titulo="Como visitar">
+            <dl className="space-y-3">
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Endereço
+                </dt>
+                <dd className="mt-1">
+                  {endereco ?? (
+                    <span className="text-muted-foreground">
+                      Sob contato — combine pela casa.
+                    </span>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Visitação
+                </dt>
+                <dd className="mt-1">
                   {
-                    aberto: 'Aberta a visitas.',
-                    jogo_previo: 'Visita após jogo prévio.',
-                    so_indicacao: 'Só por indicação.',
-                  }[casa.perfilAbertura.aceitaVisitantes]
-                }
-              </InfoLinha>
+                    {
+                      aberto: 'Aberta a visitas.',
+                      jogo_previo: 'Visita após jogo prévio.',
+                      so_indicacao: 'Só por indicação.',
+                    }[casa.perfilAbertura.aceitaVisitantes]
+                  }
+                </dd>
+              </div>
             </dl>
-          </section>
+          </Card>
 
-          <section className="mt-6 border border-foreground p-6">
-            <p className="eyebrow text-muted-foreground">Contato</p>
+          <Card titulo="Contato direto">
             {contato ? (
-              <ul className="mt-4 space-y-3 text-sm">
+              <ul className="space-y-2">
                 {casa.contato?.whatsapp ? (
                   <li>
                     <a
@@ -160,11 +162,11 @@ export function FichaCasa({ casa }: { casa: Casa }) {
                 ) : null}
               </ul>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="text-muted-foreground">
                 A casa ainda não cadastrou canais de contato direto.
               </p>
             )}
-          </section>
+          </Card>
         </aside>
       </div>
     </article>

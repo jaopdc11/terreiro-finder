@@ -35,23 +35,29 @@ export function Cadastrar() {
 
   if (mutation.isSuccess) {
     return (
-      <section className="container max-w-2xl py-24">
-        <div className="border-2 border-foreground p-10 text-center">
-          <p className="eyebrow text-primary">Confirmação</p>
-          <h1 className="display-hero mt-6 text-4xl">
-            Cadastro<br />recebido.
+      <section className="container max-w-xl py-16">
+        <div className="card-soft p-8 text-center">
+          <p className="eyebrow">Confirmação</p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+            Cadastro recebido. Axé.
           </h1>
-          <p className="mt-6 text-foreground/75">
-            Vamos validar suas informações. Quando a casa for aprovada, ela
-            aparece no mapa <strong>verificada</strong> e você vira dirigente
-            principal no seu painel.
+          <p className="mt-3 text-muted-foreground">
+            Suas informações estão em validação. Após a aprovação, a casa
+            aparecerá no mapa como <strong>verificada</strong> e você será
+            vinculado como dirigente principal no painel.
           </p>
-          <div className="mt-8 flex justify-center gap-8 text-xs font-semibold uppercase tracking-widest">
-            <Link to="/" className="link-underline text-foreground">
-              Voltar pra busca
+          <div className="mt-6 flex justify-center gap-6 text-sm">
+            <Link
+              to="/mapa"
+              className="font-medium text-foreground hover:underline"
+            >
+              Voltar ao mapa
             </Link>
-            <Link to="/painel" className="link-underline text-foreground">
-              Ir pro painel
+            <Link
+              to="/painel"
+              className="font-medium text-foreground hover:underline"
+            >
+              Ir para o painel
             </Link>
           </div>
         </div>
@@ -60,48 +66,51 @@ export function Cadastrar() {
   }
 
   return (
-    <section className="container max-w-4xl py-16">
-      <header className="border-b border-foreground pb-10">
-        <p className="eyebrow text-primary">Cadastro de casa</p>
-        <h1 className="display-hero mt-8 text-5xl">
-          Cadastrar<br />minha casa.
+    <section className="container max-w-3xl py-12">
+      <header className="border-b border-border pb-8">
+        <p className="eyebrow">Cadastro de casa</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+          Cadastrar minha casa
         </h1>
-        <p className="mt-6 max-w-prose text-foreground/75">
-          Você está cadastrando como dirigência. Depois de aprovado, a casa
-          nasce verificada e você vira dirigente principal.
+        <p className="mt-3 text-muted-foreground">
+          Você está realizando o cadastro como dirigência. Após a aprovação,
+          a casa nasce verificada e o seu usuário é vinculado como dirigente
+          principal.
         </p>
       </header>
 
       <aside
         role="note"
-        className="my-10 border-l-2 border-primary bg-primary/5 px-5 py-4 text-sm"
+        className="my-8 rounded-md border border-primary/30 bg-primary/5 p-4 text-sm"
       >
-        <p className="eyebrow text-primary">Atenção</p>
-        <p className="mt-2 text-foreground/85">
-          Você está afirmando ser dirigente desta casa. Se você só conhece a
-          casa mas não é da dirigência, volta e usa{' '}
+        <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+          Atenção
+        </p>
+        <p className="mt-1.5 text-foreground/85">
+          Ao prosseguir, você confirma ser dirigente desta casa. Caso conheça
+          o terreiro mas não faça parte da dirigência, utilize{' '}
           <Link to="/indicar" className="link-underline text-primary">
             Indicar uma casa
           </Link>{' '}
-          — esse fluxo é o certo pra quem quer compartilhar uma casa sem ser
-          da dirigência.
+          — esse é o fluxo apropriado para compartilhar uma casa sem ser da
+          dirigência.
         </p>
       </aside>
 
       <ol
-        className="grid grid-cols-3 gap-0 border-y border-foreground"
+        className="flex overflow-hidden rounded-md border border-border"
         aria-label="Progresso do cadastro"
       >
         {PASSOS.map((t, i) => (
           <li
             key={t}
             className={
-              'flex items-center gap-3 border-r border-foreground/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest last:border-r-0 ' +
+              'flex flex-1 items-center gap-2 border-r border-border px-4 py-2.5 text-xs font-medium last:border-r-0 ' +
               (i === passo
                 ? 'bg-foreground text-background'
                 : i < passo
-                  ? 'text-primary'
-                  : 'text-muted-foreground')
+                  ? 'bg-primary/5 text-foreground'
+                  : 'bg-background text-muted-foreground')
             }
             aria-current={i === passo ? 'step' : undefined}
           >
@@ -113,9 +122,12 @@ export function Cadastrar() {
         ))}
       </ol>
 
-      <div className="mt-10">
+      <div className="card-soft mt-8 p-6">
         {passo === 0 ? (
-          <PassoIdentidade inicial={acumulado} onAvancar={aoConcluirIdentidade} />
+          <PassoIdentidade
+            inicial={acumulado}
+            onAvancar={aoConcluirIdentidade}
+          />
         ) : null}
         {passo === 1 ? (
           <PassoEndereco
