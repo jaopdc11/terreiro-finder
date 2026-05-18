@@ -15,8 +15,19 @@ export function Buscar() {
   const [filtrosAberto, setFiltrosAberto] = useState(false);
   const [listaAberta, setListaAberta] = useState(false);
   const [casaAtivaId, setCasaAtivaId] = useState<string | null>(null);
+  const [resetTicker, setResetTicker] = useState(0);
   const cardRefs = useRef<Map<string, HTMLLIElement | null>>(new Map());
   const totalCasas = casas?.length ?? 0;
+
+  const alternarCasa = (id: string) => {
+    if (casaAtivaId === id) {
+      // Clicou no mesmo card: deseleciona e reseta zoom.
+      setCasaAtivaId(null);
+      setResetTicker((t) => t + 1);
+    } else {
+      setCasaAtivaId(id);
+    }
+  };
 
   // Quando casa ativa muda, scrolla o card até a visão (na aside).
   useEffect(() => {
@@ -95,7 +106,7 @@ export function Buscar() {
                   >
                     <button
                       type="button"
-                      onClick={() => setCasaAtivaId(casa.id)}
+                      onClick={() => alternarCasa(casa.id)}
                       aria-pressed={ativa}
                       className={
                         'group relative block w-full border-l-2 px-6 py-5 text-left transition-all hover:bg-background ' +
@@ -227,6 +238,7 @@ export function Buscar() {
           casas={casas ?? []}
           casaAtivaId={casaAtivaId}
           onPopupFechado={() => setCasaAtivaId(null)}
+          resetTicker={resetTicker}
         />
       </div>
 

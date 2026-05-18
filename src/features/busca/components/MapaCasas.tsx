@@ -14,6 +14,8 @@ interface Props {
   casaAtivaId?: string | null;
   /** Callback quando o popup fecha (sincroniza com o pai). */
   onPopupFechado?: () => void;
+  /** Quando muda, dispara reset de zoom/centro pro estado inicial. */
+  resetTicker?: number;
 }
 
 /**
@@ -43,6 +45,24 @@ function FocoEmCasa({
     const t = window.setTimeout(() => marker.openPopup(), 350);
     return () => window.clearTimeout(t);
   }, [casaAtivaId, map, refs, casasIndex]);
+  return null;
+}
+
+/**
+ * Dispara reset do mapa pro centro/zoom inicial quando `ticker` muda. Usado
+ * pelo Buscar quando o usuário clica num card já ativo (toggle).
+ */
+function ResetDoMapa({ ticker }: { ticker: number | undefined }) {
+  const map = useMap();
+  const primeiroRender = useRef(true);
+  useEffect(() => {
+    if (primeiroRender.current) {
+      primeiroRender.current = false;
+      return;
+    }
+    map.closePopup();
+    map.flyTo(CENTRO_ITAJAI, 13, { duration: 0.6 });
+  }, [ticker, map]);
   return null;
 }
 
@@ -111,7 +131,12 @@ function ZoomA11y() {
   return null;
 }
 
-export function MapaCasas({ casas, casaAtivaId, onPopupFechado }: Props) {
+export function MapaCasas({
+  casas,
+  casaAtivaId,
+  onPopupFechado,
+  resetTicker,
+}: Props) {
   const comCoord = useMemo(
     () => casas.filter((c) => c.coordenadas !== null),
     [casas],
@@ -151,6 +176,7 @@ export function MapaCasas({ casas, casaAtivaId, onPopupFechado }: Props) {
         refs={markersRef}
         casasIndex={casasIndex}
       />
+      <ResetDoMapa ticker={resetTicker} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

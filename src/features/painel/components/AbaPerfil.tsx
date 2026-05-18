@@ -17,6 +17,7 @@ export function AbaPerfil({ casa }: Props) {
   const [whatsapp, setWhatsapp] = useState(casa.contato?.whatsapp ?? '');
   const [telefone, setTelefone] = useState(casa.contato?.telefone ?? '');
   const [email, setEmail] = useState(casa.contato?.email ?? '');
+  const [site, setSite] = useState(casa.contato?.site ?? '');
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +28,7 @@ export function AbaPerfil({ casa }: Props) {
       whatsapp: whatsapp.trim() || null,
       telefone: telefone.trim() || null,
       emailContato: email.trim() || null,
+      site: site.trim() || null,
     });
   };
 
@@ -94,6 +96,20 @@ export function AbaPerfil({ casa }: Props) {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="p-site">Site da casa (opcional)</Label>
+          <Input
+            id="p-site"
+            type="url"
+            placeholder="https://"
+            value={site}
+            onChange={(e) => setSite(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Página, blog ou Linktree. Aparece como link externo na ficha
+            pública.
+          </p>
         </div>
       </fieldset>
 

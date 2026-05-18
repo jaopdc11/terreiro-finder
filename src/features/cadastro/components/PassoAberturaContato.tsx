@@ -29,7 +29,7 @@ const VISITANTES = [
 ] as const;
 const FOTO = [
   { v: 'permitido', label: 'Permitida' },
-  { v: 'parcial', label: 'Parcial' },
+  { v: 'parcial', label: 'Com restrições' },
   { v: 'proibido', label: 'Proibida' },
 ] as const;
 
@@ -125,6 +125,24 @@ export function PassoAberturaContato({
             <Label htmlFor="c-mail">Email</Label>
             <Input id="c-mail" type="email" {...register('email_contato')} />
           </div>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="c-site">Site da casa (opcional)</Label>
+          <Input
+            id="c-site"
+            type="url"
+            placeholder="https://"
+            {...register('site')}
+          />
+          {errors.site ? (
+            <p role="alert" className="text-xs text-destructive">
+              {errors.site.message}
+            </p>
+          ) : null}
+          <p className="text-xs text-muted-foreground">
+            Caso a casa tenha página própria, blog ou Linktree. Aparece como
+            link externo na ficha pública.
+          </p>
         </div>
         {/* Erro do refine global aparece no campo "" (root). */}
         {(errors as Record<string, unknown>)[''] ? (

@@ -10,16 +10,21 @@ const telefoneSchema = z
   .refine((v) => v.replace(/\D/g, '').length >= 8, 'Telefone precisa de pelo menos 8 dígitos');
 
 const emailSchema = z.string().trim().email('Email inválido');
+const siteSchema = z
+  .string()
+  .trim()
+  .url('URL inválida — comece com http:// ou https://');
 
 const contatoSchema = z
   .object({
     whatsapp: telefoneSchema.optional(),
     telefone: telefoneSchema.optional(),
     email: emailSchema.optional(),
+    site: siteSchema.optional(),
   })
   .refine(
     (v) => Boolean(v.whatsapp ?? v.telefone ?? v.email),
-    'Pelo menos um canal de contato é necessário',
+    'Pelo menos um canal de contato direto é necessário (WhatsApp, telefone ou email)',
   );
 
 export type ContatoInput = z.infer<typeof contatoSchema>;
@@ -29,6 +34,7 @@ export class Contato {
     readonly whatsapp: string | null,
     readonly telefone: string | null,
     readonly email: string | null,
+    readonly site: string | null,
   ) {}
 
   static parse(raw: unknown): Contato {
@@ -39,11 +45,21 @@ export class Contato {
         r.error.issues[0]?.message ?? 'Contato inválido',
       );
     }
-    return new Contato(r.data.whatsapp ?? null, r.data.telefone ?? null, r.data.email ?? null);
+    return new Contato(
+      r.data.whatsapp ?? null,
+      r.data.telefone ?? null,
+      r.data.email ?? null,
+      r.data.site ?? null,
+    );
   }
 
   /** Aceita nulls vindos do banco; retorna null se nada foi informado. */
-  static deRow(row: { whatsapp?: unknown; telefone?: unknown; email_contato?: unknown }): Contato | null {
+  static deRow(row: {
+    whatsapp?: unknown;
+    telefone?: unknown;
+    email_contato?: unknown;
+    site?: unknown;
+  }): Contato | null {
     const wa = typeof row.whatsapp === 'string' && row.whatsapp.length > 0 ? row.whatsapp : null;
     const tel =
       typeof row.telefone === 'string' && row.telefone.length > 0 ? row.telefone : null;
@@ -51,11 +67,12 @@ export class Contato {
       typeof row.email_contato === 'string' && row.email_contato.length > 0
         ? row.email_contato
         : null;
-    if (!wa && !tel && !mail) return null;
-    return new Contato(wa, tel, mail);
+    const site = typeof row.site === 'string' && row.site.length > 0 ? row.site : null;
+    if (!wa && !tel && !mail && !site) return null;
+    return new Contato(wa, tel, mail, site);
   }
 
-  /** Primeiro canal disponível, em ordem de preferência: WhatsApp > telefone > email. */
+  /** Primeiro canal de contato direto. Site não conta — é divulgação, não contato. */
   principal(): { tipo: 'whatsapp' | 'telefone' | 'email'; valor: string } | null {
     if (this.whatsapp) return { tipo: 'whatsapp', valor: this.whatsapp };
     if (this.telefone) return { tipo: 'telefone', valor: this.telefone };

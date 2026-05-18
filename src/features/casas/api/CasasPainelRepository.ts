@@ -8,7 +8,7 @@ const CAMPOS_CASA = `
   logradouro, numero, complemento, bairro, cidade, estado, cep, endereco_visibilidade,
   coord_lat, coord_lng,
   aceita_visitantes, foto_registro,
-  whatsapp, telefone, email_contato,
+  whatsapp, telefone, email_contato, site,
   texto_antes_visita,
   created_at, updated_at, aprovada_em, aprovada_por
 `.trim();
@@ -20,6 +20,7 @@ export interface PerfilCasaInput {
   whatsapp: string | null;
   telefone: string | null;
   emailContato: string | null;
+  site: string | null;
 }
 
 export interface EnderecoCasaInput {
@@ -95,6 +96,7 @@ export class CasasPainelRepository {
         whatsapp: input.whatsapp,
         telefone: input.telefone,
         email_contato: input.emailContato,
+        site: input.site,
       })
       .eq('id', casaId);
     if (error) {

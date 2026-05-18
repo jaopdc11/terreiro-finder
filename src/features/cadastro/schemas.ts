@@ -57,6 +57,9 @@ export const passoAberturaContatoSchema = z
     whatsapp: opcional(z.string().trim().min(8)),
     telefone: opcional(z.string().trim().min(8)),
     email_contato: opcional(z.string().trim().email('Email inválido')),
+    site: opcional(
+      z.string().trim().url('URL inválida — comece com http:// ou https://'),
+    ),
     texto_antes_visita: opcional(
       z
         .string()
@@ -86,6 +89,7 @@ export const novaCasaDeProprioSchema = passoIdentidadeSchema
       whatsapp: opcional(z.string().trim().min(8)),
       telefone: opcional(z.string().trim().min(8)),
       email_contato: opcional(z.string().trim().email('Email inválido')),
+      site: opcional(z.string().trim().url()),
       texto_antes_visita: opcional(z.string().trim().min(10)),
     }),
   );

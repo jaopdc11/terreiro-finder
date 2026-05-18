@@ -176,6 +176,20 @@ export function FichaCasa({ casa }: { casa: Casa }) {
               </p>
             )}
           </Card>
+
+          {casa.contato?.site ? (
+            <Card titulo="Site da casa">
+              <a
+                className="link-underline inline-flex items-center gap-1.5 font-medium text-foreground"
+                href={casa.contato.site}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                {casa.contato.site.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                <span aria-hidden="true">↗</span>
+              </a>
+            </Card>
+          ) : null}
         </aside>
       </div>
     </article>

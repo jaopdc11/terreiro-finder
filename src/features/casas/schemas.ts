@@ -48,6 +48,7 @@ export const casaRowSchema = z.object({
   whatsapp: z.string().nullable(),
   telefone: z.string().nullable(),
   email_contato: z.string().nullable(),
+  site: z.string().nullable().optional(),
 
   texto_antes_visita: z.string().nullable(),
 

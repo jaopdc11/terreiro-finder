@@ -15,7 +15,7 @@ const ENDERECO_LABEL = {
 const FOTO_LABEL = {
   permitido: 'Foto permitida',
   proibido: 'Foto proibida',
-  parcial: 'Foto parcial',
+  parcial: 'Foto com restrições',
 } as const;
 
 function Badge({ children }: { children: React.ReactNode }) {

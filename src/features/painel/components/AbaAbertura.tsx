@@ -23,7 +23,7 @@ const VISITANTES_OPCOES: { v: AceitaVisitantes; label: string; ajuda: string }[]
 
 const FOTO_OPCOES: { v: FotoRegistro; label: string; ajuda: string }[] = [
   { v: 'permitido', label: 'Permitido', ajuda: 'Foto livre nas dependências.' },
-  { v: 'parcial', label: 'Parcial', ajuda: 'Foto só em áreas combinadas.' },
+  { v: 'parcial', label: 'Com restrições', ajuda: 'Foto só em áreas combinadas.' },
   { v: 'proibido', label: 'Proibido', ajuda: 'Sem fotos em nenhuma área ritual.' },
 ];
 

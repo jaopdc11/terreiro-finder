@@ -64,6 +64,7 @@ export function useCadastrarCasa() {
         whatsapp: input.whatsapp ?? null,
         telefone: input.telefone ?? null,
         email_contato: input.email_contato ?? null,
+        site: input.site ?? null,
         canal_validacao: input.canal_validacao,
         papel_dirigencia_proposto: input.papel_dirigencia,
       };
