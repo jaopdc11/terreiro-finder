@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import type { Casa } from '../domain/Casa';
 import { BadgesAbertura } from './BadgesAbertura';
 import { CardBlocoTradicao } from './CardBlocoTradicao';
+import { CardAgendaCasa } from './CardAgendaCasa';
 import { BotaoFavorito } from '@/features/favoritos/components/BotaoFavorito';
 
 const TRADICAO_LABEL: Record<string, string> = {
@@ -102,6 +103,8 @@ export function FichaCasa({ casa }: { casa: Casa }) {
           ) : null}
 
           <CardBlocoTradicao casa={casa} />
+
+          <CardAgendaCasa casaId={casa.id} />
         </div>
 
         <aside className="col-span-12 mt-6 space-y-6 md:col-span-5 md:mt-0">

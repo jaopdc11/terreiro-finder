@@ -9,15 +9,17 @@ import { AbaTradicaoUmbanda } from '../components/AbaTradicaoUmbanda';
 import { AbaTradicaoCandomble } from '../components/AbaTradicaoCandomble';
 import { AbaTradicaoQuimbanda } from '../components/AbaTradicaoQuimbanda';
 import { AbaFotos } from '../components/AbaFotos';
+import { AbaAgenda } from '../components/AbaAgenda';
 
-type Aba = 'perfil' | 'endereco' | 'tradicao' | 'fotos' | 'abertura';
+type Aba = 'perfil' | 'endereco' | 'tradicao' | 'fotos' | 'abertura' | 'agenda';
 
 const ABAS: { v: Aba; label: string; num: string }[] = [
   { v: 'perfil', label: 'Perfil', num: '01' },
   { v: 'endereco', label: 'Endereço', num: '02' },
   { v: 'tradicao', label: 'Tradição', num: '03' },
-  { v: 'fotos', label: 'Fotos', num: '04' },
-  { v: 'abertura', label: 'Abertura', num: '05' },
+  { v: 'agenda', label: 'Agenda', num: '04' },
+  { v: 'fotos', label: 'Fotos', num: '05' },
+  { v: 'abertura', label: 'Abertura', num: '06' },
 ];
 
 export function Painel() {
@@ -73,17 +75,17 @@ export function Painel() {
             Olá, {nome}.
           </h1>
           <p className="mt-3 text-muted-foreground">
-            Selecione uma casa para editar.
+            {casas.length === 1 ? 'Selecione a casa para editar.' : 'Selecione uma casa para editar.'}
           </p>
         </header>
 
-        <ul className="border-b border-foreground/10">
+        <ul className="mt-6 space-y-2">
           {casas.map((c, idx) => (
             <li key={c.id}>
               <button
                 type="button"
                 onClick={() => setCasaSelecionada(c.id)}
-                className="grid w-full grid-cols-12 items-baseline gap-4 border-t border-foreground/10 py-6 text-left transition-colors hover:bg-muted"
+                className="grid w-full grid-cols-12 items-baseline gap-4 rounded-md border border-transparent px-4 py-5 text-left transition-colors hover:border-border hover:bg-card"
               >
                 <span className="col-span-12 font-mono text-xs text-primary sm:col-span-1">
                   {String(idx + 1).padStart(2, '0')}
@@ -113,6 +115,15 @@ export function Painel() {
             </li>
           ))}
         </ul>
+
+        <div className="mt-8 border-t border-border pt-6">
+          <Link
+            to="/cadastrar"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+          >
+            + Cadastrar outra casa
+          </Link>
+        </div>
       </section>
     );
   }
@@ -188,7 +199,7 @@ function PainelDeCasa({
 
       <div
         role="tablist"
-        className="mt-8 flex flex-wrap items-stretch overflow-hidden rounded-md border border-border"
+        className="sticky top-14 z-10 -mx-4 mt-8 flex flex-wrap items-stretch overflow-hidden rounded-md border border-border bg-background px-4 py-2 shadow-sm sm:mx-0 sm:px-0 sm:py-0"
       >
         {ABAS.map((a) => (
           <button
@@ -209,14 +220,12 @@ function PainelDeCasa({
         ))}
       </div>
 
-      <div className="mt-10 grid grid-cols-12 gap-x-6" data-testid="painel-aba">
-        <div className="col-span-12 mb-6 md:col-span-3 md:mb-0">
-          <p className="eyebrow text-muted-foreground">
-            <span className="font-mono mr-2">{abaAtual.num}</span>
-            {abaAtual.label}
-          </p>
-        </div>
-        <div className="col-span-12 md:col-span-9 md:border-l md:border-foreground/10 md:pl-6">
+      <div className="mt-8" data-testid="painel-aba">
+        <p className="eyebrow text-muted-foreground">
+          <span className="font-mono mr-2">{abaAtual.num}</span>
+          {abaAtual.label}
+        </p>
+        <div className="mt-4">
           {aba === 'perfil' ? <AbaPerfil casa={casa} /> : null}
           {aba === 'endereco' ? <AbaEndereco casa={casa} /> : null}
           {aba === 'abertura' ? <AbaAbertura casa={casa} /> : null}
@@ -239,6 +248,7 @@ function PainelDeCasa({
             )
           ) : null}
           {aba === 'fotos' ? <AbaFotos casaId={casa.id} /> : null}
+          {aba === 'agenda' ? <AbaAgenda casaId={casa.id} /> : null}
         </div>
       </div>
     </section>
