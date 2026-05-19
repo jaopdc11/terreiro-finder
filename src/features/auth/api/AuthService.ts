@@ -3,6 +3,38 @@ import { ServiceError } from '@/shared/lib/errors';
 import { profileRowSchema, type ProfileRow } from '../schemas';
 import { SessaoUsuario } from '../domain/SessaoUsuario';
 
+/**
+ * Supabase Auth retorna mensagens em inglês cru ("Invalid login credentials").
+ * Mapeamos pras versões em pt-BR que vão pra UI. Match case-insensitive +
+ * por substring pra cobrir variações de versão do GoTrue.
+ */
+function traduzirErroAuth(msg: string | undefined | null): string {
+  if (!msg) return 'Algo deu errado.';
+  const m = msg.toLowerCase();
+  if (m.includes('invalid login credentials')) return 'E-mail ou senha incorretos.';
+  if (m.includes('email not confirmed')) return 'Confirme seu e-mail antes de entrar.';
+  if (m.includes('user already registered')) return 'Esse e-mail já está cadastrado.';
+  if (m.includes('user not found')) return 'Conta não encontrada.';
+  if (m.includes('email rate limit') || m.includes('rate limit exceeded'))
+    return 'Muitas tentativas. Tente daqui a alguns minutos.';
+  if (m.includes('for security purposes')) return 'Aguarde alguns segundos antes de tentar de novo.';
+  if (m.includes('password should be at least')) {
+    const min = /at least (\d+)/i.exec(msg)?.[1];
+    return min ? `Senha muito curta (mínimo ${min} caracteres).` : 'Senha muito curta.';
+  }
+  if (m.includes('unable to validate email') || m.includes('invalid email'))
+    return 'E-mail inválido.';
+  if (m.includes('email signups are disabled')) return 'Cadastro por e-mail desabilitado.';
+  if (m.includes('signups not allowed')) return 'Cadastro temporariamente desabilitado.';
+  if (m.includes('anonymous sign-ins are disabled')) return 'Login anônimo desabilitado.';
+  if (m.includes('network request failed') || m.includes('failed to fetch'))
+    return 'Sem conexão. Tente novamente.';
+  if (m.includes('weak password')) return 'Senha fraca. Use letras, números e símbolos.';
+  if (m.includes('email link is invalid') || m.includes('token has expired'))
+    return 'Link expirado. Solicite um novo.';
+  return msg;
+}
+
 export interface CadastroPayload {
   nomeCompleto: string;
   nomeExibicao?: string;
@@ -26,7 +58,9 @@ export class AuthService {
   async login(email: string, senha: string): Promise<SessaoUsuario> {
     const { data, error } = await this.client.auth.signInWithPassword({ email, password: senha });
     if (error || !data.user || !data.session) {
-      throw new ServiceError('AUTH_LOGIN_FALHOU', error?.message ?? 'Login falhou', { cause: error });
+      throw new ServiceError('AUTH_LOGIN_FALHOU', traduzirErroAuth(error?.message), {
+        cause: error,
+      });
     }
     return this.montarSessao(data.user.id, data.user.email ?? email);
   }
@@ -44,7 +78,7 @@ export class AuthService {
       },
     });
     if (error || !data.user) {
-      throw new ServiceError('AUTH_CADASTRO_FALHOU', error?.message ?? 'Cadastro falhou', {
+      throw new ServiceError('AUTH_CADASTRO_FALHOU', traduzirErroAuth(error?.message), {
         cause: error,
       });
     }
@@ -69,14 +103,18 @@ export class AuthService {
   async logout(): Promise<void> {
     const { error } = await this.client.auth.signOut({ scope: 'local' });
     if (error) {
-      throw new ServiceError('AUTH_LOGOUT_FALHOU', error.message, { cause: error });
+      throw new ServiceError('AUTH_LOGOUT_FALHOU', traduzirErroAuth(error.message), {
+        cause: error,
+      });
     }
   }
 
   async recuperarSenha(email: string, redirectTo: string): Promise<void> {
     const { error } = await this.client.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) {
-      throw new ServiceError('AUTH_RECUPERAR_FALHOU', error.message, { cause: error });
+      throw new ServiceError('AUTH_RECUPERAR_FALHOU', traduzirErroAuth(error.message), {
+        cause: error,
+      });
     }
   }
 
