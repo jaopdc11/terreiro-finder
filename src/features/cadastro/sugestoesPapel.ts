@@ -1,32 +1,50 @@
+import type { TradicaoPrincipal } from '@/features/casas/schemas';
+
 /**
- * Sugestões de papel/forma de tratamento usadas como `<datalist>` no wizard
- * de cadastro de casa. Não é exaustiva — o input é livre. As sugestões
- * foram coletadas em pesquisa sobre as tradições afro/afro-indígenas que
- * o projeto cobre (ver dev_docs/03-tradicoes.md).
+ * Sugestões de papel/forma de tratamento usadas como autocomplete no campo
+ * "Como você é chamada(o) na casa?". Cada termo é vinculado às tradições
+ * em que ele faz sentido — Babalorixá só aparece pra Candomblé, etc.
  *
- * Ordem: começa pelos termos mais universais (Pai/Mãe de Santo), depois
- * vai por tradição. Casa adota a forma que faz sentido pra ela.
+ * Não é exaustivo: o input continua livre. As sugestões servem só de guia.
+ * Quando a tradição é 'outra', mostramos todas as sugestões.
  */
-export const SUGESTOES_PAPEL = [
-  // Universais (Umbanda, Omolocô, Xambá)
-  'Pai de Santo',
-  'Mãe de Santo',
-  'Pai Espiritual',
-  'Mãe Espiritual',
-  'Zelador de Santo',
-  'Zeladora de Santo',
+interface SugestaoPapel {
+  termo: string;
+  tradicoes: ReadonlyArray<TradicaoPrincipal>;
+}
+
+const SUGESTOES: ReadonlyArray<SugestaoPapel> = [
+  // Universais em tradições afro-brasileiras de matriz banto/iorubá
+  { termo: 'Pai de Santo', tradicoes: ['umbanda', 'quimbanda', 'omoloco', 'xamba'] },
+  { termo: 'Mãe de Santo', tradicoes: ['umbanda', 'quimbanda', 'omoloco', 'xamba'] },
+  { termo: 'Pai Espiritual', tradicoes: ['umbanda', 'omoloco'] },
+  { termo: 'Mãe Espiritual', tradicoes: ['umbanda', 'omoloco'] },
+  { termo: 'Zelador de Santo', tradicoes: ['umbanda', 'omoloco'] },
+  { termo: 'Zeladora de Santo', tradicoes: ['umbanda', 'omoloco'] },
   // Candomblé Ketu/Nagô
-  'Babalorixá',
-  'Iyalorixá',
+  { termo: 'Babalorixá', tradicoes: ['candomble'] },
+  { termo: 'Iyalorixá', tradicoes: ['candomble'] },
   // Candomblé Jeje
-  'Doté',
-  'Vodunô',
+  { termo: 'Doté', tradicoes: ['candomble'] },
+  { termo: 'Vodunô', tradicoes: ['candomble'] },
   // Candomblé Angola (e influência Omolocô)
-  'Tata',
-  'Tateto',
-  'Nengua',
+  { termo: 'Tata', tradicoes: ['candomble', 'omoloco'] },
+  { termo: 'Tateto', tradicoes: ['candomble', 'omoloco'] },
+  { termo: 'Nengua', tradicoes: ['candomble', 'omoloco'] },
   // Quimbanda
-  'Tata Quimbanda',
-  'Mestre',
-  'Mestra',
-] as const;
+  { termo: 'Tata Quimbanda', tradicoes: ['quimbanda'] },
+  { termo: 'Mestre', tradicoes: ['quimbanda'] },
+  { termo: 'Mestra', tradicoes: ['quimbanda'] },
+];
+
+/** Retorna apenas as sugestões aplicáveis à tradição informada. */
+export function sugestoesPapelPara(
+  tradicao: TradicaoPrincipal | null | undefined,
+): string[] {
+  if (!tradicao || tradicao === 'outra') {
+    return SUGESTOES.map((s) => s.termo);
+  }
+  return SUGESTOES.filter((s) => s.tradicoes.includes(tradicao)).map(
+    (s) => s.termo,
+  );
+}

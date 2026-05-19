@@ -1,10 +1,12 @@
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/shared/ui/button';
+import { Combobox } from '@/shared/ui/combobox';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
+import type { TradicaoPrincipal } from '@/features/casas/schemas';
 import { passoIdentidadeSchema, type PassoIdentidadeInput } from '../schemas';
-import { SUGESTOES_PAPEL } from '../sugestoesPapel';
+import { sugestoesPapelPara } from '../sugestoesPapel';
 
 const TRADICOES = [
   { v: 'umbanda', label: 'Umbanda' },
@@ -23,12 +25,17 @@ interface Props {
 export function PassoIdentidade({ inicial, onAvancar }: Props) {
   const {
     register,
+    control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<PassoIdentidadeInput>({
     resolver: zodResolver(passoIdentidadeSchema),
     defaultValues: inicial,
   });
+
+  const tradicaoAtual = watch('tradicao_principal') as TradicaoPrincipal | undefined;
+  const sugestoesAtuais = sugestoesPapelPara(tradicaoAtual ?? null);
 
   return (
     <form onSubmit={handleSubmit(onAvancar)} className="space-y-4" noValidate>
@@ -67,18 +74,20 @@ export function PassoIdentidade({ inicial, onAvancar }: Props) {
 
       <div className="space-y-1">
         <Label htmlFor="c-papel">Como você é chamada(o) na casa?</Label>
-        <Input
-          id="c-papel"
-          list="sugestoes-papel"
-          {...register('papel_dirigencia')}
-          aria-invalid={!!errors.papel_dirigencia}
-          placeholder="Ex.: Mãe de Santo, Babalorixá, Tata"
+        <Controller
+          control={control}
+          name="papel_dirigencia"
+          render={({ field }) => (
+            <Combobox
+              id="c-papel"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              sugestoes={sugestoesAtuais}
+              placeholder="Ex.: Mãe de Santo, Babalorixá, Tata"
+              aria-invalid={!!errors.papel_dirigencia}
+            />
+          )}
         />
-        <datalist id="sugestoes-papel">
-          {SUGESTOES_PAPEL.map((s) => (
-            <option key={s} value={s} />
-          ))}
-        </datalist>
         <p className="text-xs text-muted-foreground">
           Use o termo que a sua casa adota. Texto livre — as sugestões servem só
           de guia. Esse título aparece na ficha pública.
