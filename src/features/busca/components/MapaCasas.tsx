@@ -4,7 +4,7 @@ import type { LatLngBoundsLiteral, Marker as LeafletMarker } from 'leaflet';
 import { Link } from 'react-router-dom';
 import type { Casa } from '@/features/casas/domain/Casa';
 import { BadgesAbertura } from '@/features/casas/components/BadgesAbertura';
-import { pinNaoVerificada, pinVerificada } from './PinIcons';
+import { pinNaoVerificada, pinVerificada, pinVoceAqui } from './PinIcons';
 
 const CENTRO_BR: [number, number] = [-14.235, -51.9253];
 const ZOOM_BR = 4;
@@ -35,6 +35,9 @@ interface Props {
   onPopupFechado?: () => void;
   /** Quando muda, dispara reset de zoom/centro pro estado inicial. */
   resetTicker?: number;
+  /** Localização do usuário (opt-in). Quando definida, renderiza pin "você
+   * está aqui" e centraliza o mapa nela. */
+  localizacaoUsuario?: { lat: number; lng: number } | null;
 }
 
 /**
@@ -154,6 +157,28 @@ function AjusteDeTamanho() {
  * sem `aria-label`. Substituímos title/aria-label em pt-BR e adicionamos
  * `role="button"` (são <a> sem href real, screen readers tratam mal por default).
  */
+/**
+ * Centraliza no usuário (zoom de bairro) sempre que `loc` muda. Tem
+ * prioridade sobre o AjusteAutomatico — se ambos disparam no mesmo tick,
+ * este roda depois (filhos do MapContainer rodam efeitos em ordem JSX).
+ */
+function FocoNoUsuario({
+  loc,
+}: {
+  loc: { lat: number; lng: number } | null | undefined;
+}) {
+  const map = useMap();
+  const ultimoRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!loc) return;
+    const chave = `${loc.lat.toFixed(5)},${loc.lng.toFixed(5)}`;
+    if (ultimoRef.current === chave) return;
+    ultimoRef.current = chave;
+    map.flyTo([loc.lat, loc.lng], 14, { duration: 0.6 });
+  }, [loc, map]);
+  return null;
+}
+
 function ZoomA11y() {
   const map = useMap();
   useEffect(() => {
@@ -179,6 +204,7 @@ export function MapaCasas({
   casaAtivaId,
   onPopupFechado,
   resetTicker,
+  localizacaoUsuario,
 }: Props) {
   const comCoord = useMemo(
     () => casas.filter((c) => c.coordenadas !== null),
@@ -229,10 +255,18 @@ export function MapaCasas({
         casasIndex={casasIndex}
       />
       <AjusteAutomatico casas={casas} ticker={resetTicker} />
+      <FocoNoUsuario loc={localizacaoUsuario ?? null} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      {localizacaoUsuario ? (
+        <Marker
+          position={[localizacaoUsuario.lat, localizacaoUsuario.lng]}
+          icon={pinVoceAqui}
+          interactive={false}
+        />
+      ) : null}
       {comCoord.map((casa) => {
         const c = casa.coordenadas!;
         return (

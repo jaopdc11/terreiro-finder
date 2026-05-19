@@ -35,3 +35,18 @@ export const pinNaoVerificada = L.divIcon({
   iconAnchor: [16, 40],
   popupAnchor: [0, -36],
 });
+
+// Pin "você está aqui" — círculo azul com aro branco e pulse leve.
+// Distinto dos pins de casa (formato pin-drop com sombra terra-pemba).
+const VOCE_AQUI_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <circle cx="12" cy="12" r="11" fill="hsl(210, 90%, 56%)" fill-opacity="0.2"/>
+  <circle cx="12" cy="12" r="6" fill="hsl(210, 90%, 56%)" stroke="hsl(38, 50%, 97%)" stroke-width="2"/>
+</svg>`;
+
+export const pinVoceAqui = L.divIcon({
+  html: VOCE_AQUI_SVG,
+  className: 'pin-voce-aqui',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});

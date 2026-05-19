@@ -1,13 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { BadgesAbertura } from '@/features/casas/components/BadgesAbertura';
+import { distanciaKm, formataDistancia } from '@/shared/lib/distancia';
 import { ChipsFiltros } from '../components/ChipsFiltros';
 import { FiltrosOverlay } from '../components/FiltrosOverlay';
 import { ListaOverlay } from '../components/ListaOverlay';
 import { MapaCasas } from '../components/MapaCasas';
+import { ModalPermissaoGeo } from '../components/ModalPermissaoGeo';
+import { useGeolocalizacao } from '../hooks/useGeolocalizacao';
 import { useFiltros } from '../hooks/useFiltros';
 import { useCasasFiltradas } from '../hooks/useCasasFiltradas';
+import type { Casa } from '@/features/casas/domain/Casa';
 
 export function Buscar() {
   const { filtros, aplicar } = useFiltros();
@@ -16,7 +20,37 @@ export function Buscar() {
   const [listaAberta, setListaAberta] = useState(false);
   const [casaAtivaId, setCasaAtivaId] = useState<string | null>(null);
   const [resetTicker, setResetTicker] = useState(0);
+  const [modalGeoAberto, setModalGeoAberto] = useState(false);
+  const geo = useGeolocalizacao();
   const cardRefs = useRef<Map<string, HTMLLIElement | null>>(new Map());
+
+  const localizacaoUsuario = geo.status.kind === 'ok' ? geo.status.loc : null;
+
+  // Quando temos localização, ordena casas por distância (mais perto primeiro).
+  // Casas sem coords vão pro fim. Anota distância em km pra UI.
+  const casasOrdenadas = useMemo(() => {
+    const base = casas ?? [];
+    if (!localizacaoUsuario) return base.map((c) => ({ casa: c, km: null as number | null }));
+    return [...base]
+      .map((casa) => {
+        const km = casa.coordenadas
+          ? distanciaKm(
+              localizacaoUsuario.lat,
+              localizacaoUsuario.lng,
+              casa.coordenadas.lat,
+              casa.coordenadas.lng,
+            )
+          : null;
+        return { casa, km };
+      })
+      .sort((a, b) => {
+        if (a.km === null && b.km === null) return 0;
+        if (a.km === null) return 1;
+        if (b.km === null) return -1;
+        return a.km - b.km;
+      });
+  }, [casas, localizacaoUsuario]);
+
   const totalCasas = casas?.length ?? 0;
 
   const alternarCasa = (id: string) => {
@@ -69,13 +103,24 @@ export function Buscar() {
 
         <div className="border-b border-border bg-background px-6 py-3">
           <ChipsFiltros filtros={filtros} onChange={aplicar} />
-          <button
-            type="button"
-            onClick={() => setFiltrosAberto(true)}
-            className="mt-3 text-xs font-medium text-foreground hover:text-primary"
-          >
-            + Mais filtros
-          </button>
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => setFiltrosAberto(true)}
+              className="text-xs font-medium text-foreground hover:text-primary"
+            >
+              + Mais filtros
+            </button>
+            <BotaoPertoDeMim
+              status={geo.status.kind}
+              ativo={localizacaoUsuario !== null}
+              onPedirPermissao={() => setModalGeoAberto(true)}
+              onDesligar={geo.limpar}
+            />
+          </div>
+          {geo.status.kind === 'erro' ? (
+            <p className="mt-2 text-xs text-destructive">{geo.status.mensagem}</p>
+          ) : null}
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -95,7 +140,7 @@ export function Buscar() {
             <EmptyState />
           ) : (
             <ul className="divide-y divide-border">
-              {(casas ?? []).map((casa, idx) => {
+              {casasOrdenadas.map(({ casa, km }, idx) => {
                 const ativa = casaAtivaId === casa.id;
                 return (
                   <li
@@ -150,6 +195,11 @@ export function Buscar() {
                           <p className="mt-0.5 text-sm text-muted-foreground">
                             {casa.bairro ? `${casa.bairro} · ` : ''}
                             {casa.cidade}
+                            {km !== null ? (
+                              <span className="ml-1 text-foreground">
+                                · a {formataDistancia(km)} de você
+                              </span>
+                            ) : null}
                           </p>
                           {casa.sacerdoteNome ? (
                             <p className="mt-1 text-sm text-foreground/75">
@@ -239,6 +289,7 @@ export function Buscar() {
           casaAtivaId={casaAtivaId}
           onPopupFechado={() => setCasaAtivaId(null)}
           resetTicker={resetTicker}
+          localizacaoUsuario={localizacaoUsuario}
         />
       </div>
 
@@ -251,11 +302,59 @@ export function Buscar() {
         onAplicar={aplicar}
       />
       <ListaOverlay
-        casas={casas ?? []}
+        casas={casasOrdenadas.map((x) => x.casa) as ReadonlyArray<Casa>}
         aberto={listaAberta}
         onFechar={() => setListaAberta(false)}
       />
+      <ModalPermissaoGeo
+        aberto={modalGeoAberto}
+        onFechar={() => setModalGeoAberto(false)}
+        onPermitir={() => {
+          setModalGeoAberto(false);
+          geo.pedir();
+        }}
+      />
     </div>
+  );
+}
+
+function BotaoPertoDeMim({
+  status,
+  ativo,
+  onPedirPermissao,
+  onDesligar,
+}: {
+  status: 'idle' | 'pedindo' | 'ok' | 'erro';
+  ativo: boolean;
+  onPedirPermissao(): void;
+  onDesligar(): void;
+}) {
+  if (status === 'pedindo') {
+    return (
+      <span className="text-xs text-muted-foreground">
+        Buscando localização…
+      </span>
+    );
+  }
+  if (ativo) {
+    return (
+      <button
+        type="button"
+        onClick={onDesligar}
+        className="text-xs font-medium text-primary hover:text-foreground"
+      >
+        ✓ Perto de mim · desligar
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onPedirPermissao}
+      className="text-xs font-medium text-foreground hover:text-primary"
+    >
+      Perto de mim
+    </button>
   );
 }
 
