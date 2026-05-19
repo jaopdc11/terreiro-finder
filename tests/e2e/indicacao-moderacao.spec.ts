@@ -44,7 +44,7 @@ test.describe('indicação + moderação em 2 passos', () => {
   const pularOnboarding = (ctx: import('@playwright/test').BrowserContext) =>
     ctx.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });

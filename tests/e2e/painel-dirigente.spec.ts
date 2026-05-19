@@ -76,7 +76,7 @@ test.describe('painel do dirigente', () => {
   test.beforeEach(async ({ context }) => {
     await context.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });
@@ -136,7 +136,7 @@ test.describe('painel do dirigente', () => {
     const ctx = await browser.newContext();
     await ctx.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });

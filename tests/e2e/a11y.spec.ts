@@ -16,7 +16,7 @@ import AxeBuilder from '@axe-core/playwright';
 async function preparar(page: Page, url: string) {
   await page.addInitScript(() => {
     localStorage.setItem(
-      'terreiros.onboarding',
+      'encruza.onboarding',
       JSON.stringify({
         state: { passo: 0, bifurcacao: null, concluido: true },
         version: 0,

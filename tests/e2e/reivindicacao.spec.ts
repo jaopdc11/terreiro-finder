@@ -69,7 +69,7 @@ test.describe('reivindicação com contato cruzado', () => {
   test.beforeEach(async ({ context }) => {
     await context.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });
@@ -82,7 +82,7 @@ test.describe('reivindicação com contato cruzado', () => {
     const cSol = await browser.newContext();
     await cSol.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });
@@ -110,7 +110,7 @@ test.describe('reivindicação com contato cruzado', () => {
     const cAdm = await browser.newContext();
     await cAdm.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });
@@ -144,7 +144,7 @@ test.describe('reivindicação com contato cruzado', () => {
     const cAnon = await browser.newContext();
     await cAnon.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });

@@ -5,7 +5,7 @@ test.describe('busca', () => {
     // Pula onboarding pra não bloquear cliques no mapa.
     await context.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });

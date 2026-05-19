@@ -41,7 +41,7 @@ test.describe('cadastro direto pela dirigência', () => {
   test.beforeEach(async ({ context }) => {
     await context.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });
@@ -54,7 +54,7 @@ test.describe('cadastro direto pela dirigência', () => {
     const cDir = await browser.newContext();
     await cDir.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });
@@ -101,7 +101,7 @@ test.describe('cadastro direto pela dirigência', () => {
     const cAdm = await browser.newContext();
     await cAdm.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });
@@ -128,7 +128,7 @@ test.describe('cadastro direto pela dirigência', () => {
     const cDir2 = await browser.newContext();
     await cDir2.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });
@@ -147,7 +147,7 @@ test.describe('cadastro direto pela dirigência', () => {
     const cAnon = await browser.newContext();
     await cAnon.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });

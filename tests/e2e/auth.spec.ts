@@ -20,7 +20,7 @@ test.describe('auth', () => {
   test.beforeEach(async ({ context }) => {
     await context.addInitScript(() => {
       localStorage.setItem(
-        'terreiros.onboarding',
+        'encruza.onboarding',
         JSON.stringify({ state: { passo: 0, bifurcacao: null, concluido: true }, version: 0 }),
       );
     });

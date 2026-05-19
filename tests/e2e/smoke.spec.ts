@@ -5,7 +5,7 @@ test.describe('smoke', () => {
   test('home renderiza com paleta e fontes aplicadas', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page).toHaveTitle(/terreiros/i);
+    await expect(page).toHaveTitle(/encruza/i);
 
     const bg = await page.evaluate(() =>
       getComputedStyle(document.body).backgroundColor,
@@ -14,12 +14,12 @@ test.describe('smoke', () => {
     expect(bg).not.toBe('rgba(0, 0, 0, 0)');
     expect(bg).not.toBe('rgb(255, 255, 255)');
 
-    // Logo "terreiros" usa font display.
-    const logoFont = await page.evaluate(() => {
+    // Logo "Encruza" presente no header.
+    const logoText = await page.evaluate(() => {
       const el = document.querySelector('header a[href="/"]');
-      return el ? getComputedStyle(el).fontFamily : '';
+      return el ? el.textContent?.trim() ?? '' : '';
     });
-    expect(logoFont.toLowerCase()).toContain('fraunces');
+    expect(logoText).toContain('Encruza');
   });
 
   test('rota /sobre não tem violação a11y bloqueante', async ({ page }) => {

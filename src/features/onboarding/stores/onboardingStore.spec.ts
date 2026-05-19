@@ -49,7 +49,7 @@ describe('onboardingStore', () => {
   it('persiste no localStorage com a chave do projeto', () => {
     useOnboardingStore.getState().escolherBifurcacao('visitante');
     useOnboardingStore.getState().concluir();
-    const raw = localStorage.getItem('terreiros.onboarding');
+    const raw = localStorage.getItem('encruza.onboarding');
     expect(raw).toBeTruthy();
     const persisted = JSON.parse(raw ?? '{}');
     expect(persisted.state.concluido).toBe(true);
