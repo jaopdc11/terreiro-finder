@@ -1,6 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useServices } from '@/shared/hooks/useServices';
-import { useMinhasCasas } from '@/features/painel/hooks/usePainel';
 import { Button } from '@/shared/ui/button';
 import { Marca } from '@/shared/components/Marca';
 
@@ -14,8 +13,7 @@ export function Header() {
   const estado = sessao.use((s) => s);
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: minhasCasas } = useMinhasCasas();
-  const mostrarCadastrar = !!estado.sessao && (minhasCasas?.length ?? 0) === 0;
+  const mostrarCadastrar = !!estado.sessao;
 
   const sair = () => {
     sessao.sair();
