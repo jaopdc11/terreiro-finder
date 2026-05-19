@@ -28,7 +28,9 @@ export class GeocodingService {
   private static readonly INTERVALO_MIN_MS = 1100;
 
   constructor(
-    private readonly fetchImpl: typeof fetch = fetch,
+    // Wrapping em arrow preserva o `this=globalThis` que o fetch nativo precisa
+    // em browser (Firefox/Safari lançam "Illegal invocation" sem isso).
+    private readonly fetchImpl: typeof fetch = (...args) => fetch(...args),
     private readonly userAgent: string = 'encruza/0.0 (contato@encruza.app)',
   ) {}
 
