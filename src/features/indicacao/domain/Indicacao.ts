@@ -24,7 +24,7 @@ export interface NovaCasaDeIndicacao {
 export class Indicacao {
   private constructor(
     readonly id: string,
-    readonly userId: string,
+    readonly userId: string | null,
     readonly nome: string,
     readonly cidade: string,
     readonly estado: string,

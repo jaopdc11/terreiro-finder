@@ -69,7 +69,7 @@ export function useCadastrarCasa() {
         papel_dirigencia_proposto: input.papel_dirigencia,
       };
 
-      return repo.criarComoDirigencia(payload, sess.userId);
+      return repo.criarComoDirigencia(payload);
     },
   });
 }

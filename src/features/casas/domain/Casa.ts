@@ -43,6 +43,8 @@ export class Casa {
     readonly aprovadaPor: string | null,
     readonly criadaPor: string | null,
     readonly papelDirigenciaProposto: string | null,
+    /** Coordenada arredondada (~1 km): mostra pin, mas não oferece rota. */
+    readonly localizacaoAproximada: boolean = false,
   ) {}
 
   static fromRow(raw: unknown): Casa {
@@ -88,6 +90,7 @@ export class Casa {
       row.aprovada_por,
       row.criada_por ?? null,
       row.papel_dirigencia_proposto ?? null,
+      row.localizacao_aproximada ?? false,
     );
   }
 

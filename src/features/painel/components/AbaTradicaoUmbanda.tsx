@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Check } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
 import {
   KARDECISMO_LABEL,
   LINHAGEM_SUGERIDA,
@@ -34,8 +33,8 @@ function ChipsToggle({
   onToggle(tag: string): void;
 }) {
   return (
-    <fieldset className="space-y-2 rounded-lg border border-border p-4">
-      <legend className="px-2 text-sm font-medium">{legend}</legend>
+    <div className="space-y-3">
+      <p className="eyebrow">{legend}</p>
       <p className="text-xs text-muted-foreground">
         Marque o que faz parte da casa.
       </p>
@@ -60,7 +59,7 @@ function ChipsToggle({
           );
         })}
       </div>
-    </fieldset>
+    </div>
   );
 }
 
@@ -106,14 +105,14 @@ export function AbaTradicaoUmbanda({ casaId }: Props) {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form onSubmit={submit} className="space-y-8">
       <p className="text-sm text-muted-foreground">
         Esses campos aparecem como filtros pra quem procura uma casa. Eles
         guiam pessoas que estão buscando exatamente a sua linha.
       </p>
 
-      <fieldset className="space-y-2 rounded-lg border border-border p-4">
-        <legend className="px-2 text-sm font-medium">Sincretismo católico</legend>
+      <div className="space-y-3">
+        <p className="eyebrow">Sincretismo católico</p>
         <div className="grid gap-2 sm:grid-cols-3">
           {(['nenhum', 'parcial', 'forte'] as UmbandaSincretismo[]).map((v) => (
             <label
@@ -136,10 +135,10 @@ export function AbaTradicaoUmbanda({ casaId }: Props) {
             </label>
           ))}
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset className="space-y-2 rounded-lg border border-border p-4">
-        <legend className="px-2 text-sm font-medium">Influência kardecista</legend>
+      <div className="space-y-3">
+        <p className="eyebrow">Influência kardecista</p>
         <div className="grid gap-2 sm:grid-cols-3">
           {(['nenhuma', 'parcial', 'acentuada'] as UmbandaKardecismo[]).map((v) => (
             <label
@@ -164,10 +163,10 @@ export function AbaTradicaoUmbanda({ casaId }: Props) {
             </label>
           ))}
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset className="space-y-2 rounded-lg border border-border p-4">
-        <legend className="px-2 text-sm font-medium">Sacralização</legend>
+      <div className="space-y-3">
+        <p className="eyebrow">Sacralização</p>
         <div className="grid gap-2 sm:grid-cols-3">
           {(['sim', 'nao', 'parcial'] as UmbandaSacralizacao[]).map((v) => (
             <label
@@ -190,7 +189,7 @@ export function AbaTradicaoUmbanda({ casaId }: Props) {
             </label>
           ))}
         </div>
-      </fieldset>
+      </div>
 
       <ChipsToggle
         legend="Linhagem"
@@ -206,33 +205,43 @@ export function AbaTradicaoUmbanda({ casaId }: Props) {
         onToggle={(t) => toggleSet('linhasTrabalhadas', t)}
       />
 
-      <div className="space-y-1">
-        <Label htmlFor="linhas-extra">Outras linhas (separe por vírgula)</Label>
-        <div className="flex gap-2">
-          <Input
+      <div>
+        <label
+          htmlFor="linhas-extra"
+          className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+        >
+          Outras linhas (separe por vírgula)
+        </label>
+        <div className="flex items-end gap-3">
+          <input
             id="linhas-extra"
             value={linhasExtra}
             onChange={(e) => setLinhasExtra(e.target.value)}
             placeholder="Ex.: linha-da-mata, povo-do-oriente"
+            className="flex-1 border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none"
           />
-          <Button type="button" variant="outline" onClick={adicionarLinhasExtras}>
+          <Button type="button" variant="outline" size="sm" onClick={adicionarLinhasExtras}>
             Adicionar
           </Button>
         </div>
       </div>
 
-      {salvar.error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {salvar.error.message}
-        </p>
-      ) : null}
-      {salvar.isSuccess ? (
-        <p className="text-sm text-primary">Bloco Umbanda salvo.</p>
-      ) : null}
-
-      <Button type="submit" disabled={salvar.isPending}>
-        {salvar.isPending ? 'Salvando…' : 'Salvar tradição'}
-      </Button>
+      <div className="border-t border-border pt-8 space-y-4">
+        {salvar.error ? (
+          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+            {salvar.error.message}
+          </p>
+        ) : null}
+        {salvar.isSuccess ? (
+          <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700">
+            <Check className="h-4 w-4 shrink-0" />
+            Bloco salvo.
+          </div>
+        ) : null}
+        <Button type="submit" variant="primary" disabled={salvar.isPending} className="w-full sm:w-auto">
+          {salvar.isPending ? 'Salvando…' : 'Salvar tradição'}
+        </Button>
+      </div>
     </form>
   );
 }

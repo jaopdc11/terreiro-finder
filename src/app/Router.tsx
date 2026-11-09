@@ -8,6 +8,8 @@ import { Politica } from './pages/Politica';
 import { Login } from '@/features/auth/pages/Login';
 import { Cadastro } from '@/features/auth/pages/Cadastro';
 import { RecuperarSenha } from '@/features/auth/pages/RecuperarSenha';
+import { ConfirmarEmail } from '@/features/auth/pages/ConfirmarEmail';
+import { RedefinirSenha } from '@/features/auth/pages/RedefinirSenha';
 import { Onboarding } from '@/features/onboarding/components/Onboarding';
 import { BannerCTADirigencia } from '@/features/auth/components/BannerCTADirigencia';
 import { Buscar } from '@/features/busca/pages/Buscar';
@@ -41,6 +43,8 @@ export function Router() {
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+          <Route path="/confirmar-email" element={<ConfirmarEmail />} />
+          <Route path="/redefinir-senha" element={<RedefinirSenha />} />
           <Route
             path="/indicar"
             element={

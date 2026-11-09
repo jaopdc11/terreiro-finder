@@ -1,19 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
-import { config as loadEnv } from 'dotenv';
-import path from 'node:path';
+import { API_E2E, ORIGEM_E2E, PORTA_FRONT_E2E } from './tests/e2e/ambiente';
 
-// Carrega .env.test no processo do runner pra fixtures admin (auth-helpers)
-// terem SUPABASE_URL / SERVICE_ROLE_KEY disponíveis.
-loadEnv({ path: path.resolve(process.cwd(), '.env.test') });
-
-const PORT = 4173;
-const baseURL = `http://localhost:${PORT}`;
+const baseURL = ORIGEM_E2E;
 
 export default defineConfig({
   testDir: './tests/e2e',
   globalSetup: './tests/e2e/global-setup.ts',
-  globalTeardown: './tests/e2e/global-teardown.ts',
-  // Specs compartilham um único Postgres local — paralelismo entre specs
+  // Specs compartilham um único Postgres (container do global-setup) — paralelismo entre specs
   // cria condições de corrida em seed e cleanup (auth.spec, indicacao-moderacao
   // mexem em users; sem isolamento por schema, um worker pisa no outro).
   // Mantemos `fullyParallel` dentro do spec (Playwright ainda paraleliza testes
@@ -38,7 +31,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm build && pnpm preview --port 4173 --strictPort',
+    command: `pnpm build && pnpm preview --port ${PORTA_FRONT_E2E} --strictPort`,
+    env: { VITE_API_URL: API_E2E },
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

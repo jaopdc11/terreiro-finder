@@ -1,6 +1,4 @@
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
 import { useTeclaEsc } from '@/shared/hooks/useTeclaEsc';
 import {
   CANDOMBLE_NACAO_LABEL,
@@ -93,27 +91,39 @@ export function FiltrosOverlay({ filtros, aberto, onFechar, onAplicar }: Props) 
         </div>
 
         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
-          <div className="space-y-1.5">
-            <Label htmlFor="filtro-cidade">Cidade</Label>
-            <Input
+          <div>
+            <label
+              htmlFor="filtro-cidade"
+              className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+            >
+              Cidade
+            </label>
+            <input
               id="filtro-cidade"
               value={filtros.cidade ?? ''}
               onChange={(e) =>
                 onAplicar(filtros.comCidade(e.target.value || null))
               }
               placeholder="Ex.: Itajaí"
+              className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none"
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="filtro-bairro">Bairro</Label>
-            <Input
+          <div>
+            <label
+              htmlFor="filtro-bairro"
+              className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+            >
+              Bairro
+            </label>
+            <input
               id="filtro-bairro"
               value={filtros.bairro ?? ''}
               onChange={(e) =>
                 onAplicar(filtros.comBairro(e.target.value || null))
               }
               placeholder="Cordeiros"
+              className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none"
             />
           </div>
 

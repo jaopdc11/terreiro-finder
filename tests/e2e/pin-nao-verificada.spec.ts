@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/test';
 
 test.describe('pin de casa não verificada', () => {
   test.beforeEach(async ({ context }) => {

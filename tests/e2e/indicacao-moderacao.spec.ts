@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { adminClient, removerUsuariosPorEmailPrefix } from './fixtures/auth-helpers';
+import { test, expect } from './fixtures/test';
+import { bancoE2E, removerUsuariosPorEmailPrefix } from './fixtures/banco';
 
 const PREFIX = 'e2e-mod+';
 const ADMIN_EMAIL = `${PREFIX}admin@test.local`;
@@ -10,33 +10,16 @@ const NOME_CASA = `Casa Indicada E2E ${Date.now()}`;
 
 test.describe('indicação + moderação em 2 passos', () => {
   test.beforeAll(async () => {
-    const admin = adminClient();
+    const banco = bancoE2E();
     await removerUsuariosPorEmailPrefix(PREFIX);
-    await admin.from('casas').delete().like('nome', '%E2E %');
-    await admin.auth.admin.createUser({
-      email: ADMIN_EMAIL,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Admin E2E' },
-    });
-    await admin.auth.admin.createUser({
-      email: VISITANTE_EMAIL,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Visitante E2E' },
-    });
-    // Promove o primeiro user a admin.
-    const { data: users } = await admin.auth.admin.listUsers({ page: 1, perPage: 100 });
-    const adminUser = users.users.find((u) => u.email === ADMIN_EMAIL);
-    if (adminUser) {
-      await admin.from('profiles').update({ role: 'admin' }).eq('id', adminUser.id);
-    }
+    await banco.pool.query("delete from casas where nome like '%E2E %'");
+    await banco.criarUsuario({ email: ADMIN_EMAIL, senha: SENHA, papel: 'admin', nome: 'Admin E2E' });
+    await banco.criarUsuario({ email: VISITANTE_EMAIL, senha: SENHA, nome: 'Visitante E2E' });
   });
 
   test.afterAll(async () => {
-    const admin = adminClient();
-    await admin.from('casas').delete().like('nome', '%E2E %');
-    await admin.from('indicacoes_casa').delete().like('nome', '%E2E %');
+    const banco = bancoE2E();
+    await banco.pool.query("delete from casas where nome like '%E2E %'");
     await removerUsuariosPorEmailPrefix(PREFIX);
   });
 

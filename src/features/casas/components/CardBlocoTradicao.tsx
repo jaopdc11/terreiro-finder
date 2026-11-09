@@ -7,9 +7,8 @@ import { CANDOMBLE_NACAO_LABEL } from '../domain/blocoCandombleEnums';
 import type { Casa } from '../domain/Casa';
 
 /**
- * Bloco "Sobre a tradição" na ficha pública. Layout grid editorial:
- * label compacto à esquerda, valor à direita. Sem caixa, com divisores
- * finos entre linhas.
+ * Bloco "Sobre a tradição" na ficha pública. Tiles editoriais — cada tile
+ * com label compacto + valor grande. Pemba-dots pattern sutil de fundo.
  */
 export function CardBlocoTradicao({ casa }: { casa: Casa }) {
   if (casa.tradicaoPrincipal === 'candomble') {
@@ -21,19 +20,33 @@ export function CardBlocoTradicao({ casa }: { casa: Casa }) {
   return null;
 }
 
-function Linha({
+function Tile({
   rotulo,
-  children,
+  valor,
+  destaque = false,
 }: {
   rotulo: string;
-  children: React.ReactNode;
+  valor: string;
+  destaque?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-12 gap-4 border-t border-foreground/10 py-4 first:border-t-0">
-      <dt className="eyebrow col-span-12 text-muted-foreground sm:col-span-3">
+    <div
+      className={`rounded-md border p-5 ${
+        destaque
+          ? 'border-terra-pemba/40 bg-terra-pemba/5'
+          : 'border-border bg-card'
+      }`}
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
         {rotulo}
-      </dt>
-      <dd className="col-span-12 text-foreground sm:col-span-9">{children}</dd>
+      </p>
+      <p
+        className={`mt-2 text-xl font-semibold leading-snug ${
+          destaque ? 'display-serif italic text-foreground' : 'text-foreground'
+        }`}
+      >
+        {valor}
+      </p>
     </div>
   );
 }
@@ -48,24 +61,26 @@ function BlocoCandomble({ casaId }: { casaId: string }) {
 
   if (!bloco || !bloco.temConteudo()) return null;
 
+  const tiles: Array<{ rotulo: string; valor: string; destaque?: boolean }> = [];
+  if (bloco.nacao) {
+    tiles.push({ rotulo: 'Nação', valor: CANDOMBLE_NACAO_LABEL[bloco.nacao], destaque: true });
+  }
+  if (bloco.orixaDaCasa) {
+    tiles.push({ rotulo: 'Orixá da casa', valor: bloco.orixaDaCasa, destaque: true });
+  }
+  if (bloco.raizLinhagem) {
+    tiles.push({ rotulo: 'Raiz / linhagem', valor: bloco.raizLinhagem });
+  }
+  if (bloco.linguaRitual) {
+    tiles.push({ rotulo: 'Língua ritual', valor: bloco.linguaRitual });
+  }
+
   return (
-    <section>
-      <p className="eyebrow text-muted-foreground">Sobre a tradição</p>
-      <dl className="mt-4 border-t border-foreground/20">
-        {bloco.nacao ? (
-          <Linha rotulo="Nação">{CANDOMBLE_NACAO_LABEL[bloco.nacao]}</Linha>
-        ) : null}
-        {bloco.orixaDaCasa ? (
-          <Linha rotulo="Orixá da casa">{bloco.orixaDaCasa}</Linha>
-        ) : null}
-        {bloco.raizLinhagem ? (
-          <Linha rotulo="Raiz / linhagem">{bloco.raizLinhagem}</Linha>
-        ) : null}
-        {bloco.linguaRitual ? (
-          <Linha rotulo="Língua ritual">{bloco.linguaRitual}</Linha>
-        ) : null}
-      </dl>
-    </section>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {tiles.map((t) => (
+        <Tile key={t.rotulo} {...t} />
+      ))}
+    </div>
   );
 }
 
@@ -79,22 +94,25 @@ function BlocoQuimbanda({ casaId }: { casaId: string }) {
 
   if (!bloco || !bloco.temConteudo()) return null;
 
+  const tiles: Array<{ rotulo: string; valor: string; destaque?: boolean }> = [];
+  if (bloco.corrente) {
+    tiles.push({ rotulo: 'Corrente', valor: bloco.corrente, destaque: true });
+  }
+  if (bloco.raizLinhagem) {
+    tiles.push({ rotulo: 'Raiz / linhagem', valor: bloco.raizLinhagem });
+  }
+  if (bloco.abertaANaoIniciados !== null) {
+    tiles.push({
+      rotulo: 'Abertura',
+      valor: bloco.abertaANaoIniciados ? 'Aberta a não-iniciados' : 'Só iniciados',
+    });
+  }
+
   return (
-    <section>
-      <p className="eyebrow text-muted-foreground">Sobre a tradição</p>
-      <dl className="mt-4 border-t border-foreground/20">
-        {bloco.corrente ? <Linha rotulo="Corrente">{bloco.corrente}</Linha> : null}
-        {bloco.raizLinhagem ? (
-          <Linha rotulo="Raiz / linhagem">{bloco.raizLinhagem}</Linha>
-        ) : null}
-        {bloco.abertaANaoIniciados !== null ? (
-          <Linha rotulo="Abertura">
-            {bloco.abertaANaoIniciados
-              ? 'Aberta a não-iniciados'
-              : 'Só iniciados'}
-          </Linha>
-        ) : null}
-      </dl>
-    </section>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {tiles.map((t) => (
+        <Tile key={t.rotulo} {...t} />
+      ))}
+    </div>
   );
 }

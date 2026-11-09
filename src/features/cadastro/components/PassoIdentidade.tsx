@@ -2,8 +2,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/shared/ui/button';
 import { Combobox } from '@/shared/ui/combobox';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
 import type { TradicaoPrincipal } from '@/features/casas/schemas';
 import { passoIdentidadeSchema, type PassoIdentidadeInput } from '../schemas';
 import { sugestoesPapelPara } from '../sugestoesPapel';
@@ -16,6 +14,13 @@ const TRADICOES = [
   { v: 'xamba', label: 'Xambá' },
   { v: 'outra', label: 'Outra' },
 ] as const;
+
+const C =
+  'w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none';
+const L =
+  'mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground';
+const TA =
+  'w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-base leading-relaxed text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none resize-none';
 
 interface Props {
   inicial: Partial<PassoIdentidadeInput>;
@@ -38,107 +43,149 @@ export function PassoIdentidade({ inicial, onAvancar }: Props) {
   const sugestoesAtuais = sugestoesPapelPara(tradicaoAtual ?? null);
 
   return (
-    <form onSubmit={handleSubmit(onAvancar)} className="space-y-4" noValidate>
-      <div className="space-y-1">
-        <Label htmlFor="c-nome">Nome da casa</Label>
-        <Input id="c-nome" {...register('nome')} aria-invalid={!!errors.nome} />
-        {errors.nome ? (
-          <p role="alert" className="text-sm text-destructive">{errors.nome.message}</p>
-        ) : null}
-      </div>
+    <form onSubmit={handleSubmit(onAvancar)} className="space-y-10" noValidate>
 
-      <div className="space-y-1">
-        <Label htmlFor="c-sacerdote">Sacerdote(isa) (opcional)</Label>
-        <Input id="c-sacerdote" {...register('sacerdote_nome')} placeholder="Ex.: Mãe Maria de Oxóssi" />
-        {errors.sacerdote_nome ? (
-          <p role="alert" className="text-sm text-destructive">{errors.sacerdote_nome.message}</p>
-        ) : null}
-      </div>
+      {/* ── A casa ── */}
+      <section className="space-y-8">
+        <p className="eyebrow">A casa</p>
 
-      <div className="space-y-1">
-        <Label htmlFor="c-tradicao">Tradição principal</Label>
-        <select
-          id="c-tradicao"
-          {...register('tradicao_principal')}
-          className="flex h-11 w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2 text-base focus:border-primary focus:outline-none"
-        >
-          <option value="">Escolhe…</option>
-          {TRADICOES.map((t) => (
-            <option key={t.v} value={t.v}>{t.label}</option>
-          ))}
-        </select>
-        {errors.tradicao_principal ? (
-          <p role="alert" className="text-sm text-destructive">{errors.tradicao_principal.message}</p>
-        ) : null}
-      </div>
+        <div>
+          <label htmlFor="c-nome" className={L}>Nome da casa</label>
+          <input
+            id="c-nome"
+            {...register('nome')}
+            aria-invalid={!!errors.nome}
+            placeholder="Ex.: Tenda Pai João de Aruanda"
+            className={C}
+          />
+          {errors.nome ? (
+            <p role="alert" className="mt-1.5 text-xs text-destructive">{errors.nome.message}</p>
+          ) : null}
+        </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="c-papel">Como você é chamada(o) na casa?</Label>
+        <div>
+          <label htmlFor="c-sacerdote" className={L}>
+            Sacerdote(isa){' '}
+            <span className="normal-case text-muted-foreground/60">(opcional)</span>
+          </label>
+          <input
+            id="c-sacerdote"
+            {...register('sacerdote_nome')}
+            placeholder="Ex.: Mãe Maria de Oxóssi"
+            className={C}
+          />
+        </div>
+      </section>
+
+      <div className="border-t border-border" />
+
+      {/* ── Tradição ── */}
+      <section className="space-y-6">
+        <p className="eyebrow">Tradição</p>
+
         <Controller
           control={control}
-          name="papel_dirigencia"
+          name="tradicao_principal"
           render={({ field }) => (
-            <Combobox
-              id="c-papel"
-              value={field.value ?? ''}
-              onChange={field.onChange}
-              sugestoes={sugestoesAtuais}
-              placeholder="Ex.: Mãe de Santo, Babalorixá, Tata"
-              aria-invalid={!!errors.papel_dirigencia}
-            />
+            <div className="space-y-3">
+              <p className={L}>Tradição principal</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {TRADICOES.map((t) => {
+                  const selecionada = field.value === t.v;
+                  return (
+                    <button
+                      key={t.v}
+                      type="button"
+                      onClick={() => field.onChange(t.v)}
+                      className={`rounded-lg border px-4 py-3 text-left text-sm font-medium transition-all ${
+                        selecionada
+                          ? 'border-primary bg-primary/5 text-primary shadow-soft'
+                          : 'border-border bg-card text-foreground hover:border-foreground/25 hover:shadow-soft'
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {errors.tradicao_principal ? (
+                <p role="alert" className="text-xs text-destructive">
+                  {errors.tradicao_principal.message}
+                </p>
+              ) : null}
+            </div>
           )}
         />
-        <p className="text-xs text-muted-foreground">
-          Use o termo que a sua casa adota. Texto livre — as sugestões servem só
-          de guia. Esse título aparece na ficha pública.
-        </p>
-        {errors.papel_dirigencia ? (
-          <p role="alert" className="text-sm text-destructive">
-            {errors.papel_dirigencia.message}
+
+        <div>
+          <label htmlFor="c-papel" className={L}>Como você é chamada(o) na casa?</label>
+          <Controller
+            control={control}
+            name="papel_dirigencia"
+            render={({ field }) => (
+              <Combobox
+                id="c-papel"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                sugestoes={sugestoesAtuais}
+                placeholder="Ex.: Mãe de Santo, Babalorixá, Tata"
+                aria-invalid={!!errors.papel_dirigencia}
+              />
+            )}
+          />
+          <p className="mt-2 text-xs text-muted-foreground">
+            Use o termo que a sua casa adota — as sugestões são só guia. Esse título
+            aparece na ficha pública.
           </p>
-        ) : null}
-      </div>
+          {errors.papel_dirigencia ? (
+            <p role="alert" className="mt-1.5 text-xs text-destructive">{errors.papel_dirigencia.message}</p>
+          ) : null}
+        </div>
+      </section>
 
-      <div className="space-y-1">
-        <Label htmlFor="c-desc">Sobre a casa (opcional)</Label>
-        <textarea
-          id="c-desc"
-          rows={4}
-          {...register('descricao')}
-          placeholder="História, linhagem, dia de gira…"
-          className="flex w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2 text-base focus:border-primary focus:outline-none"
-        />
-        {errors.descricao ? (
-          <p role="alert" className="text-sm text-destructive">{errors.descricao.message}</p>
-        ) : null}
-      </div>
+      <div className="border-t border-border" />
 
-      <div className="space-y-1">
-        <Label htmlFor="c-validacao">Como podemos validar sua dirigência?</Label>
-        <textarea
-          id="c-validacao"
-          rows={3}
-          {...register('canal_validacao')}
-          aria-invalid={!!errors.canal_validacao}
-          placeholder={
-            'Ex.: "Instagram oficial da casa @minhacasa", "telefone fixo do espaço (47) 3344-0000 — você pode ligar e perguntar pela Mãe Maria", "comprovante via WhatsApp +55 47 9XXXX-XXXX"'
-          }
-          className="flex w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2 text-base focus:border-primary focus:outline-none"
-        />
-        <p className="text-xs text-muted-foreground">
-          A gente contata por esse canal antes de aprovar — só assim a casa
-          sai <strong>verificada</strong>. Sem prova externa de dirigência,
-          o cadastro vira indicação comum.
-        </p>
-        {errors.canal_validacao ? (
-          <p role="alert" className="text-sm text-destructive">
-            {errors.canal_validacao.message}
+      {/* ── Contexto ── */}
+      <section className="space-y-8">
+        <p className="eyebrow">Contexto</p>
+
+        <div>
+          <label htmlFor="c-desc" className={L}>
+            Sobre a casa{' '}
+            <span className="normal-case text-muted-foreground/60">(opcional)</span>
+          </label>
+          <textarea
+            id="c-desc"
+            rows={4}
+            {...register('descricao')}
+            placeholder="História, linhagem, dia de gira…"
+            className={TA}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="c-validacao" className={L}>Como podemos validar sua dirigência?</label>
+          <textarea
+            id="c-validacao"
+            rows={3}
+            {...register('canal_validacao')}
+            aria-invalid={!!errors.canal_validacao}
+            placeholder='Ex.: "Instagram @minhacasa", "WhatsApp (47) 9XXXX — pergunte pela Mãe Maria"'
+            className={TA}
+          />
+          <p className="mt-3 rounded-md bg-muted/60 px-3 py-2.5 text-xs leading-relaxed text-muted-foreground">
+            Contatamos por esse canal antes de aprovar — é assim que a casa sai{' '}
+            <strong className="text-foreground">verificada</strong>. Sem prova externa
+            de dirigência, o cadastro vira indicação comum.
           </p>
-        ) : null}
-      </div>
+          {errors.canal_validacao ? (
+            <p role="alert" className="mt-1.5 text-xs text-destructive">{errors.canal_validacao.message}</p>
+          ) : null}
+        </div>
+      </section>
 
-      <div className="flex justify-end">
-        <Button type="submit">Próximo</Button>
+      <div className="flex justify-end pt-2">
+        <Button type="submit" variant="primary">Próximo →</Button>
       </div>
     </form>
   );

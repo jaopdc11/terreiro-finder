@@ -14,7 +14,7 @@ import { reivindicacaoRowSchema, type ReivindicacaoRow } from '../schemas';
 export class Reivindicacao {
   private constructor(
     readonly id: string,
-    readonly userId: string,
+    readonly userId: string | null,
     readonly casaId: string,
     readonly observacoes: string | null,
     readonly status: ModeracaoStatus,

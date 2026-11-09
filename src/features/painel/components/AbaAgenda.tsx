@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
+
+const C =
+  'w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none';
+const L =
+  'mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground';
 import {
   useAdicionarEvento,
   useAgendaDaCasa,
@@ -9,6 +12,7 @@ import {
   useRemoverEvento,
 } from '@/features/agenda/hooks/useAgenda';
 import type {
+  DiaSemana,
   EventoAgenda,
   EventoAgendaInput,
   TipoAgenda,
@@ -28,9 +32,9 @@ const DIAS = [
   { v: 6, label: 'Sábado' },
 ] as const;
 
-/** Estado do formulário: 'fechado' | criando(tipo) | editando(evento). */
 type ModoForm =
   | { kind: 'fechado' }
+  | { kind: 'giraRapida' }
   | { kind: 'criar'; tipo: TipoAgenda }
   | { kind: 'editar'; evento: EventoAgenda };
 
@@ -48,6 +52,46 @@ export function AbaAgenda({ casaId }: Props) {
     setModo({ kind: 'fechado' });
     adicionar.reset();
     editar.reset();
+  };
+
+  const adicionarGira = async (diaSemana: number, titulo: string, horario: string) => {
+    try {
+      await adicionar.mutateAsync({
+        tipo: 'gira',
+        titulo: titulo.trim() || 'Gira',
+        diaSemana: diaSemana as DiaSemana,
+        semanasDoMes: null,
+        data: null,
+        dataTexto: null,
+        horarioInicio: horario || null,
+        horarioFim: null,
+        descricao: null,
+      });
+      fechar();
+    } catch {
+      /* erro exposto via adicionar.error */
+    }
+  };
+
+  const renomearGira = async (evento: EventoAgenda, novoTitulo: string) => {
+    try {
+      await editar.mutateAsync({
+        id: evento.id,
+        input: {
+          tipo: evento.tipo,
+          titulo: novoTitulo.trim() || 'Gira',
+          diaSemana: evento.diaSemana,
+          semanasDoMes: evento.semanasDoMes ? [...evento.semanasDoMes] : null,
+          data: evento.data,
+          dataTexto: evento.dataTexto,
+          horarioInicio: evento.horarioInicio,
+          horarioFim: evento.horarioFim,
+          descricao: evento.descricao,
+        },
+      });
+    } catch {
+      /* erro exposto via editar.error */
+    }
   };
 
   const salvar = async (input: EventoAgendaInput) => {
@@ -72,12 +116,15 @@ export function AbaAgenda({ casaId }: Props) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-        Cadastre as <strong className="text-foreground">giras semanais</strong>{' '}
-        (dia da semana recorrente) e <strong className="text-foreground">eventos</strong>{' '}
-        pontuais (festas, batismos, toques). A agenda aparece na ficha pública
-        da casa.
-      </p>
+      <div className="space-y-2">
+        <p className="eyebrow">Agenda da casa</p>
+        <p className="text-sm text-muted-foreground">
+          Cadastre as <strong className="text-foreground">giras semanais</strong>{' '}
+          (dia da semana recorrente) e{' '}
+          <strong className="text-foreground">eventos</strong> pontuais (festas,
+          batismos, toques). A agenda aparece na ficha pública da casa.
+        </p>
+      </div>
 
       {modo.kind === 'fechado' ? (
         <div className="flex flex-wrap gap-2">
@@ -85,7 +132,7 @@ export function AbaAgenda({ casaId }: Props) {
             type="button"
             variant="primary"
             size="sm"
-            onClick={() => setModo({ kind: 'criar', tipo: 'gira' })}
+            onClick={() => setModo({ kind: 'giraRapida' })}
           >
             + Gira semanal
           </Button>
@@ -98,6 +145,14 @@ export function AbaAgenda({ casaId }: Props) {
             + Evento
           </Button>
         </div>
+      ) : modo.kind === 'giraRapida' ? (
+        <SelecionarDiaGira
+          ocupado={submitting}
+          erro={adicionar.error?.message ?? null}
+          onSalvar={adicionarGira}
+          onDetalhes={() => setModo({ kind: 'criar', tipo: 'gira' })}
+          onCancelar={fechar}
+        />
       ) : (
         <FormularioEvento
           key={modo.kind === 'editar' ? `edit-${modo.evento.id}` : `novo-${tipoAtual}`}
@@ -121,6 +176,7 @@ export function AbaAgenda({ casaId }: Props) {
                 evento={g}
                 onEditar={() => setModo({ kind: 'editar', evento: g })}
                 onRemover={() => remover.mutate(g)}
+                onRenomear={(titulo) => void renomearGira(g, titulo)}
                 ocupado={remover.isPending || submitting}
               />
             ))}
@@ -133,12 +189,149 @@ export function AbaAgenda({ casaId }: Props) {
                 evento={ev}
                 onEditar={() => setModo({ kind: 'editar', evento: ev })}
                 onRemover={() => remover.mutate(ev)}
+                onRenomear={null}
                 ocupado={remover.isPending || submitting}
               />
             ))}
           </Secao>
         </>
       )}
+    </div>
+  );
+}
+
+function SelecionarDiaGira({
+  ocupado,
+  erro,
+  onSalvar,
+  onDetalhes,
+  onCancelar,
+}: {
+  ocupado: boolean;
+  erro: string | null;
+  onSalvar(dia: number, titulo: string, horario: string): Promise<void>;
+  onDetalhes(): void;
+  onCancelar(): void;
+}) {
+  const [diaEscolhido, setDiaEscolhido] = useState<number | null>(null);
+  const [nomeLinha, setNomeLinha] = useState('');
+  const [horario, setHorario] = useState('');
+  const [salvando, setSalvando] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleEscolherDia = (v: number) => {
+    setDiaEscolhido(v);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const handleSalvar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (diaEscolhido === null) return;
+    setSalvando(true);
+    await onSalvar(diaEscolhido, nomeLinha, horario);
+    setSalvando(false);
+  };
+
+  const nomeDia = diaEscolhido !== null ? (DIAS.find((d) => d.v === diaEscolhido)?.label ?? '') : '';
+
+  return (
+    <div className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-soft-sm">
+      <p className="eyebrow">Nova gira — qual dia da semana?</p>
+
+      <div className="flex flex-wrap gap-2">
+        {DIAS.map((d) => (
+          <button
+            key={d.v}
+            type="button"
+            onClick={() => handleEscolherDia(d.v)}
+            disabled={ocupado || salvando}
+            className={
+              'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ' +
+              (diaEscolhido === d.v
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-border bg-background text-foreground hover:border-primary hover:text-primary')
+            }
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
+
+      {diaEscolhido !== null ? (
+        <form onSubmit={(e) => void handleSalvar(e)} className="space-y-3 border-t border-border pt-3">
+          <p className="text-xs font-medium text-foreground">
+            Gira na <strong>{nomeDia}</strong> — detalhes opcionais:
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <input
+              ref={inputRef}
+              value={nomeLinha}
+              onChange={(e) => setNomeLinha(e.target.value)}
+              placeholder='Linha ou nome — ex.: "Pretos-Velhos"'
+              disabled={salvando}
+              className={C}
+            />
+            <input
+              type="time"
+              value={horario}
+              onChange={(e) => setHorario(e.target.value)}
+              placeholder="Horário de início"
+              disabled={salvando}
+              className={C}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Deixe em branco para salvar como "Gira" e definir depois.
+          </p>
+          {erro ? (
+            <p role="alert" className="text-sm text-destructive">
+              {erro}
+            </p>
+          ) : null}
+          <div className="flex items-center gap-3">
+            <Button type="submit" variant="primary" size="sm" disabled={salvando || ocupado}>
+              {salvando ? 'Salvando…' : 'Salvar gira'}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setDiaEscolhido(null)}
+              disabled={salvando}
+              className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+            >
+              ← Trocar dia
+            </button>
+          </div>
+        </form>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Clique no dia para confirmar e (opcionalmente) informar a linha e o horário.
+        </p>
+      )}
+
+      {erro && diaEscolhido === null ? (
+        <p role="alert" className="text-sm text-destructive">
+          {erro}
+        </p>
+      ) : null}
+
+      <div className="flex items-center gap-4 border-t border-border pt-3">
+        <button
+          type="button"
+          onClick={onDetalhes}
+          disabled={ocupado || salvando}
+          className="text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+        >
+          Adicionar com mais detalhes →
+        </button>
+        <button
+          type="button"
+          onClick={onCancelar}
+          disabled={ocupado || salvando}
+          className="ml-auto text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+      </div>
     </div>
   );
 }
@@ -154,16 +347,14 @@ function Secao({
 }) {
   const tem = Array.isArray(children) ? children.length > 0 : !!children;
   return (
-    <section className="space-y-2">
-      <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-        {titulo}
-      </h3>
+    <section className="space-y-3">
+      <h3 className="eyebrow">{titulo}</h3>
       {tem ? (
-        <ul className="divide-y divide-border rounded-md border border-border">
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
           {children}
         </ul>
       ) : (
-        <p className="rounded-md border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
           {vazio}
         </p>
       )}
@@ -175,17 +366,86 @@ function ItemEvento({
   evento,
   onEditar,
   onRemover,
+  onRenomear,
   ocupado,
 }: {
   evento: EventoAgenda;
   onEditar(): void;
   onRemover(): void;
+  onRenomear: ((titulo: string) => void) | null;
   ocupado: boolean;
 }) {
+  const [editandoTitulo, setEditandoTitulo] = useState(false);
+  const [novoTitulo, setNovoTitulo] = useState(evento.titulo);
+  const inputTituloRef = useRef<HTMLInputElement>(null);
+
+  const iniciarEdicaoTitulo = () => {
+    setNovoTitulo(evento.titulo);
+    setEditandoTitulo(true);
+    setTimeout(() => inputTituloRef.current?.focus(), 30);
+  };
+
+  const confirmarTitulo = () => {
+    setEditandoTitulo(false);
+    if (novoTitulo.trim() !== evento.titulo) {
+      onRenomear?.(novoTitulo);
+    }
+  };
+
+  const cancelarTitulo = () => {
+    setEditandoTitulo(false);
+    setNovoTitulo(evento.titulo);
+  };
+
   return (
-    <li className="flex items-center justify-between gap-4 px-4 py-3">
+    <li className="group flex items-center justify-between gap-4 px-4 py-3">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground">{evento.titulo}</p>
+        {editandoTitulo && onRenomear ? (
+          <div className="flex items-center gap-1.5">
+            <input
+              ref={inputTituloRef}
+              value={novoTitulo}
+              onChange={(e) => setNovoTitulo(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') confirmarTitulo();
+                if (e.key === 'Escape') cancelarTitulo();
+              }}
+              disabled={ocupado}
+              className="min-w-0 flex-1 border-0 border-b border-border bg-transparent pb-1 pt-0.5 text-sm font-semibold text-foreground focus:border-primary focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={confirmarTitulo}
+              disabled={ocupado}
+              title="Confirmar"
+              className="text-xs font-bold text-primary hover:opacity-70 disabled:opacity-50"
+            >
+              ✓
+            </button>
+            <button
+              type="button"
+              onClick={cancelarTitulo}
+              title="Cancelar"
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-semibold text-foreground">{evento.titulo}</p>
+            {onRenomear ? (
+              <button
+                type="button"
+                onClick={iniciarEdicaoTitulo}
+                title="Mudar linha"
+                className="rounded p-0.5 text-muted-foreground/40 transition-colors hover:text-foreground focus:text-foreground group-hover:text-muted-foreground"
+              >
+                ✎
+              </button>
+            ) : null}
+          </div>
+        )}
         <p className="text-xs text-muted-foreground">{evento.descricaoQuando()}</p>
         {evento.descricao ? (
           <p className="mt-1 text-xs text-muted-foreground">{evento.descricao}</p>
@@ -197,7 +457,7 @@ function ItemEvento({
           variant="ghost"
           size="sm"
           onClick={onEditar}
-          disabled={ocupado}
+          disabled={ocupado || editandoTitulo}
         >
           Editar
         </Button>
@@ -206,7 +466,7 @@ function ItemEvento({
           variant="ghost"
           size="sm"
           onClick={onRemover}
-          disabled={ocupado}
+          disabled={ocupado || editandoTitulo}
         >
           Remover
         </Button>
@@ -258,25 +518,25 @@ function FormularioEvento({
     e.preventDefault();
     setErroLocal(null);
 
-    if (titulo.trim().length === 0) {
+    // Para giras, título é opcional — default "Gira" se vazio.
+    const tituloFinal = tipo === 'gira' ? (titulo.trim() || 'Gira') : titulo.trim();
+
+    if (tipo !== 'gira' && tituloFinal.length === 0) {
       setErroLocal('Título é obrigatório.');
       return;
     }
-    if (tipo === 'gira') {
-      if (diaSemana === null) {
-        setErroLocal('Escolha o dia da semana.');
-        return;
-      }
-    } else {
-      if (!data && dataTexto.trim().length === 0) {
-        setErroLocal('Informe a data ou um texto descritivo (ex.: "Fevereiro/2026").');
-        return;
-      }
+    if (tipo === 'gira' && diaSemana === null) {
+      setErroLocal('Escolha o dia da semana.');
+      return;
+    }
+    if (tipo === 'evento' && !data && dataTexto.trim().length === 0) {
+      setErroLocal('Informe a data ou um texto descritivo (ex.: "Fevereiro/2026").');
+      return;
     }
 
     onSalvar({
       tipo,
-      titulo: titulo.trim(),
+      titulo: tituloFinal,
       diaSemana: tipo === 'gira' ? (diaSemana as 0 | 1 | 2 | 3 | 4 | 5 | 6) : null,
       semanasDoMes:
         tipo === 'gira' && semanasDoMes.length > 0 ? semanasDoMes : null,
@@ -288,45 +548,46 @@ function FormularioEvento({
     });
   };
 
-  const titulocabecalho = inicial
+  const tituloCabecalho = inicial
     ? `Editar ${tipo === 'gira' ? 'gira' : 'evento'}`
     : `Nova ${tipo === 'gira' ? 'gira semanal' : 'ocasião'}`;
 
   return (
     <form
       onSubmit={submit}
-      className="space-y-4 rounded-md border border-border bg-card p-4"
+      className="space-y-5 rounded-xl border border-border bg-card p-5 shadow-soft-sm"
     >
-      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-        {titulocabecalho}
-      </p>
+      <p className="eyebrow">{tituloCabecalho}</p>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="ag-titulo">Título</Label>
-        <Input
+      <div>
+        <label htmlFor="ag-titulo" className={L}>
+          {tipo === 'gira' ? 'Nome da gira (opcional)' : 'Título'}
+        </label>
+        <input
           id="ag-titulo"
           value={titulo}
           onChange={(e) => setTitulo(e.target.value)}
           placeholder={
             tipo === 'gira'
-              ? 'Ex.: Gira de Pretos-Velhos'
+              ? 'Ex.: Gira de Pretos-Velhos — vazio usa "Gira"'
               : 'Ex.: Festa de Iemanjá'
           }
-          required
+          required={tipo !== 'gira'}
+          className={C}
         />
       </div>
 
       {tipo === 'gira' ? (
         <>
-          <div className="space-y-1.5">
-            <Label htmlFor="ag-dia">Dia da semana</Label>
+          <div>
+            <label htmlFor="ag-dia" className={L}>Dia da semana</label>
             <select
               id="ag-dia"
               value={diaSemana ?? ''}
               onChange={(e) =>
                 setDiaSemana(e.target.value === '' ? null : Number(e.target.value))
               }
-              className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors focus:border-primary focus:outline-none"
             >
               <option value="">Selecione…</option>
               {DIAS.map((d) => (
@@ -337,9 +598,9 @@ function FormularioEvento({
             </select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Semanas do mês (opcional)</Label>
-            <p className="text-xs text-muted-foreground">
+          <div>
+            <p className={L}>Semanas do mês (opcional)</p>
+            <p className="mb-3 text-xs text-muted-foreground">
               Marque se essa gira só acontece em semanas específicas. Vazio = toda
               semana. Ex.: 1ª segunda do mês caboclo, 2ª segunda preto-velho.
             </p>
@@ -367,62 +628,66 @@ function FormularioEvento({
           </div>
         </>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="ag-data">Data (se houver)</Label>
-            <Input
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="ag-data" className={L}>Data (se houver)</label>
+            <input
               id="ag-data"
               type="date"
               value={data}
               onChange={(e) => setData(e.target.value)}
+              className={C}
             />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="ag-data-texto">Ou descrição</Label>
-            <Input
+          <div>
+            <label htmlFor="ag-data-texto" className={L}>Ou descrição</label>
+            <input
               id="ag-data-texto"
               value={dataTexto}
               onChange={(e) => setDataTexto(e.target.value)}
               placeholder='Ex.: "Fevereiro/2026"'
+              className={C}
             />
           </div>
         </div>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label htmlFor="ag-hi">Início (opcional)</Label>
-          <Input
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label htmlFor="ag-hi" className={L}>Início (opcional)</label>
+          <input
             id="ag-hi"
             type="time"
             value={horarioInicio}
             onChange={(e) => setHorarioInicio(e.target.value)}
+            className={C}
           />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="ag-hf">Fim (opcional)</Label>
-          <Input
+        <div>
+          <label htmlFor="ag-hf" className={L}>Fim (opcional)</label>
+          <input
             id="ag-hf"
             type="time"
             value={horarioFim}
             onChange={(e) => setHorarioFim(e.target.value)}
+            className={C}
           />
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="ag-desc">Descrição (opcional)</Label>
+      <div>
+        <label htmlFor="ag-desc" className={L}>Descrição (opcional)</label>
         <textarea
           id="ag-desc"
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
           rows={2}
           placeholder='Ex.: "Vir de branco. Traga uma vela."'
-          className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-sm leading-relaxed text-foreground transition-colors placeholder:text-muted-foreground/40 focus:border-primary focus:outline-none resize-none"
         />
       </div>
 
-      {(erroLocal || erro) ? (
+      {erroLocal || erro ? (
         <p role="alert" className="text-sm text-destructive">
           {erroLocal ?? erro}
         </p>

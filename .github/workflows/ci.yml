@@ -6,15 +6,10 @@ on:
   pull_request:
     branches: [main]
 
-# Chaves padrão do `supabase start` local — idênticas em qualquer host.
-# Não é segredo: o Supabase local sempre nasce com essas.
+# Integração e e2e sobem Postgres 17 (docker do runner) + encruza-api.
+# A API é repo privado: precisa do secret ENCRUZA_API_TOKEN (PAT só-leitura).
 env:
-  SUPABASE_URL: http://127.0.0.1:54321
-  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-  SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
-  SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
-  VITE_SUPABASE_URL: http://127.0.0.1:54321
-  VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+  ENCRUZA_API_DIR: ${{ github.workspace }}/encruza-api
 
 jobs:
   lint-typecheck:
@@ -23,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       # pnpm/action-setup@v4 roda em Node default do runner (20) e quebra
       # com pnpm@11.1.2 (que exige >=22.13). Usamos corepack — vem com Node
       # e respeita o "packageManager" do package.json.
@@ -39,19 +34,23 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - run: corepack enable && corepack prepare pnpm@11.1.2 --activate
       - run: pnpm install --frozen-lockfile
 
       - name: Vitest unit (jsdom)
         run: pnpm test:unit
 
-      - uses: supabase/setup-cli@v1
+      - name: Checkout da encruza-api
+        uses: actions/checkout@v4
         with:
-          version: latest
-      - name: Sobe Supabase local
-        run: supabase start --workdir .
-      - name: Vitest integration (RLS contra Postgres real)
+          repository: jaopdc11/encruza-api
+          token: ${{ secrets.ENCRUZA_API_TOKEN }}
+          path: encruza-api
+      - name: Build da encruza-api
+        working-directory: encruza-api
+        run: npm ci && npm run build
+      - name: Vitest integration (autorização contra a API real)
         run: pnpm test:integration
 
   playwright:
@@ -61,21 +60,23 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - run: corepack enable && corepack prepare pnpm@11.1.2 --activate
       - run: pnpm install --frozen-lockfile
 
       - name: Instala Chromium do Playwright
         run: pnpm exec playwright install --with-deps chromium
 
-      - uses: supabase/setup-cli@v1
+      - name: Checkout da encruza-api
+        uses: actions/checkout@v4
         with:
-          version: latest
-      - name: Sobe Supabase local
-        run: supabase start --workdir .
+          repository: jaopdc11/encruza-api
+          token: ${{ secrets.ENCRUZA_API_TOKEN }}
+          path: encruza-api
+      - name: Build da encruza-api
+        working-directory: encruza-api
+        run: npm ci && npm run build
 
-      - name: Build app
-        run: pnpm build
       - name: E2E (Playwright desktop + mobile)
         run: pnpm test:e2e
 
@@ -97,7 +98,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - run: corepack enable && corepack prepare pnpm@11.1.2 --activate
       - run: pnpm install --frozen-lockfile
 

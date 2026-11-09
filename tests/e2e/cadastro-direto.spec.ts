@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { adminClient, removerUsuariosPorEmailPrefix } from './fixtures/auth-helpers';
+import { test, expect } from './fixtures/test';
+import { bancoE2E, removerUsuariosPorEmailPrefix } from './fixtures/banco';
 
 const PREFIX = 'e2e-cad+';
 const EMAIL_DIR = `${PREFIX}dirigente@test.local`;
@@ -10,31 +10,16 @@ const NOME_CASA = `Casa Cadastro E2E ${Date.now()}`;
 
 test.describe('cadastro direto pela dirigência', () => {
   test.beforeAll(async () => {
-    const admin = adminClient();
+    const banco = bancoE2E();
     await removerUsuariosPorEmailPrefix(PREFIX);
-    // Limpa qualquer resíduo do test rodado antes
-    await admin.from('casas').delete().like('nome', '%Casa Cadastro E2E%');
-
-    await admin.auth.admin.createUser({
-      email: EMAIL_DIR,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Dirigente Cadastro E2E' },
-    });
-    const { data: adm } = await admin.auth.admin.createUser({
-      email: EMAIL_ADM,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Admin Cadastro E2E' },
-    });
-    if (adm.user) {
-      await admin.from('profiles').update({ role: 'admin' }).eq('id', adm.user.id);
-    }
+    // Limpa qualquer resíduo do teste rodado antes
+    await banco.pool.query("delete from casas where nome like '%Casa Cadastro E2E%'");
+    await banco.criarUsuario({ email: EMAIL_DIR, senha: SENHA, nome: 'Dirigente Cadastro E2E' });
+    await banco.criarUsuario({ email: EMAIL_ADM, senha: SENHA, papel: 'admin', nome: 'Admin Cadastro E2E' });
   });
 
   test.afterAll(async () => {
-    const admin = adminClient();
-    await admin.from('casas').delete().like('nome', '%Casa Cadastro E2E%');
+    await bancoE2E().pool.query("delete from casas where nome like '%Casa Cadastro E2E%'");
     await removerUsuariosPorEmailPrefix(PREFIX);
   });
 

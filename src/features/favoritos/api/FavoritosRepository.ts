@@ -1,46 +1,24 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { RepositoryError } from '@/shared/lib/errors';
+import { z } from 'zod';
+import type { ApiClient } from '@/shared/lib/ApiClient';
 
 /**
- * Repository da tabela `favoritos` (par user_id × casa_id).
- * RLS já garante leitura/escrita só do dono — aqui só encapsulamos as
- * queries pra a UI nunca tocar `supabase.from(...)` diretamente.
+ * Favoritos do usuário logado (a API identifica pelo cookie; o `userId` fica
+ * na assinatura por compatibilidade com os hooks).
  */
 export class FavoritosRepository {
-  constructor(private readonly client: SupabaseClient) {}
+  constructor(private readonly api: ApiClient) {}
 
   /** IDs de casa favoritadas pelo usuário corrente. */
-  async idsDe(userId: string): Promise<string[]> {
-    const { data, error } = await this.client
-      .from('favoritos')
-      .select('casa_id')
-      .eq('user_id', userId);
-    if (error) {
-      throw new RepositoryError('FAVORITOS_LIST_FALHOU', error.message, { cause: error });
-    }
-    return (data ?? []).map((r) => r.casa_id as string);
+  async idsDe(_userId: string): Promise<string[]> {
+    const data = await this.api.get('/favoritos');
+    return z.array(z.object({ id: z.string().uuid() }).passthrough()).parse(data).map((c) => c.id);
   }
 
-  async adicionar(userId: string, casaId: string): Promise<void> {
-    const { error } = await this.client
-      .from('favoritos')
-      .upsert(
-        { user_id: userId, casa_id: casaId },
-        { onConflict: 'user_id,casa_id' },
-      );
-    if (error) {
-      throw new RepositoryError('FAVORITOS_ADICIONAR_FALHOU', error.message, { cause: error });
-    }
+  async adicionar(_userId: string, casaId: string): Promise<void> {
+    await this.api.put(`/favoritos/${casaId}`);
   }
 
-  async remover(userId: string, casaId: string): Promise<void> {
-    const { error } = await this.client
-      .from('favoritos')
-      .delete()
-      .eq('user_id', userId)
-      .eq('casa_id', casaId);
-    if (error) {
-      throw new RepositoryError('FAVORITOS_REMOVER_FALHOU', error.message, { cause: error });
-    }
+  async remover(_userId: string, casaId: string): Promise<void> {
+    await this.api.delete(`/favoritos/${casaId}`);
   }
 }

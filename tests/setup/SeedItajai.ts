@@ -1,48 +1,23 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-
-export interface CasaSeedInput {
-  slug: string;
-  nome: string;
-  tradicao: 'umbanda' | 'candomble' | 'quimbanda' | 'omoloco' | 'xamba' | 'outra';
-  status?: 'pendente' | 'aprovada' | 'recusada' | 'arquivada';
-  fonte?: 'indicacao' | 'proprio' | 'reivindicada';
-  cidade?: string;
-  estado?: string;
-  bairro?: string;
-  enderecoVisibilidade?: 'publico' | 'sob_contato' | 'oculto';
-  aceitaVisitantes?: 'aberto' | 'jogo_previo' | 'so_indicacao';
-  coordLat?: number;
-  coordLng?: number;
-  /** Tags pra bloco umbanda quando tradicao=umbanda. */
-  linhasTrabalhadas?: string[];
-  linhagem?: string[];
-  sacerdoteNome?: string;
-  descricao?: string;
-}
+import type { BancoTeste } from './BancoTeste';
 
 /**
- * Fixture de seed pra testes. Não roda em produção. Cria casas via service-role
- * (bypassa RLS), permitindo qualquer status/fonte. Marca casas com sufixo no
- * nome pra cleanup determinístico.
+ * Seed fixo dos e2e (casas de Itajaí). Marcado com [SEED] no nome pra
+ * limpeza determinística.
  */
 export class SeedItajai {
   static readonly MARKER = '[SEED]';
 
-  constructor(private readonly admin: SupabaseClient) {}
+  constructor(private readonly banco: BancoTeste) {}
 
   async limpar(): Promise<void> {
-    await this.admin.from('casas').delete().like('nome', `%${SeedItajai.MARKER}%`);
+    await this.banco.pool.query('delete from casas where nome like $1', [`%${SeedItajai.MARKER}%`]);
   }
 
-  async popularCasas(): Promise<{
-    aprovadaUmbanda: string;
-    aprovadaCandomble: string;
-    naoVerificada: string;
-    pendente: string;
-  }> {
+  async popularCasas() {
     await this.limpar();
-
-    const aprovadaUmbanda = await this.criarCasa({
+    const base = { logradouro: null, whatsapp: null, sacerdoteNome: null } as const;
+    const aprovadaUmbanda = await this.banco.criarCasa({
+      ...base,
       slug: 'seed-tenda-pai-joao',
       nome: `Tenda Pai João ${SeedItajai.MARKER}`,
       tradicao: 'umbanda',
@@ -54,8 +29,8 @@ export class SeedItajai {
       linhasTrabalhadas: ['caboclo', 'pretovelho'],
       sacerdoteNome: 'Pai João',
     });
-
-    const aprovadaCandomble = await this.criarCasa({
+    const aprovadaCandomble = await this.banco.criarCasa({
+      ...base,
       slug: 'seed-ile-asa-de-oxossi',
       nome: `Ilê Asé de Oxóssi ${SeedItajai.MARKER}`,
       tradicao: 'candomble',
@@ -66,61 +41,31 @@ export class SeedItajai {
       coordLng: -48.658,
       sacerdoteNome: 'Pai Oxossi',
     });
-
-    const naoVerificada = await this.criarCasa({
+    const naoVerificada = await this.banco.criarCasa({
+      ...base,
       slug: 'seed-casa-indicada',
       nome: `Casa Indicada ${SeedItajai.MARKER}`,
       tradicao: 'umbanda',
       fonte: 'indicacao',
       status: 'aprovada',
       bairro: 'Fazenda',
+      enderecoVisibilidade: 'sob_contato',
+      aceitaVisitantes: 'jogo_previo',
       coordLat: -26.92,
       coordLng: -48.67,
       linhasTrabalhadas: ['marinheiro'],
     });
-
-    const pendente = await this.criarCasa({
+    const pendente = await this.banco.criarCasa({
+      ...base,
       slug: 'seed-casa-pendente',
       nome: `Casa Pendente ${SeedItajai.MARKER}`,
       tradicao: 'quimbanda',
       status: 'pendente',
       fonte: 'indicacao',
+      bairro: null,
+      coordLat: null,
+      coordLng: null,
     });
-
     return { aprovadaUmbanda, aprovadaCandomble, naoVerificada, pendente };
-  }
-
-  private async criarCasa(input: CasaSeedInput): Promise<string> {
-    const { data, error } = await this.admin
-      .from('casas')
-      .insert({
-        slug: input.slug,
-        nome: input.nome,
-        tradicao_principal: input.tradicao,
-        status: input.status ?? 'aprovada',
-        fonte: input.fonte ?? 'proprio',
-        cidade: input.cidade ?? 'Itajaí',
-        estado: input.estado ?? 'SC',
-        bairro: input.bairro ?? null,
-        endereco_visibilidade: input.enderecoVisibilidade ?? 'sob_contato',
-        aceita_visitantes: input.aceitaVisitantes ?? 'jogo_previo',
-        coord_lat: input.coordLat ?? null,
-        coord_lng: input.coordLng ?? null,
-        sacerdote_nome: input.sacerdoteNome ?? null,
-        descricao: input.descricao ?? null,
-      })
-      .select('id')
-      .single();
-    if (error || !data) throw new Error(`SeedItajai.criarCasa: ${error?.message ?? 'sem id'}`);
-
-    if (input.tradicao === 'umbanda' && (input.linhasTrabalhadas || input.linhagem)) {
-      await this.admin.from('casa_umbanda').insert({
-        casa_id: data.id,
-        linhas_trabalhadas: input.linhasTrabalhadas ?? [],
-        linhagem: input.linhagem ?? [],
-      });
-    }
-
-    return data.id as string;
   }
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Check } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
 import { BlocoQuimbanda } from '@/features/casas/domain/BlocoQuimbanda';
 import {
   useBlocoQuimbanda,
@@ -47,41 +46,45 @@ export function AbaTradicaoQuimbanda({ casaId }: Props) {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form onSubmit={submit} className="space-y-8">
       <p className="text-sm text-muted-foreground">
         A abertura aparece como filtro de busca; corrente e raiz aparecem na
         ficha pública. Reinos das entidades cultuadas não entram aqui —
         descrevem entidades, não a casa.
       </p>
 
-      <div className="space-y-1">
-        <Label htmlFor="q-corrente">Corrente</Label>
-        <Input
+      <div>
+        <label htmlFor="q-corrente" className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Corrente
+        </label>
+        <input
           id="q-corrente"
           value={estado.corrente ?? ''}
           onChange={(e) =>
             setEstado(estado.com({ corrente: e.target.value || null }))
           }
           placeholder="Ex.: Quimbanda tradicional, Quimbanda Nagô"
+          className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none"
         />
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="q-raiz">Raiz / Linhagem (terreiro-mãe ou tata iniciador)</Label>
-        <Input
+      <div>
+        <label htmlFor="q-raiz" className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Raiz / Linhagem (terreiro-mãe ou tata iniciador)
+        </label>
+        <input
           id="q-raiz"
           value={estado.raizLinhagem ?? ''}
           onChange={(e) =>
             setEstado(estado.com({ raizLinhagem: e.target.value || null }))
           }
           placeholder="De onde veio a coroa do dirigente"
+          className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none"
         />
       </div>
 
-      <fieldset className="space-y-2 rounded-lg border border-border p-4">
-        <legend className="px-2 text-sm font-medium">
-          Abertura a não-iniciados
-        </legend>
+      <div className="space-y-3">
+        <p className="eyebrow">Abertura a não-iniciados</p>
         <div className="grid gap-2 sm:grid-cols-3">
           {ABERTURA.map((o) => (
             <label
@@ -109,20 +112,24 @@ export function AbaTradicaoQuimbanda({ casaId }: Props) {
             </label>
           ))}
         </div>
-      </fieldset>
+      </div>
 
-      {salvar.error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {salvar.error.message}
-        </p>
-      ) : null}
-      {salvar.isSuccess ? (
-        <p className="text-sm text-primary">Bloco Quimbanda salvo.</p>
-      ) : null}
-
-      <Button type="submit" disabled={salvar.isPending}>
-        {salvar.isPending ? 'Salvando…' : 'Salvar tradição'}
-      </Button>
+      <div className="border-t border-border pt-8 space-y-4">
+        {salvar.error ? (
+          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+            {salvar.error.message}
+          </p>
+        ) : null}
+        {salvar.isSuccess ? (
+          <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700">
+            <Check className="h-4 w-4 shrink-0" />
+            Bloco salvo.
+          </div>
+        ) : null}
+        <Button type="submit" variant="primary" disabled={salvar.isPending} className="w-full sm:w-auto">
+          {salvar.isPending ? 'Salvando…' : 'Salvar tradição'}
+        </Button>
+      </div>
     </form>
   );
 }

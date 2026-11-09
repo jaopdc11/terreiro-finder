@@ -62,3 +62,11 @@ export const profileRowSchema = z.object({
   role: userRoleSchema,
 });
 export type ProfileRow = z.infer<typeof profileRowSchema>;
+
+export const redefinirSenhaSchema = z
+  .object({ senha: senhaSchema, confirmacao: senhaSchema })
+  .refine((v) => v.senha === v.confirmacao, {
+    message: 'As senhas não coincidem',
+    path: ['confirmacao'],
+  });
+export type RedefinirSenhaInput = z.infer<typeof redefinirSenhaSchema>;

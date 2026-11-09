@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/test';
 
 test.describe('onboarding', () => {
   test('exibe wizard em 3 passos e finaliza levando pra rota correta', async ({ page }) => {

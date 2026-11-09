@@ -40,7 +40,7 @@ export function useMinhasCasas() {
   const userId = sessao.use((s) => s.sessao?.userId);
   return useQuery({
     queryKey: [...QK_MINHAS, userId],
-    queryFn: () => (userId ? casas.minhasCasas(userId) : Promise.resolve([])),
+    queryFn: () => (userId ? casas.minhasCasas() : Promise.resolve([])),
     enabled: !!userId,
   });
 }

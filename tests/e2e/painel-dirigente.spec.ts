@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { adminClient, removerUsuariosPorEmailPrefix } from './fixtures/auth-helpers';
+import { test, expect } from './fixtures/test';
+import { bancoE2E, removerUsuariosPorEmailPrefix } from './fixtures/banco';
 
 const PREFIX = 'e2e-painel+';
 const EMAIL_DIR = `${PREFIX}dirigente@test.local`;
@@ -9,67 +9,31 @@ const CASA_SLUG = 'seed-tenda-pai-joao'; // umbanda, aprovada, verificada (seed)
 
 test.describe('painel do dirigente', () => {
   let casaId = '';
-  let dirigenteId = '';
 
   test.beforeAll(async () => {
-    const admin = adminClient();
+    const banco = bancoE2E();
     await removerUsuariosPorEmailPrefix(PREFIX);
-
-    const { data: u, error: eu } = await admin.auth.admin.createUser({
-      email: EMAIL_DIR,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Dirigente Painel E2E' },
-    });
-    if (eu || !u.user) throw eu ?? new Error('createUser');
-    dirigenteId = u.user.id;
-    await admin.from('profiles').update({ role: 'dirigente' }).eq('id', dirigenteId);
-
-    const { data: casa, error: ec } = await admin
-      .from('casas')
-      .select('id')
-      .eq('slug', CASA_SLUG)
-      .single();
-    if (ec || !casa) throw ec ?? new Error(`casa ${CASA_SLUG} ausente — globalSetup rodou?`);
+    const u = await banco.criarUsuario({ email: EMAIL_DIR, senha: SENHA, papel: 'dirigente', nome: 'Dirigente Painel E2E' });
+    const casa = await banco.um<{ id: string }>('select id from casas where slug = $1', [CASA_SLUG]);
+    if (!casa) throw new Error(`casa ${CASA_SLUG} ausente — globalSetup rodou?`);
     casaId = casa.id;
-
-    await admin
-      .from('casa_dirigentes')
-      .upsert(
-        { casa_id: casaId, user_id: dirigenteId, papel: 'principal' },
-        { onConflict: 'casa_id,user_id' },
-      );
+    await banco.vincularDirigente(casaId, u.id);
   });
 
   test.afterAll(async () => {
-    const admin = adminClient();
-    await admin
-      .from('casa_dirigentes')
-      .delete()
-      .eq('casa_id', casaId)
-      .eq('user_id', dirigenteId);
-    // Restaura campos editáveis (perfil/abertura) pra valores do seed.
-    await admin
-      .from('casas')
-      .update({
-        descricao: null,
-        sacerdote_nome: 'Pai João',
-        texto_antes_visita: null,
-        endereco_visibilidade: 'publico',
-        aceita_visitantes: 'aberto',
-      })
-      .eq('id', casaId);
-    // Reset bloco umbanda pro estado do seed.
-    await admin
-      .from('casa_umbanda')
-      .upsert(
-        {
-          casa_id: casaId,
-          linhas_trabalhadas: ['caboclo', 'pretovelho'],
-          linhagem: [],
-        },
-        { onConflict: 'casa_id' },
-      );
+    const banco = bancoE2E();
+    // Restaura campos editáveis (perfil/abertura) e o bloco umbanda pro estado do seed.
+    await banco.pool.query(
+      `update casas set descricao = null, sacerdote_nome = 'Pai João', texto_antes_visita = null,
+         endereco_visibilidade = 'publico', aceita_visitantes = 'aberto' where id = $1`,
+      [casaId],
+    );
+    await banco.pool.query(
+      `insert into casa_umbanda (casa_id, linhas_trabalhadas, linhagem) values ($1, '{caboclo,pretovelho}', '{}')
+       on conflict (casa_id) do update set linhas_trabalhadas = excluded.linhas_trabalhadas, linhagem = '{}',
+         sincretismo = null, influencia_kardecista = null, sacralizacao = null`,
+      [casaId],
+    );
     await removerUsuariosPorEmailPrefix(PREFIX);
   });
 
@@ -124,14 +88,8 @@ test.describe('painel do dirigente', () => {
 
   test('usuário sem casas vê estado vazio', async ({ page, browser }) => {
     // Cria um user solo (sem vínculo)
-    const admin = adminClient();
     const SOLO_EMAIL = `${PREFIX}solo@test.local`;
-    await admin.auth.admin.createUser({
-      email: SOLO_EMAIL,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Solo E2E' },
-    });
+    await bancoE2E().criarUsuario({ email: SOLO_EMAIL, senha: SENHA, nome: 'Solo E2E' });
 
     const ctx = await browser.newContext();
     await ctx.addInitScript(() => {

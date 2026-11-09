@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Check } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
 import {
   CANDOMBLE_NACAO_LABEL,
   type CandombleNacao,
@@ -46,14 +45,14 @@ export function AbaTradicaoCandomble({ casaId }: Props) {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form onSubmit={submit} className="space-y-8">
       <p className="text-sm text-muted-foreground">
         Esses campos descrevem a casa pra quem busca. A nação aparece como
         filtro de busca; os demais aparecem na ficha pública.
       </p>
 
-      <fieldset className="space-y-2 rounded-lg border border-border p-4">
-        <legend className="px-2 text-sm font-medium">Nação</legend>
+      <div className="space-y-3">
+        <p className="eyebrow">Nação</p>
         <div className="grid gap-2 sm:grid-cols-3">
           {NACOES.map((v) => (
             <label
@@ -76,56 +75,69 @@ export function AbaTradicaoCandomble({ casaId }: Props) {
             </label>
           ))}
         </div>
-      </fieldset>
+      </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="c-orixa">Orixá da casa</Label>
-        <Input
+      <div>
+        <label htmlFor="c-orixa" className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Orixá da casa
+        </label>
+        <input
           id="c-orixa"
           value={estado.orixaDaCasa ?? ''}
           onChange={(e) =>
             setEstado(estado.com({ orixaDaCasa: e.target.value || null }))
           }
           placeholder="Ex.: Oxóssi, Iemanjá, Xangô"
+          className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none"
         />
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="c-raiz">Raiz / Linhagem (terreiro-mãe)</Label>
-        <Input
+      <div>
+        <label htmlFor="c-raiz" className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Raiz / Linhagem (terreiro-mãe)
+        </label>
+        <input
           id="c-raiz"
           value={estado.raizLinhagem ?? ''}
           onChange={(e) =>
             setEstado(estado.com({ raizLinhagem: e.target.value || null }))
           }
           placeholder="Ex.: Casa Branca do Engenho Velho (Salvador/BA)"
+          className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none"
         />
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="c-lingua">Língua ritual</Label>
-        <Input
+      <div>
+        <label htmlFor="c-lingua" className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Língua ritual
+        </label>
+        <input
           id="c-lingua"
           value={estado.linguaRitual ?? ''}
           onChange={(e) =>
             setEstado(estado.com({ linguaRitual: e.target.value || null }))
           }
           placeholder="Ex.: yorubá, ewe-fon, kimbundo"
+          className="w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none"
         />
       </div>
 
-      {salvar.error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {salvar.error.message}
-        </p>
-      ) : null}
-      {salvar.isSuccess ? (
-        <p className="text-sm text-primary">Bloco Candomblé salvo.</p>
-      ) : null}
-
-      <Button type="submit" disabled={salvar.isPending}>
-        {salvar.isPending ? 'Salvando…' : 'Salvar tradição'}
-      </Button>
+      <div className="border-t border-border pt-8 space-y-4">
+        {salvar.error ? (
+          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+            {salvar.error.message}
+          </p>
+        ) : null}
+        {salvar.isSuccess ? (
+          <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700">
+            <Check className="h-4 w-4 shrink-0" />
+            Bloco salvo.
+          </div>
+        ) : null}
+        <Button type="submit" variant="primary" disabled={salvar.isPending} className="w-full sm:w-auto">
+          {salvar.isPending ? 'Salvando…' : 'Salvar tradição'}
+        </Button>
+      </div>
     </form>
   );
 }

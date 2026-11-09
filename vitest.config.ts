@@ -35,9 +35,14 @@ export default defineConfig({
           name: 'integration',
           environment: 'node',
           globals: true,
-          setupFiles: ['./tests/setup/setup-integration.ts'],
+          // Sobe Postgres 17 (docker) + encruza-api reais; ver tests/setup/ambienteApi.ts.
+          globalSetup: ['./tests/setup/globalSetup-integration.ts'],
           include: ['tests/integration/**/*.spec.ts'],
           testTimeout: 20_000,
+          hookTimeout: 180_000,
+          // Um banco só: arquivos em sequência num processo (cada um limpa no começo).
+          pool: 'forks',
+          poolOptions: { forks: { singleFork: true } },
           sequence: { concurrent: false },
         },
       },

@@ -11,22 +11,22 @@ import {
 
 const FEATURES = [
   {
-    titulo: 'Mapa real de Itajaí',
-    desc: 'Casas plotadas em Leaflet/OpenStreetMap. Filtros por tradição, abertura a visitas e nação. A busca pública não exige cadastro.',
+    titulo: 'Mapa de Itajaí',
+    desc: 'Casas marcadas no mapa. Filtros por tradição, abertura a visitas e nação. Sem cadastro para buscar.',
     icone: <Encontro className="h-10 w-10" />,
   },
   {
-    titulo: 'Indicação com contato cruzado',
+    titulo: 'Indicação com consentimento',
     desc: 'Indicações não publicam direto. Entramos em contato com a casa antes — a ficha só vai ao ar com consentimento.',
     icone: <Arco className="h-10 w-16" />,
   },
   {
     titulo: 'Painel para dirigência',
-    desc: 'Dirigentes editam perfil, endereço, contatos, fotos e regras de visita. A casa controla integralmente o que aparece.',
+    desc: 'Dirigentes editam perfil, endereço, contatos, fotos e regras de visita. A casa controla o que aparece.',
     icone: <Riscos className="h-10 w-16" />,
   },
   {
-    titulo: 'Blocos por tradição',
+    titulo: 'Campos por tradição',
     desc: 'Campos específicos para Umbanda (linhas, linhagem), Candomblé (nação, orixá, raiz) e Quimbanda (corrente, abertura).',
     icone: <Trama className="h-10 w-10" />,
   },
@@ -36,7 +36,7 @@ const PRINCIPIOS = [
   {
     n: '01',
     t: 'Não definimos doutrina',
-    d: 'Cada casa fala por si. O site apenas organiza e ajuda a encontrar.',
+    d: 'Certo, errado, puro, ortodoxo — fora do escopo.',
   },
   {
     n: '02',
@@ -77,20 +77,19 @@ export function Landing() {
               Itajaí · SC
             </p>
             <h1 className="mt-6 text-4xl font-semibold tracking-tight text-foreground md:text-6xl">
-              Encontre uma casa de matriz afro{' '}
+              Terreiros de Umbanda, Candomblé e Quimbanda{' '}
               <span className="display-serif italic text-primary">
-                para você
+                em Itajaí
               </span>
               .
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
               O <strong className="text-foreground">Encruza</strong> é um
-              site gratuito de busca de casas de Umbanda, Candomblé, Quimbanda
-              e outras tradições afro e afro-indígenas. A casa decide o que
-              aparece; ajudamos na descoberta.
+              mapa gratuito de casas de tradições afro e afro-indígenas. Cada
+              casa controla o que aparece.
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground">
-              Começamos por Itajaí (SC). A ideia é abranger o resto do Brasil.
+              Começamos por Itajaí. Outras cidades em breve.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Link to="/mapa">
@@ -113,46 +112,106 @@ export function Landing() {
               accent="hsl(var(--terra-pemba))"
             />
             <div className="card-soft overflow-hidden shadow-soft-lg">
-              <div className="flex items-center gap-2 border-b border-border bg-card px-4 py-2.5">
+              {/* Barra de browser */}
+              <div className="flex items-center gap-2 border-b border-border bg-muted/40 px-4 py-2.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-muted" />
                 <span className="h-2.5 w-2.5 rounded-full bg-muted" />
                 <span className="h-2.5 w-2.5 rounded-full bg-muted" />
-                <span className="ml-3 font-mono text-xs text-muted-foreground">
+                <span className="ml-3 rounded bg-background px-3 py-1 font-mono text-xs text-muted-foreground">
                   encruza.app/mapa
                 </span>
               </div>
+
               <div className="grid grid-cols-3 gap-0 bg-card">
-                <div className="border-r border-border p-6">
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    Casas encontradas
-                  </p>
-                  <p className="mt-1 text-3xl font-semibold text-foreground">
-                    12
-                  </p>
-                  <ul className="mt-4 space-y-2 text-sm">
-                    <li className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      Tenda Pai João — Umbanda
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      Ilê Asé de Oxóssi — Candomblé
-                    </li>
-                    <li className="flex items-center gap-2 text-muted-foreground">
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
-                      + 10 outras
-                    </li>
+                {/* Sidebar */}
+                <div className="border-r border-border">
+                  {/* Filtros */}
+                  <div className="flex gap-1.5 overflow-x-hidden border-b border-border px-3 py-2.5">
+                    {(['Umbanda', 'Aberto'] as const).map((f) => (
+                      <span
+                        key={f}
+                        className="whitespace-nowrap rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 text-[11px] font-medium text-primary"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                    <span className="whitespace-nowrap rounded-full border border-border bg-card px-2.5 py-0.5 text-[11px] text-muted-foreground">
+                      + filtros
+                    </span>
+                  </div>
+
+                  {/* Contagem */}
+                  <div className="border-b border-border px-4 py-2">
+                    <p className="text-xs text-muted-foreground">12 casas encontradas</p>
+                  </div>
+
+                  {/* Lista */}
+                  <ul>
+                    {[
+                      { nome: 'Tenda Pai João', trad: 'Umbanda', bairro: 'Centro', tag: 'Aberto', tagOk: true },
+                      { nome: 'Ilê Asé de Oxóssi', trad: 'Candomblé', bairro: 'Fazenda', tag: 'Jogo prévio', tagOk: false },
+                      { nome: 'Centro de Omolocô', trad: 'Omolocô', bairro: 'Cordeiros', tag: 'Aberto', tagOk: true },
+                    ].map((c, i) => (
+                      <li
+                        key={i}
+                        className={`flex items-start justify-between gap-2 border-b border-border px-4 py-3 last:border-b-0 ${i === 0 ? 'bg-primary/3' : ''}`}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-semibold text-foreground">{c.nome}</p>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground">
+                            <span className="text-primary">{c.trad}</span>
+                            {' · '}{c.bairro}
+                          </p>
+                        </div>
+                        <span
+                          className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                            c.tagOk
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'bg-amber-50 text-amber-700'
+                          }`}
+                        >
+                          {c.tag}
+                        </span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
-                <div className="col-span-2 grid-bg relative min-h-[280px]">
-                  <div className="absolute left-[20%] top-[40%] flex h-8 w-8 -translate-x-1/2 -translate-y-full items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft-md">
-                    ●
+
+                {/* Área do mapa */}
+                <div className="col-span-2 grid-bg relative min-h-[300px]">
+                  {/* Pin 1 — verificado, com tooltip */}
+                  <div className="absolute left-[22%] top-[38%] -translate-x-1/2 -translate-y-full">
+                    <div className="mb-1.5 w-max max-w-[130px] rounded-md border border-border bg-card px-2.5 py-1.5 shadow-soft-md">
+                      <p className="text-[11px] font-semibold text-foreground leading-tight">Tenda Pai João</p>
+                      <p className="text-[10px] text-primary">Umbanda · Centro</p>
+                    </div>
+                    <div className="mx-auto flex h-6 w-6 items-center justify-center rounded-full bg-primary shadow-soft-md">
+                      <div className="h-2 w-2 rounded-full bg-white" />
+                    </div>
+                    <div className="mx-auto h-1.5 w-0.5 bg-primary/50" />
                   </div>
-                  <div className="absolute left-[50%] top-[60%] flex h-8 w-8 -translate-x-1/2 -translate-y-full items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft-md">
-                    ●
+
+                  {/* Pin 2 — verificado */}
+                  <div className="absolute left-[54%] top-[62%] -translate-x-1/2 -translate-y-full">
+                    <div className="mx-auto flex h-6 w-6 items-center justify-center rounded-full bg-primary shadow-soft-md">
+                      <div className="h-2 w-2 rounded-full bg-white" />
+                    </div>
+                    <div className="mx-auto h-1.5 w-0.5 bg-primary/50" />
                   </div>
-                  <div className="absolute left-[75%] top-[35%] flex h-8 w-8 -translate-x-1/2 -translate-y-full items-center justify-center rounded-full border-2 border-primary bg-card text-primary shadow-soft-md">
-                    ○
+
+                  {/* Pin 3 — não verificado */}
+                  <div className="absolute left-[76%] top-[42%] -translate-x-1/2 -translate-y-full">
+                    <div className="mx-auto flex h-6 w-6 items-center justify-center rounded-full border-2 border-primary bg-card shadow-soft-md">
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
+                    </div>
+                    <div className="mx-auto h-1.5 w-0.5 bg-primary/30" />
+                  </div>
+
+                  {/* Botão "Perto de mim" */}
+                  <div className="absolute bottom-4 right-4">
+                    <span className="rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-soft-md">
+                      Perto de mim
+                    </span>
                   </div>
                 </div>
               </div>
@@ -167,12 +226,10 @@ export function Landing() {
           <div className="mx-auto max-w-3xl text-center">
             <Arco className="mx-auto h-12 w-32" />
             <blockquote className="quote-display mt-6 text-3xl text-foreground md:text-5xl">
-              Cada casa fala por si.
+              O sagrado não tem hierarquia.
             </blockquote>
             <p className="mt-6 text-muted-foreground">
-              Aqui o site não define o que é certo, errado, puro ou ortodoxo.
-              Apenas organiza, ouve e ajuda quem busca a encontrar quem espera
-              ser encontrado.
+              Cada casa apresenta o que escolhe. O resto não é da nossa conta.
             </p>
           </div>
         </div>
@@ -191,7 +248,7 @@ export function Landing() {
               Recursos
             </p>
             <h2 className="mt-4 text-3xl font-semibold text-foreground md:text-4xl">
-              O que está disponível.
+              Como funciona.
             </h2>
           </div>
           <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-2">
@@ -222,8 +279,7 @@ export function Landing() {
                 Inegociáveis.
               </h2>
               <p className="mt-4 max-w-xs text-muted-foreground">
-                Cinco pontos que orientam decisões de produto, comunicação e
-                modelagem de dados.
+                Cinco compromissos. Sem exceção.
               </p>
               <FioComNo className="mt-8 hidden h-32 w-6 md:block" />
             </div>
@@ -253,11 +309,11 @@ export function Landing() {
               accent="hsl(var(--terra-pemba))"
             />
             <h2 className="text-3xl font-semibold text-foreground md:text-4xl">
-              Pronto para começar?
+              Comece pelo mapa.
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
-              Buscar uma casa não exige cadastro. Para indicar um terreiro ou
-              registrar a sua, a criação de conta leva menos de um minuto.
+              Nenhum cadastro para buscar. Indicar ou cadastrar uma casa leva
+              menos de dois minutos.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link to="/mapa">

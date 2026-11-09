@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
 import {
   useAprovarCadastroDireto,
   useAprovarIndicacao,
@@ -14,6 +13,9 @@ import {
   useRecusarReivindicacao,
   useReivindicacoesPendentes,
 } from '../hooks/useFilaModeracao';
+
+const inputMotivo =
+  'flex-1 border-0 border-b border-border bg-transparent pb-2 pt-0.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground/40 focus:border-primary focus:outline-none';
 
 type Aba = 'passo-1' | 'passo-2' | 'reivindicacoes' | 'cadastros';
 
@@ -142,12 +144,13 @@ function Passo1() {
               Validar e criar casa pendente
             </Button>
             <div className="flex flex-1 gap-2">
-              <Input
+              <input
                 placeholder="Motivo da recusa"
                 value={motivos[ind.id] ?? ''}
                 onChange={(e) =>
                   setMotivos((m) => ({ ...m, [ind.id]: e.target.value }))
                 }
+                className={inputMotivo}
               />
               <Button
                 variant="outline"
@@ -313,12 +316,13 @@ function Reivindicacoes() {
                 Casa confirmou — aprovar
               </Button>
               <div className="flex flex-1 gap-2">
-                <Input
+                <input
                   placeholder="Motivo da recusa"
                   value={motivos[r.id] ?? ''}
                   onChange={(e) =>
                     setMotivos((m) => ({ ...m, [r.id]: e.target.value }))
                   }
+                  className={inputMotivo}
                 />
                 <Button
                   variant="outline"
@@ -429,12 +433,13 @@ function CadastrosDiretos() {
                 Validei dirigência — publicar
               </Button>
               <div className="flex flex-1 gap-2">
-                <Input
+                <input
                   placeholder="Motivo da recusa (opcional)"
                   value={motivos[c.id] ?? ''}
                   onChange={(e) =>
                     setMotivos((m) => ({ ...m, [c.id]: e.target.value }))
                   }
+                  className={inputMotivo}
                 />
                 <Button
                   variant="outline"

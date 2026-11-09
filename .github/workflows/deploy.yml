@@ -1,9 +1,7 @@
 name: Deploy GitHub Pages
 
-# Deploy fica em workflow_dispatch (manual) até termos um projeto Supabase
-# remoto criado. Sem URL+anon-key reais pra hidratar `import.meta.env` no
-# build, o site sobe e mostra erro em runtime. Ao ativar trigger em push,
-# adicionar `env:` com secrets do GitHub.
+# Deploy manual (workflow_dispatch) até a encruza-api estar no ar na VPS.
+# A URL da API entra no build (VITE_API_URL); não é segredo.
 on:
   workflow_dispatch:
 
@@ -23,13 +21,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - run: corepack enable && corepack prepare pnpm@11.1.2 --activate
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_API_URL: https://encruza.api.jaopd.dev
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

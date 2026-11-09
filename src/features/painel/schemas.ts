@@ -3,7 +3,8 @@ import { moderacaoStatusSchema } from '@/features/indicacao/schemas';
 
 export const reivindicacaoRowSchema = z.object({
   id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  // a API não devolve o autor pra ele mesmo; só a fila do admin traz
+  user_id: z.string().uuid().nullable(),
   casa_id: z.string().uuid(),
   observacoes: z.string().nullable(),
   status: moderacaoStatusSchema,

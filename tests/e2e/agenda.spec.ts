@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { adminClient, removerUsuariosPorEmailPrefix } from './fixtures/auth-helpers';
+import { test, expect } from './fixtures/test';
+import { bancoE2E, removerUsuariosPorEmailPrefix } from './fixtures/banco';
 
 const PREFIX = 'e2e-agenda+';
 const EMAIL = `${PREFIX}dirigente@test.local`;
@@ -11,43 +11,19 @@ test.describe('agenda da casa', () => {
   let dirigenteId = '';
 
   test.beforeAll(async () => {
-    const admin = adminClient();
+    const banco = bancoE2E();
     await removerUsuariosPorEmailPrefix(PREFIX);
-
-    const { data: u, error: eu } = await admin.auth.admin.createUser({
-      email: EMAIL,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Dirigente Agenda E2E' },
-    });
-    if (eu || !u.user) throw eu ?? new Error('createUser');
-    dirigenteId = u.user.id;
-    await admin.from('profiles').update({ role: 'dirigente' }).eq('id', dirigenteId);
-
-    const { data: casa, error: ec } = await admin
-      .from('casas')
-      .select('id')
-      .eq('slug', CASA_SLUG)
-      .single();
-    if (ec || !casa) throw ec ?? new Error(`casa ${CASA_SLUG} ausente — globalSetup rodou?`);
+    const u = await banco.criarUsuario({ email: EMAIL, senha: SENHA, papel: 'dirigente', nome: 'Dirigente Agenda E2E' });
+    dirigenteId = u.id;
+    const casa = await banco.um<{ id: string }>('select id from casas where slug = $1', [CASA_SLUG]);
+    if (!casa) throw new Error(`casa ${CASA_SLUG} ausente — globalSetup rodou?`);
     casaId = casa.id;
-
-    await admin
-      .from('casa_dirigentes')
-      .upsert(
-        { casa_id: casaId, user_id: dirigenteId, papel: 'principal' },
-        { onConflict: 'casa_id,user_id' },
-      );
+    await banco.vincularDirigente(casaId, dirigenteId);
   });
 
   test.afterAll(async () => {
-    const admin = adminClient();
-    await admin.from('casa_agenda').delete().eq('casa_id', casaId);
-    await admin
-      .from('casa_dirigentes')
-      .delete()
-      .eq('casa_id', casaId)
-      .eq('user_id', dirigenteId);
+    const banco = bancoE2E();
+    await banco.pool.query('delete from casa_agenda where casa_id = $1', [casaId]);
     await removerUsuariosPorEmailPrefix(PREFIX);
   });
 

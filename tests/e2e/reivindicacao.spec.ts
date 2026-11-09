@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { adminClient, removerUsuariosPorEmailPrefix } from './fixtures/auth-helpers';
+import { test, expect } from './fixtures/test';
+import { bancoE2E, removerUsuariosPorEmailPrefix } from './fixtures/banco';
 
 const PREFIX = 'e2e-rei+';
 const EMAIL_SOL = `${PREFIX}solicitante@test.local`;
@@ -12,57 +12,25 @@ const SLUG = 'seed-casa-indicada';
 
 test.describe('reivindicação com contato cruzado', () => {
   let casaId = '';
-  let solicitanteId = '';
 
   test.beforeAll(async () => {
-    const admin = adminClient();
+    const banco = bancoE2E();
     await removerUsuariosPorEmailPrefix(PREFIX);
-
-    // Cria users (solicitante visitante + admin)
-    const { data: sol, error: e1 } = await admin.auth.admin.createUser({
-      email: EMAIL_SOL,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Solicitante E2E' },
-    });
-    if (e1 || !sol.user) throw e1 ?? new Error('createUser sol');
-    solicitanteId = sol.user.id;
-
-    const { data: adm, error: e2 } = await admin.auth.admin.createUser({
-      email: EMAIL_ADM,
-      password: SENHA,
-      email_confirm: true,
-      user_metadata: { nome_completo: 'Admin E2E' },
-    });
-    if (e2 || !adm.user) throw e2 ?? new Error('createUser adm');
-    await admin.from('profiles').update({ role: 'admin' }).eq('id', adm.user.id);
+    await banco.criarUsuario({ email: EMAIL_SOL, senha: SENHA, nome: 'Solicitante E2E' });
+    await banco.criarUsuario({ email: EMAIL_ADM, senha: SENHA, papel: 'admin', nome: 'Admin E2E' });
 
     // Adiciona um WhatsApp na casa pra testar contato cruzado visível no admin.
-    const { data: casa, error: e3 } = await admin
-      .from('casas')
-      .update({ whatsapp: '47999990000' })
-      .eq('slug', SLUG)
-      .select('id')
-      .single();
-    if (e3 || !casa) throw e3 ?? new Error(`casa ${SLUG} ausente`);
+    const casa = await banco.um<{ id: string }>(
+      "update casas set whatsapp = '47999990000' where slug = $1 returning id",
+      [SLUG],
+    );
+    if (!casa) throw new Error(`casa ${SLUG} ausente`);
     casaId = casa.id;
   });
 
   test.afterAll(async () => {
-    const admin = adminClient();
-    // Limpa reivindicações criadas no fluxo
-    await admin.from('reivindicacoes').delete().eq('user_id', solicitanteId);
-    // Desvincula dirigente se foi criado
-    await admin
-      .from('casa_dirigentes')
-      .delete()
-      .eq('casa_id', casaId)
-      .eq('user_id', solicitanteId);
-    // Restaura casa pro estado do seed: fonte=indicacao, sem whatsapp
-    await admin
-      .from('casas')
-      .update({ fonte: 'indicacao', whatsapp: null })
-      .eq('id', casaId);
+    // Restaura a casa pro estado do seed; apagar o usuário leva reivindicação e vínculo (cascade)
+    await bancoE2E().pool.query("update casas set fonte = 'indicacao', whatsapp = null where id = $1", [casaId]);
     await removerUsuariosPorEmailPrefix(PREFIX);
   });
 

@@ -6,7 +6,8 @@ export type ModeracaoStatus = z.infer<typeof moderacaoStatusSchema>;
 
 export const indicacaoRowSchema = z.object({
   id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  // a API não devolve o autor pra ele mesmo; só a fila do admin traz
+  user_id: z.string().uuid().nullable(),
   nome: z.string(),
   bairro: z.string().nullable(),
   cidade: z.string(),

@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
+import { AlertCircle, Check, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
 import { useEnderecoPorCep } from '@/shared/hooks/useEnderecoPorCep';
 import { formatarCep } from '@/shared/lib/cep';
 import type { Casa } from '@/features/casas/domain/Casa';
 import { useGeocodarEndereco, useSalvarEndereco } from '../hooks/usePainel';
 import { MapaSeletorPino } from './MapaSeletorPino';
+
+const campoClass =
+  'w-full border-0 border-b border-border bg-transparent pb-3 pt-1 text-lg text-foreground transition-colors placeholder:text-muted-foreground/30 focus:border-primary focus:outline-none';
+
+const labelClass =
+  'mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground';
 
 interface Props {
   casa: Casa;
@@ -33,7 +38,6 @@ export function AbaEndereco({ casa }: Props) {
   const [lng, setLng] = useState(casa.coordenadas ? String(casa.coordenadas.lng) : '');
   const [ajustarPino, setAjustarPino] = useState(false);
 
-  // Busca ViaCEP automática quando CEP atinge 8 dígitos
   const viacep = useEnderecoPorCep(cep);
   const ultimoCepAplicado = useRef<string | null>(null);
   useEffect(() => {
@@ -47,11 +51,9 @@ export function AbaEndereco({ casa }: Props) {
     if (viacep.data.uf) setEstado(viacep.data.uf);
   }, [cep, viacep.data]);
 
-  // Geocoding automático quando temos endereço minimamente completo
   const ultimoGeocodAplicado = useRef<string>('');
   useEffect(() => {
     if (!logradouro.trim() || !cidade.trim() || !estado.trim()) return;
-    // Só dispara geocode automático se o usuário NÃO está ajustando o pin manualmente
     if (ajustarPino) return;
     const chave = `${logradouro}|${numero}|${cidade}|${estado}`;
     if (ultimoGeocodAplicado.current === chave) return;
@@ -68,7 +70,7 @@ export function AbaEndereco({ casa }: Props) {
           }
         },
       });
-    }, 600); // debounce leve
+    }, 600);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logradouro, numero, bairro, cidade, estado, ajustarPino]);
@@ -96,146 +98,208 @@ export function AbaEndereco({ casa }: Props) {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-5">
-      <p className="text-sm text-muted-foreground">
-        Digite o CEP que preenchemos o resto. O pino do mapa é calculado
-        automaticamente — você pode ajustar manualmente se precisar.
-      </p>
+    <form onSubmit={submit}>
 
-      {/* CEP em destaque, primeira coisa */}
-      <div className="space-y-1.5">
-        <Label htmlFor="e-cep">CEP</Label>
-        <div className="flex items-center gap-2">
-          <Input
-            id="e-cep"
-            value={cep}
-            onChange={(e) => setCep(formatarCep(e.target.value))}
-            placeholder="88307-000"
-            inputMode="numeric"
-            maxLength={9}
-            className="max-w-[12rem]"
+      {/* 01 — ENDEREÇO */}
+      <section className="grid gap-6 border-b border-border pb-10 md:grid-cols-[140px_1fr]">
+        <div className="flex items-baseline gap-3 md:flex-col md:gap-1 md:pt-1">
+          <span className="font-mono text-3xl font-light text-primary/50 md:text-4xl">01</span>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Endereço
+          </p>
+        </div>
+        <div className="space-y-8">
+          <p className="text-sm text-muted-foreground">
+            Digite o CEP que preenchemos o resto automaticamente.
+          </p>
+
+          <div>
+            <label htmlFor="e-cep" className={labelClass}>CEP</label>
+            <div className="flex items-center gap-4">
+              <input
+                id="e-cep"
+                value={cep}
+                onChange={(e) => setCep(formatarCep(e.target.value))}
+                placeholder="88307-000"
+                inputMode="numeric"
+                maxLength={9}
+                className={`${campoClass} max-w-[10rem]`}
+              />
+              {viacep.isFetching ? (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Buscando…
+                </span>
+              ) : viacep.error ? (
+                <span className="flex items-center gap-1 text-xs text-destructive">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {viacep.error.message}
+                </span>
+              ) : viacep.isSuccess && viacep.data === null && cep.replace(/\D/g, '').length === 8 ? (
+                <span className="flex items-center gap-1 text-xs text-destructive">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  CEP não encontrado
+                </span>
+              ) : viacep.isSuccess && viacep.data && !viacep.data.logradouro ? (
+                <span className="text-xs text-muted-foreground">
+                  CEP genérico — preencha a rua manualmente
+                </span>
+              ) : viacep.isSuccess && viacep.data ? (
+                <span className="flex items-center gap-1 text-xs text-primary">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Endereço preenchido
+                </span>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-[3fr_1fr]">
+            <div>
+              <label htmlFor="e-log" className={labelClass}>Logradouro</label>
+              <input
+                id="e-log"
+                value={logradouro}
+                onChange={(e) => setLogradouro(e.target.value)}
+                placeholder="Ex.: Rua das Cabaças"
+                className={campoClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="e-num" className={labelClass}>Número</label>
+              <input
+                id="e-num"
+                value={numero}
+                onChange={(e) => setNumero(e.target.value)}
+                className={campoClass}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="e-comp" className={labelClass}>
+              Complemento{' '}
+              <span className="normal-case text-muted-foreground/60">(opcional)</span>
+            </label>
+            <input
+              id="e-comp"
+              value={complemento}
+              onChange={(e) => setComplemento(e.target.value)}
+              placeholder="Ex.: fundos, sala 2"
+              className={campoClass}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 02 — CIDADE */}
+      <section className="grid gap-6 border-b border-border py-10 md:grid-cols-[140px_1fr]">
+        <div className="flex items-baseline gap-3 md:flex-col md:gap-1 md:pt-1">
+          <span className="font-mono text-3xl font-light text-primary/50 md:text-4xl">02</span>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Cidade
+          </p>
+        </div>
+        <div className="space-y-8">
+          <div className="grid gap-8 sm:grid-cols-2">
+            <div>
+              <label htmlFor="e-bairro" className={labelClass}>Bairro</label>
+              <input
+                id="e-bairro"
+                value={bairro}
+                onChange={(e) => setBairro(e.target.value)}
+                className={campoClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="e-cid" className={labelClass}>Cidade</label>
+              <input
+                id="e-cid"
+                value={cidade}
+                onChange={(e) => setCidade(e.target.value)}
+                required
+                className={campoClass}
+              />
+            </div>
+          </div>
+          <div className="max-w-[8rem]">
+            <label htmlFor="e-uf" className={labelClass}>UF</label>
+            <input
+              id="e-uf"
+              value={estado}
+              onChange={(e) => setEstado(e.target.value.toUpperCase())}
+              maxLength={2}
+              required
+              className={campoClass}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 03 — MAPA */}
+      <section className="grid gap-6 py-10 md:grid-cols-[140px_1fr]">
+        <div className="flex items-baseline gap-3 md:flex-col md:gap-1 md:pt-1">
+          <span className="font-mono text-3xl font-light text-primary/50 md:text-4xl">03</span>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Mapa
+          </p>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className={labelClass}>Posição no mapa</span>
+            {geocodar.isPending ? (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Calculando…
+              </span>
+            ) : parseCoord(lat) !== null && parseCoord(lng) !== null ? (
+              <span className="text-xs text-muted-foreground">
+                Arraste o pino se a posição não estiver no lugar certo
+              </span>
+            ) : null}
+          </div>
+          <MapaSeletorPino
+            lat={parseCoord(lat)}
+            lng={parseCoord(lng)}
+            onMudar={(novaLat, novaLng) => {
+              setAjustarPino(true);
+              setLat(String(novaLat));
+              setLng(String(novaLng));
+            }}
           />
-          {viacep.isFetching ? (
-            <span className="text-xs text-muted-foreground">Buscando…</span>
-          ) : viacep.error ? (
-            <span className="text-xs text-destructive">
-              Erro: {viacep.error.message}
-            </span>
-          ) : viacep.isSuccess && viacep.data === null && cep.replace(/\D/g, '').length === 8 ? (
-            <span className="text-xs text-destructive">CEP não encontrado</span>
-          ) : viacep.isSuccess && viacep.data && !viacep.data.logradouro ? (
-            <span className="text-xs text-muted-foreground">
-              CEP genérico — preencha a rua manualmente
-            </span>
-          ) : viacep.isSuccess && viacep.data ? (
-            <span className="text-xs text-primary">✓ Endereço preenchido</span>
+          {parseCoord(lat) === null || parseCoord(lng) === null ? (
+            <p className="text-xs text-muted-foreground">
+              Preencha o endereço pra calcular o pino automaticamente.
+            </p>
           ) : null}
         </div>
-      </div>
+      </section>
 
-      <div className="grid gap-3 sm:grid-cols-[3fr_1fr]">
-        <div className="space-y-1.5">
-          <Label htmlFor="e-log">Logradouro</Label>
-          <Input
-            id="e-log"
-            value={logradouro}
-            onChange={(e) => setLogradouro(e.target.value)}
-            placeholder="Ex.: Rua das Cabaças"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="e-num">Número</Label>
-          <Input
-            id="e-num"
-            value={numero}
-            onChange={(e) => setNumero(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="e-comp">Complemento (opcional)</Label>
-        <Input
-          id="e-comp"
-          value={complemento}
-          onChange={(e) => setComplemento(e.target.value)}
-          placeholder="Ex.: fundos, sala 2"
-        />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label htmlFor="e-bairro">Bairro</Label>
-          <Input
-            id="e-bairro"
-            value={bairro}
-            onChange={(e) => setBairro(e.target.value)}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="e-cid">Cidade</Label>
-          <Input
-            id="e-cid"
-            value={cidade}
-            onChange={(e) => setCidade(e.target.value)}
-            required
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-[1fr_3fr]">
-        <div className="space-y-1.5">
-          <Label htmlFor="e-uf">UF</Label>
-          <Input
-            id="e-uf"
-            value={estado}
-            onChange={(e) => setEstado(e.target.value.toUpperCase())}
-            maxLength={2}
-            required
-          />
-        </div>
-      </div>
-
-      {/* Mini-mapa com pino arrastável */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Posição no mapa</Label>
-          {geocodar.isPending ? (
-            <span className="text-xs text-muted-foreground">Calculando…</span>
-          ) : parseCoord(lat) !== null && parseCoord(lng) !== null ? (
-            <span className="text-xs text-muted-foreground">
-              Arraste o pino se a posição não estiver no lugar certo
-            </span>
-          ) : null}
-        </div>
-        <MapaSeletorPino
-          lat={parseCoord(lat)}
-          lng={parseCoord(lng)}
-          onMudar={(novaLat, novaLng) => {
-            setAjustarPino(true); // trava o geocode automático após drag manual
-            setLat(String(novaLat));
-            setLng(String(novaLng));
-          }}
-        />
-        {parseCoord(lat) === null || parseCoord(lng) === null ? (
-          <p className="text-xs text-muted-foreground">
-            Preencha o endereço pra calcular o pino automaticamente.
+      <div className="border-t border-border pt-8 space-y-4">
+        {salvar.error ? (
+          <p
+            role="alert"
+            className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive"
+          >
+            {salvar.error.message}
           </p>
         ) : null}
+
+        {salvar.isSuccess ? (
+          <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700">
+            <Check className="h-4 w-4 shrink-0" />
+            Endereço salvo com sucesso.
+          </div>
+        ) : null}
+
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={salvar.isPending}
+          className="w-full sm:w-auto"
+        >
+          {salvar.isPending ? 'Salvando…' : 'Salvar endereço'}
+        </Button>
       </div>
-
-      {salvar.error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {salvar.error.message}
-        </p>
-      ) : null}
-      {salvar.isSuccess ? (
-        <p className="text-sm text-primary">Endereço salvo.</p>
-      ) : null}
-
-      <Button type="submit" disabled={salvar.isPending}>
-        {salvar.isPending ? 'Salvando…' : 'Salvar endereço'}
-      </Button>
     </form>
   );
 }

@@ -1,85 +1,81 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { RepositoryError } from '@/shared/lib/errors';
+import { z } from 'zod';
+import type { ApiClient } from '@/shared/lib/ApiClient';
 import { EventoAgenda, type EventoAgendaInput } from '../domain/EventoAgenda';
 
-const CAMPOS_SELECT =
-  'id, casa_id, tipo, titulo, dia_semana, semanas_do_mes, data, data_texto, horario_inicio, horario_fim, descricao, created_at, updated_at';
+const eventoApiSchema = z.object({
+  id: z.string().uuid(),
+  casaId: z.string().uuid(),
+  tipo: z.enum(['gira', 'evento']),
+  titulo: z.string(),
+  diaSemana: z.number().int().nullable(),
+  semanasDoMes: z.array(z.number().int()).nullable(),
+  data: z.string().nullable(),
+  dataTexto: z.string().nullable(),
+  horarioInicio: z.string().nullable(),
+  horarioFim: z.string().nullable(),
+  descricao: z.string().nullable(),
+});
 
-/**
- * Acesso à tabela `casa_agenda`. RLS no banco garante:
- *  - SELECT público só pra casas aprovadas
- *  - INSERT/UPDATE/DELETE só pra dirigente da casa (ou admin via service-role)
- */
+function eventoDaApi(raw: unknown): EventoAgenda {
+  const e = eventoApiSchema.parse(raw);
+  // A API não expõe datas de auditoria; a entidade não as usa.
+  const agora = new Date(0).toISOString();
+  return EventoAgenda.fromRow({
+    id: e.id,
+    casa_id: e.casaId,
+    tipo: e.tipo,
+    titulo: e.titulo,
+    dia_semana: e.diaSemana,
+    semanas_do_mes: e.semanasDoMes,
+    data: e.data,
+    data_texto: e.dataTexto,
+    horario_inicio: e.horarioInicio,
+    horario_fim: e.horarioFim,
+    descricao: e.descricao,
+    created_at: agora,
+    updated_at: agora,
+  });
+}
+
+/** Ordem da tela: giras (por dia) antes de eventos (por data). */
+function ordenar(a: EventoAgenda, b: EventoAgenda): number {
+  if (a.tipo !== b.tipo) return a.tipo === 'gira' ? -1 : 1;
+  if (a.diaSemana !== b.diaSemana) return (a.diaSemana ?? 99) - (b.diaSemana ?? 99);
+  return (a.data ?? '9999').localeCompare(b.data ?? '9999');
+}
+
+function paraPayload(input: EventoAgendaInput) {
+  return {
+    tipo: input.tipo,
+    titulo: input.titulo,
+    diaSemana: input.diaSemana,
+    semanasDoMes: input.semanasDoMes && input.semanasDoMes.length > 0 ? [...input.semanasDoMes] : null,
+    data: input.data,
+    dataTexto: input.dataTexto,
+    horarioInicio: input.horarioInicio,
+    horarioFim: input.horarioFim,
+    descricao: input.descricao,
+  };
+}
+
+/** Agenda da casa. Leitura: quem vê a casa; escrita: gestor (a API decide). */
 export class AgendaRepository {
-  constructor(private readonly client: SupabaseClient) {}
+  constructor(private readonly api: ApiClient) {}
 
   async listarDaCasa(casaId: string): Promise<EventoAgenda[]> {
-    const { data, error } = await this.client
-      .from('casa_agenda')
-      .select(CAMPOS_SELECT)
-      .eq('casa_id', casaId)
-      .order('tipo', { ascending: true })       // gira antes de evento
-      .order('dia_semana', { ascending: true, nullsFirst: false })
-      .order('data', { ascending: true, nullsFirst: false });
-    if (error) {
-      throw new RepositoryError('AGENDA_LIST_FALHOU', error.message, { cause: error });
-    }
-    return (data ?? []).map((r) => EventoAgenda.fromRow(r));
+    const data = await this.api.get(`/casas/${casaId}/agenda`);
+    return z.array(z.unknown()).parse(data).map(eventoDaApi).sort(ordenar);
   }
 
   async criar(casaId: string, input: EventoAgendaInput): Promise<EventoAgenda> {
-    const payload = paraPayload(casaId, input);
-    const { data, error } = await this.client
-      .from('casa_agenda')
-      .insert(payload)
-      .select(CAMPOS_SELECT)
-      .single();
-    if (error || !data) {
-      throw new RepositoryError('AGENDA_CRIAR_FALHOU', error?.message ?? 'sem retorno', {
-        cause: error,
-      });
-    }
-    return EventoAgenda.fromRow(data);
+    return eventoDaApi(await this.api.post(`/casas/${casaId}/agenda`, paraPayload(input)));
   }
 
   async atualizar(id: string, input: EventoAgendaInput): Promise<EventoAgenda> {
-    const payload = paraPayload(null, input);
-    const { data, error } = await this.client
-      .from('casa_agenda')
-      .update(payload)
-      .eq('id', id)
-      .select(CAMPOS_SELECT)
-      .single();
-    if (error || !data) {
-      throw new RepositoryError('AGENDA_ATUALIZAR_FALHOU', error?.message ?? 'sem retorno', {
-        cause: error,
-      });
-    }
-    return EventoAgenda.fromRow(data);
+    return eventoDaApi(await this.api.put(`/agenda/${id}`, paraPayload(input)));
   }
 
   async excluir(id: string): Promise<void> {
-    const { error } = await this.client.from('casa_agenda').delete().eq('id', id);
-    if (error) {
-      throw new RepositoryError('AGENDA_EXCLUIR_FALHOU', error.message, { cause: error });
-    }
+    await this.api.delete(`/agenda/${id}`);
   }
-}
-
-function paraPayload(casaId: string | null, input: EventoAgendaInput) {
-  const base = {
-    tipo: input.tipo,
-    titulo: input.titulo,
-    dia_semana: input.diaSemana,
-    semanas_do_mes:
-      input.semanasDoMes && input.semanasDoMes.length > 0
-        ? [...input.semanasDoMes]
-        : null,
-    data: input.data,
-    data_texto: input.dataTexto,
-    horario_inicio: input.horarioInicio,
-    horario_fim: input.horarioFim,
-    descricao: input.descricao,
-  };
-  return casaId ? { ...base, casa_id: casaId } : base;
 }
