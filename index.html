@@ -12,6 +12,22 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
     />
     <title>Encruza — terreiros de matriz afro</title>
+    <script>
+      // Par do public/404.html (GitHub Pages SPA): o 404 manda /rota?x=1 pra
+      // /?/rota&x=1; aqui a URL volta ao normal antes do React Router ler.
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search
+            .slice(1)
+            .split('&')
+            .map(function (s) {
+              return s.replace(/~and~/g, '&');
+            })
+            .join('?');
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+        }
+      })(window.location);
+    </script>
   </head>
   <body>
     <div id="root"></div>
