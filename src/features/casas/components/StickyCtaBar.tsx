@@ -22,6 +22,7 @@ export function StickyCtaBar({ casa, whatsappLink }: Props) {
           {whatsappLink ? (
             <a
               href={whatsappLink}
+              data-analytics="contato_whatsapp"
               className="flex flex-1 items-center justify-center gap-2 rounded-md bg-terra-pemba px-4 py-3 text-sm font-semibold text-white"
             >
               <MessageCircle size={16} />

@@ -321,6 +321,7 @@ function HeroFicha({
               {whatsappLink ? (
                 <a
                   href={whatsappLink}
+                  data-analytics="contato_whatsapp"
                   className="inline-flex items-center gap-2 rounded-md bg-terra-pemba px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-terra-pemba/90"
                 >
                   <MessageCircle size={16} />
@@ -441,6 +442,7 @@ function BlocoContato({
     icon: LucideIcon;
     label: string;
     valor: string;
+    evento: string;
     pemba?: boolean;
     external?: boolean;
   }> = [];
@@ -450,6 +452,7 @@ function BlocoContato({
       href: whatsappLink,
       icon: MessageCircle,
       label: 'WhatsApp',
+      evento: 'contato_whatsapp',
       valor: casa.contato.whatsapp,
       pemba: true,
     });
@@ -459,6 +462,7 @@ function BlocoContato({
       href: `tel:${casa.contato.telefone.replace(/\D/g, '')}`,
       icon: Phone,
       label: 'Telefone',
+      evento: 'contato_telefone',
       valor: casa.contato.telefone,
     });
   }
@@ -467,6 +471,7 @@ function BlocoContato({
       href: `mailto:${casa.contato.email}`,
       icon: Mail,
       label: 'E-mail',
+      evento: 'contato_email',
       valor: casa.contato.email,
     });
   }
@@ -475,6 +480,7 @@ function BlocoContato({
       href: casa.contato.site,
       icon: Globe,
       label: 'Site',
+      evento: 'contato_site',
       valor: casa.contato.site.replace(/^https?:\/\//, '').replace(/\/$/, ''),
       external: true,
     });
@@ -502,6 +508,7 @@ function BlocoContato({
           <a
             key={it.label}
             href={it.href}
+            data-analytics={it.evento}
             {...(it.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
             className={`group flex flex-col gap-3 rounded-md border p-5 transition-all ${
               it.pemba

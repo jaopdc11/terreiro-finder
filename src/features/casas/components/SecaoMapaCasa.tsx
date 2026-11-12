@@ -94,6 +94,7 @@ export function SecaoMapaCasa({ casa }: { casa: Casa }) {
             {gmapsUrl ? (
               <a
                 href={gmapsUrl}
+                data-analytics="rota_google_maps"
                 target="_blank"
                 rel="noreferrer noopener"
                 className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-foreground/30 hover:bg-muted/40"
@@ -105,6 +106,7 @@ export function SecaoMapaCasa({ casa }: { casa: Casa }) {
             {wazeUrl ? (
               <a
                 href={wazeUrl}
+                data-analytics="rota_waze"
                 target="_blank"
                 rel="noreferrer noopener"
                 className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-foreground/30 hover:bg-muted/40"

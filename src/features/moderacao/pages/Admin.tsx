@@ -13,11 +13,12 @@ import {
   useRecusarReivindicacao,
   useReivindicacoesPendentes,
 } from '../hooks/useFilaModeracao';
+import { Visitas } from '../components/Visitas';
 
 const inputMotivo =
   'flex-1 border-0 border-b border-border bg-transparent pb-2 pt-0.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground/40 focus:border-primary focus:outline-none';
 
-type Aba = 'passo-1' | 'passo-2' | 'reivindicacoes' | 'cadastros';
+type Aba = 'passo-1' | 'passo-2' | 'reivindicacoes' | 'cadastros' | 'visitas';
 
 export function Admin() {
   const [aba, setAba] = useState<Aba>('passo-1');
@@ -27,12 +28,12 @@ export function Admin() {
       <header className="border-b border-border pb-8">
         <p className="eyebrow eyebrow-ornado inline-flex items-center">Admin</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-          Moderação
+          {aba === 'visitas' ? 'Visitas' : 'Moderação'}
         </h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          Indicações entram em duas etapas: validar e confirmar consentimento
-          da casa. Reivindicações exigem contato cruzado pelo canal já
-          registrado antes da aprovação.
+          {aba === 'visitas'
+            ? 'Acessos ao site no período escolhido, com origem, cidades, aparelhos e contatos feitos com as casas.'
+            : 'Indicações entram em duas etapas: validar e confirmar consentimento da casa. Reivindicações exigem contato cruzado pelo canal já registrado antes da aprovação.'}
         </p>
       </header>
 
@@ -60,6 +61,9 @@ export function Admin() {
         >
           Cadastros novos
         </TabButton>
+        <TabButton ativo={aba === 'visitas'} onClick={() => setAba('visitas')} num="05">
+          Visitas
+        </TabButton>
       </div>
 
       <div className="pt-10">
@@ -67,6 +71,7 @@ export function Admin() {
         {aba === 'passo-2' ? <Passo2 /> : null}
         {aba === 'reivindicacoes' ? <Reivindicacoes /> : null}
         {aba === 'cadastros' ? <CadastrosDiretos /> : null}
+        {aba === 'visitas' ? <Visitas /> : null}
       </div>
     </section>
   );

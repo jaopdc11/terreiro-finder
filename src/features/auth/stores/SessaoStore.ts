@@ -1,6 +1,7 @@
 import { create, type StoreApi, type UseBoundStore } from 'zustand';
 import type { SessaoUsuario } from '../domain/SessaoUsuario';
 import type { AuthService } from '../api/AuthService';
+import { marcarSemAnalytics } from '@/shared/lib/analytics';
 
 interface InternalState {
   sessao: SessaoUsuario | null;
@@ -23,7 +24,11 @@ export class SessaoStore {
     this.use = create<InternalState>((set) => ({
       sessao: null,
       carregando: true,
-      setSessao: (sessao) => set({ sessao, carregando: false }),
+      setSessao: (sessao) => {
+        // login de admin agora ou sessão de admin já aberta: este navegador sai do analytics
+        if (sessao?.podeAdministrar()) marcarSemAnalytics();
+        set({ sessao, carregando: false });
+      },
       setCarregando: (b) => set({ carregando: b }),
     }));
   }

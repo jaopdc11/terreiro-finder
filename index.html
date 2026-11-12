@@ -28,6 +28,20 @@
         }
       })(window.location);
     </script>
+
+    <!-- Analytics próprio. Não conta o /admin nem navegador onde um admin já entrou
+         (marca 'encruza-sem-analytics', gravada no login em src/shared/lib/analytics.ts). -->
+    <script>
+      var semAnalytics = false;
+      try { semAnalytics = localStorage.getItem('encruza-sem-analytics') === '1'; } catch (e) {}
+      if (!semAnalytics && !/^\/admin/.test(window.location.pathname)) {
+        var a = document.createElement('script');
+        a.defer = true;
+        a.src = 'https://analytics.api.jaopd.dev/a.js';
+        a.setAttribute('data-app', 'terreiros');
+        document.head.appendChild(a);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
